@@ -1,0 +1,255 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Handlers</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadHandlersConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveHandlersConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Anti-Spam</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="handler-antispam-max-history">Taille max de l'historique</label>
+                <input type="number" id="handler-antispam-max-history" class="form-control" placeholder="5000" min="100">
+            </div>
+            <div class="form-group">
+                <label for="handler-antispam-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                <input type="number" id="handler-antispam-cleanup-interval" class="form-control" placeholder="300000" min="10000">
+            </div>
+            <div class="form-group">
+                <label for="handler-antispam-cleanup-probability">Probabilité de nettoyage</label>
+                <input type="number" id="handler-antispam-cleanup-probability" class="form-control" step="0.01" placeholder="0.01" min="0" max="1">
+                <small class="text-muted">Probabilité (0-1) de nettoyage par message</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Anti-Lien</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Anti-lien activé</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive la protection anti-lien</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="handler-antilink-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="handler-antilink-action">Action</label>
+                <div class="custom-select">
+                    <select id="handler-antilink-action" class="form-control">
+                        <option value="delete">Supprimer</option>
+                        <option value="warn">Avertir</option>
+                        <option value="timeout">Timeout</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="handler-antilink-timeout-duration">Durée du timeout</label>
+                <input type="text" id="handler-antilink-timeout-duration" class="form-control" placeholder="10m">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="handler-antilink-allowed-domains">Domaines autorisés (séparés par virgule)</label>
+                <input type="text" id="handler-antilink-allowed-domains" class="form-control" placeholder="discord.com, youtube.com">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="handler-antilink-blocked-domains">Domaines bloqués (séparés par virgule)</label>
+                <input type="text" id="handler-antilink-blocked-domains" class="form-control" placeholder="spam.com, malware.com">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="handler-antilink-exempt-roles">Rôles exemptés (IDs séparés par virgule)</label>
+                <input type="text" id="handler-antilink-exempt-roles" class="form-control" placeholder="123456789,987654321">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="handler-antilink-exempt-channels">Salons exemptés (IDs séparés par virgule)</label>
+                <input type="text" id="handler-antilink-exempt-channels" class="form-control" placeholder="123456789,987654321">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Leveling Handler</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="handler-leveling-max-cooldowns">Cooldowns max</label>
+                <input type="number" id="handler-leveling-max-cooldowns" class="form-control" placeholder="10000" min="100">
+            </div>
+            <div class="form-group">
+                <label for="handler-leveling-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                <input type="number" id="handler-leveling-cleanup-interval" class="form-control" placeholder="3600000" min="10000">
+            </div>
+            <div class="form-group">
+                <label for="handler-leveling-cleanup-probability">Probabilité de nettoyage</label>
+                <input type="number" id="handler-leveling-cleanup-probability" class="form-control" step="0.01" placeholder="0.01" min="0" max="1">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Event Log Handler</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="handler-eventlog-batch-size">Taille du lot</label>
+                <input type="number" id="handler-eventlog-batch-size" class="form-control" placeholder="10" min="1">
+            </div>
+            <div class="form-group">
+                <label for="handler-eventlog-batch-delay">Délai entre lots (ms)</label>
+                <input type="number" id="handler-eventlog-batch-delay" class="form-control" placeholder="1000" min="100">
+            </div>
+            <div class="form-group">
+                <label for="handler-eventlog-max-queue">Taille max de la file</label>
+                <input type="number" id="handler-eventlog-max-queue" class="form-control" placeholder="1000" min="10">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Giveaway Handler</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="handler-giveaway-max-queue">Taille max de la file</label>
+                <input type="number" id="handler-giveaway-max-queue" class="form-control" placeholder="100" min="10">
+            </div>
+            <div class="form-group">
+                <label for="handler-giveaway-debounce">Délai de debounce (ms)</label>
+                <input type="number" id="handler-giveaway-debounce" class="form-control" placeholder="500" min="100">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>PvP Tournament Handler</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="handler-pvp-max-concurrent">Tournois simultanés max</label>
+                <input type="number" id="handler-pvp-max-concurrent" class="form-control" placeholder="10" min="1">
+            </div>
+            <div class="form-group">
+                <label for="handler-pvp-bracket-timeout">Timeout génération bracket (ms)</label>
+                <input type="number" id="handler-pvp-bracket-timeout" class="form-control" placeholder="30000" min="1000">
+            </div>
+            <div class="form-group">
+                <label for="handler-pvp-notification-timeout">Timeout notification match (ms)</label>
+                <input type="number" id="handler-pvp-notification-timeout" class="form-control" placeholder="10000" min="1000">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/handlers').catch(() => ({}));
+            
+            if (configData.antiSpam) {
+                document.getElementById('handler-antispam-max-history').value = configData.antiSpam.maxHistorySize || '';
+                document.getElementById('handler-antispam-cleanup-interval').value = configData.antiSpam.cleanupInterval || '';
+                document.getElementById('handler-antispam-cleanup-probability').value = configData.antiSpam.cleanupProbability || '';
+            }
+            
+            if (configData.antiLink) {
+                document.getElementById('handler-antilink-enabled').checked = configData.antiLink.enabled !== false;
+                document.getElementById('handler-antilink-action').value = configData.antiLink.action || 'delete';
+                document.getElementById('handler-antilink-timeout-duration').value = configData.antiLink.timeoutDuration || '';
+                document.getElementById('handler-antilink-allowed-domains').value = Array.isArray(configData.antiLink.allowedDomains) ? configData.antiLink.allowedDomains.join(', ') : '';
+                document.getElementById('handler-antilink-blocked-domains').value = Array.isArray(configData.antiLink.blockedDomains) ? configData.antiLink.blockedDomains.join(', ') : '';
+                document.getElementById('handler-antilink-exempt-roles').value = Array.isArray(configData.antiLink.exemptRoles) ? configData.antiLink.exemptRoles.join(', ') : '';
+                document.getElementById('handler-antilink-exempt-channels').value = Array.isArray(configData.antiLink.exemptChannels) ? configData.antiLink.exemptChannels.join(', ') : '';
+            }
+            
+            if (configData.leveling) {
+                document.getElementById('handler-leveling-max-cooldowns').value = configData.leveling.maxCooldowns || '';
+                document.getElementById('handler-leveling-cleanup-interval').value = configData.leveling.cleanupInterval || '';
+                document.getElementById('handler-leveling-cleanup-probability').value = configData.leveling.cleanupProbability || '';
+            }
+            
+            if (configData.eventLog) {
+                document.getElementById('handler-eventlog-batch-size').value = configData.eventLog.batchSize || '';
+                document.getElementById('handler-eventlog-batch-delay').value = configData.eventLog.batchDelay || '';
+                document.getElementById('handler-eventlog-max-queue').value = configData.eventLog.maxQueueSize || '';
+            }
+            
+            if (configData.giveaway) {
+                document.getElementById('handler-giveaway-max-queue').value = configData.giveaway.maxQueueSize || '';
+                document.getElementById('handler-giveaway-debounce').value = configData.giveaway.embedUpdateDebounce || '';
+            }
+            
+            if (configData.pvpTournament) {
+                document.getElementById('handler-pvp-max-concurrent').value = configData.pvpTournament.maxConcurrentTournaments || '';
+                document.getElementById('handler-pvp-bracket-timeout').value = configData.pvpTournament.bracketGenerationTimeout || '';
+                document.getElementById('handler-pvp-notification-timeout').value = configData.pvpTournament.matchNotificationTimeout || '';
+            }
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        try {
+            const newConfig = {
+                antiSpam: {
+                    maxHistorySize: parseInt(document.getElementById('handler-antispam-max-history').value) || null,
+                    cleanupInterval: parseInt(document.getElementById('handler-antispam-cleanup-interval').value) || null,
+                    cleanupProbability: parseFloat(document.getElementById('handler-antispam-cleanup-probability').value) || null
+                },
+                antiLink: {
+                    enabled: document.getElementById('handler-antilink-enabled').checked,
+                    action: document.getElementById('handler-antilink-action').value || null,
+                    timeoutDuration: document.getElementById('handler-antilink-timeout-duration').value || null,
+                    allowedDomains: document.getElementById('handler-antilink-allowed-domains').value.split(',').map(d => d.trim()).filter(d => d),
+                    blockedDomains: document.getElementById('handler-antilink-blocked-domains').value.split(',').map(d => d.trim()).filter(d => d),
+                    exemptRoles: document.getElementById('handler-antilink-exempt-roles').value.split(',').map(r => r.trim()).filter(r => r),
+                    exemptChannels: document.getElementById('handler-antilink-exempt-channels').value.split(',').map(c => c.trim()).filter(c => c)
+                },
+                leveling: {
+                    maxCooldowns: parseInt(document.getElementById('handler-leveling-max-cooldowns').value) || null,
+                    cleanupInterval: parseInt(document.getElementById('handler-leveling-cleanup-interval').value) || null,
+                    cleanupProbability: parseFloat(document.getElementById('handler-leveling-cleanup-probability').value) || null
+                },
+                eventLog: {
+                    batchSize: parseInt(document.getElementById('handler-eventlog-batch-size').value) || null,
+                    batchDelay: parseInt(document.getElementById('handler-eventlog-batch-delay').value) || null,
+                    maxQueueSize: parseInt(document.getElementById('handler-eventlog-max-queue').value) || null
+                },
+                giveaway: {
+                    maxQueueSize: parseInt(document.getElementById('handler-giveaway-max-queue').value) || null,
+                    embedUpdateDebounce: parseInt(document.getElementById('handler-giveaway-debounce').value) || null
+                },
+                pvpTournament: {
+                    maxConcurrentTournaments: parseInt(document.getElementById('handler-pvp-max-concurrent').value) || null,
+                    bracketGenerationTimeout: parseInt(document.getElementById('handler-pvp-bracket-timeout').value) || null,
+                    matchNotificationTimeout: parseInt(document.getElementById('handler-pvp-notification-timeout').value) || null
+                }
+            };
+
+            await window.api.put('/config/handlers', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration handlers enregistrée');
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initHandlersPage = function() {
+        loadConfig();
+        window.loadHandlersConfig = loadConfig;
+        window.saveHandlersConfig = saveConfig;
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 100);
+    };
+})();
+</script>
+

@@ -1,0 +1,281 @@
+<div class="minecraft-page">
+    <div id="players-view">
+        <div class="flex justify-between align-center mb-1">
+            <h2>Historique Des Commandes</h2>
+            <div class="flex gap-1">
+                <button class="btn btn-primary" onclick="loadMinecraftPlayers()"><i class="fas fa-sync"></i>
+                    Refresh</button>
+            </div>
+        </div>
+
+        <div class="card mb-1">
+            <div class="flex gap-1 align-center">
+                <div class="form-group mb-0" style="flex: 1;">
+                    <input type="text" id="player-search" class="form-control" placeholder="Rechercher un Joueur..."
+                        onkeyup="if(event.key === 'Enter') applyPlayerFilter()">
+                </div>
+                <button class="btn btn-primary" onclick="applyPlayerFilter()"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Joueur</th>
+                            <th style="text-align: center;">Commandes Totale</th>
+                            <th style="text-align: center;">Erreur</th>
+                            <th style="text-align: right;">Derniére fois vu</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center p-2"><i class="fas fa-spinner fa-spin"></i> Chargement...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between align-center mt-1" id="players-pagination"></div>
+        </div>
+    </div>
+
+    <div id="commands-view" style="display: none;">
+        <div class="flex justify-between align-center mb-1">
+            <div class="flex align-center gap-1">
+                <button class="btn btn-secondary" onclick="showPlayersView()"><i class="fas fa-arrow-left"></i>
+                    Retour</button>
+                <h2 id="commands-title">Historique des commandes</h2>
+            </div>
+            <button class="btn btn-primary" onclick="refreshUserCommands()"><i class="fas fa-sync"></i>
+                Rafraîchir</button>
+        </div>
+
+        <div class="card">
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Date</th>
+                            <th style="text-align: left;">Commande</th>
+                            <th style="text-align: left;">Argument</th>
+                            <th style="text-align: left;">Localisation</th>
+                            <th style="text-align: center;">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commands-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center p-2"><i class="fas fa-spinner fa-spin"></i> Chargement...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between align-center mt-1" id="commands-pagination"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        let playersPage = 1;
+        let commandsPage = 1;
+        let selectedUser = null;
+        const limit = 50;
+
+        // --- Players Logic ---
+
+        async function loadMinecraftPlayers(page = 1) {
+            playersPage = page;
+            const search = document.getElementById('player-search').value.trim();
+            const offset = (page - 1) * limit;
+
+            try {
+                const params = new URLSearchParams({ limit, offset, search });
+                const data = await window.api.get(`/minecraft/players?${params.toString()}`);
+                renderPlayers(data);
+                updatePlayersPagination(data.length < limit ? page : page + 1); // Simple pagination
+            } catch (error) {
+                console.error('Failed to load players:', error);
+                document.getElementById('players-table-body').innerHTML = `<tr><td colspan="5" class="text-center text-danger p-2">Error loading players</td></tr>`;
+            }
+        }
+
+        function renderPlayers(players) {
+            const tbody = document.getElementById('players-table-body');
+            if (!players.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted p-2">No players found</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = players.map(p => `
+            <tr>
+                <td style="font-weight: 500;">
+                    <div class="flex align-center gap-1">
+                        <img src="https://mc-heads.net/avatar/${p.username}/32" style="border-radius: 4px;" onerror="this.style.display='none'">
+                        ${p.username}
+                    </div>
+                </td>
+                <td style="text-align: center;">${p.command_count}</td>
+                <td style="text-align: center;">${p.fail_count || 0}</td>
+                <td style="text-align: right;">${new Date(parseInt(p.last_seen)).toLocaleString()}</td>
+                <td style="text-align: right;">
+                    <button class="btn btn-sm btn-primary" onclick="viewUserCommands('${p.username}')">
+                        <i class="fas fa-history"></i> Historique
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        function updatePlayersPagination(nextPage) {
+            // Simplified for now
+            const container = document.getElementById('players-pagination');
+            container.innerHTML = `
+            <button class="btn btn-secondary" ${playersPage === 1 ? 'disabled' : ''} onclick="loadMinecraftPlayers(${playersPage - 1})">Précédent</button>
+            <span class="text-muted">Page ${playersPage}</span>
+            <button class="btn btn-secondary" onclick="loadMinecraftPlayers(${playersPage + 1})">Suivant</button>
+        `;
+        }
+
+        window.applyPlayerFilter = () => loadMinecraftPlayers(1);
+
+        // --- Commands Logic ---
+
+        window.viewUserCommands = async (username) => {
+            selectedUser = username;
+            document.getElementById('players-view').style.display = 'none';
+            document.getElementById('commands-view').style.display = 'block';
+            document.getElementById('commands-title').innerText = `History: ${username}`;
+            loadUserCommands(username, 1);
+            // Check hash to support back button later if needed
+        };
+
+        window.showPlayersView = () => {
+            document.getElementById('commands-view').style.display = 'none';
+            document.getElementById('players-view').style.display = 'block';
+            selectedUser = null;
+        };
+
+        async function loadUserCommands(username, page = 1) {
+            commandsPage = page;
+            const offset = (page - 1) * limit;
+            try {
+                const params = new URLSearchParams({ limit, offset });
+                const data = await window.api.get(`/minecraft/commands/user/${username}?${params.toString()}`);
+                renderCommands(data);
+                updateCommandsPagination(data.length < limit ? page : page + 1);
+            } catch (error) {
+                console.error('Failed to load user commands:', error);
+                document.getElementById('commands-table-body').innerHTML = `<tr><td colspan="5" class="text-center text-danger p-2">Error loading commands</td></tr>`;
+            }
+        }
+
+        window.refreshUserCommands = () => {
+            if (selectedUser) loadUserCommands(selectedUser, commandsPage);
+        };
+
+        function renderCommands(commands) {
+            const tbody = document.getElementById('commands-table-body');
+            if (!commands.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted p-2">No commands found</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = commands.map(cmd => {
+                const statusBadge = cmd.success ?
+                    '<span class="badge badge-success">Success</span>' :
+                    '<span class="badge badge-danger">Failed</span>';
+                const location = cmd.world ? `${cmd.world} <span class="text-muted">(${cmd.x}, ${cmd.y}, ${cmd.z})</span>` : '-';
+
+                return `
+                <tr>
+                    <td>${new Date(parseInt(cmd.timestamp)).toLocaleString()}</td>
+                    <td><code>/${cmd.command}</code></td>
+                    <td class="text-muted" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${cmd.args || ''}</td>
+                    <td>${location}</td>
+                    <td style="text-align: center;">${statusBadge}</td>
+                </tr>
+            `;
+            }).join('');
+        }
+
+        function updateCommandsPagination(nextPage) {
+            const container = document.getElementById('commands-pagination');
+            container.innerHTML = `
+            <button class="btn btn-secondary" ${commandsPage === 1 ? 'disabled' : ''} onclick="loadUserCommands('${selectedUser}', ${commandsPage - 1})">Précédent </button>
+            <span class="text-muted">Page ${commandsPage}</span>
+            <button class="btn btn-secondary" onclick="loadUserCommands('${selectedUser}', ${commandsPage + 1})">Suivant</button>
+        `;
+        }
+
+        // Init
+        window.initMinecraftCommandsPage = function () {
+            // Simple router check: if hash implies user... but for now start with players
+            loadMinecraftPlayers(1);
+        };
+
+        // Global exports for inline events
+        window.loadMinecraftPlayers = loadMinecraftPlayers;
+    })();
+</script>
+
+<style>
+    /* Fix alignment */
+    th,
+    td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+    }
+
+    .data-table th {
+        font-weight: 600;
+        color: var(--text-muted);
+        border-bottom: 2px solid var(--border-color);
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-danger {
+        color: #eb4d4b;
+    }
+
+    .p-2 {
+        padding: 1rem;
+    }
+
+    .mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    /* Enhanced badges */
+    .badge {
+        padding: 0.25em 0.6em;
+        border-radius: 4px;
+        font-size: 0.75em;
+        font-weight: 700;
+    }
+
+    .badge-success {
+        background: rgba(87, 242, 135, 0.15);
+        color: #57F287;
+    }
+
+    .badge-danger {
+        background: rgba(237, 66, 69, 0.15);
+        color: #ED4245;
+    }
+</style>

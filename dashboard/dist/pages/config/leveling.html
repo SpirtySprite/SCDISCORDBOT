@@ -1,0 +1,289 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Système de Niveaux</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadLevelingConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveLevelingConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Général</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer le système de niveaux</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Les utilisateurs gagnent de l'XP en envoyant des messages</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="leveling-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Paramètres XP</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="leveling-cooldown">Cooldown entre gains d'XP (secondes)</label>
+                <input type="number" id="leveling-cooldown" class="form-control" placeholder="60" min="1">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Temps minimum entre deux gains d'XP</div>
+            </div>
+        </div>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+            <div class="form-group">
+                <label for="leveling-xp-min">XP minimum par message</label>
+                <input type="number" id="leveling-xp-min" class="form-control" placeholder="15" min="1">
+            </div>
+            <div class="form-group">
+                <label for="leveling-xp-max">XP maximum par message</label>
+                <input type="number" id="leveling-xp-max" class="form-control" placeholder="25" min="1">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Messages de niveau supérieur</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer les notifications de niveau</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Affiche un message quand un utilisateur monte de niveau</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="level-up-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="level-up-channel">Canal pour les messages de niveau (ID)</label>
+            <input type="text" id="level-up-channel" class="form-control" placeholder="ID du canal (laisse vide pour le même canal)">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Si vide, le message sera envoyé dans le canal où l'utilisateur a gagné l'XP</div>
+        </div>
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="level-up-message">Message de niveau supérieur</label>
+            <textarea id="level-up-message" class="form-control" rows="3" placeholder="🎉 Félicitations &lt;@USER&gt; ! Vous avez atteint le niveau **LEVEL** !"></textarea>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Placeholders disponibles: <code>&lt;@USER&gt;</code> (mention utilisateur), <code>**LEVEL**</code> (niveau atteint)
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Rôles de niveau</h3>
+        <div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Configurez les rôles à attribuer automatiquement lorsque les utilisateurs atteignent certains niveaux.
+            </div>
+            <div class="flex justify-between align-center mb-1">
+                <button class="btn btn-secondary" onclick="window.addLevelRole()">
+                    <i class="fas fa-plus"></i> Ajouter un rôle de niveau
+                </button>
+            </div>
+        </div>
+        <div id="level-roles-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Level roles will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/leveling');
+            
+            document.getElementById('leveling-enabled').checked = configData.enabled !== false;
+            document.getElementById('leveling-cooldown').value = configData.cooldown || 60;
+            document.getElementById('leveling-xp-min').value = configData.xpPerMessage?.min || 15;
+            document.getElementById('leveling-xp-max').value = configData.xpPerMessage?.max || 25;
+
+            const levelUpMsg = configData.levelUpMessage || {};
+            document.getElementById('level-up-enabled').checked = levelUpMsg.enabled === true;
+            document.getElementById('level-up-channel').value = levelUpMsg.channelId || '';
+            document.getElementById('level-up-message').value = levelUpMsg.message || '🎉 Félicitations <@USER> ! Vous avez atteint le niveau **LEVEL** !';
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            ...configData,
+            enabled: document.getElementById('leveling-enabled').checked,
+            cooldown: parseInt(document.getElementById('leveling-cooldown').value) || 60,
+            xpPerMessage: {
+                ...(configData.xpPerMessage || {}),
+                min: parseInt(document.getElementById('leveling-xp-min').value) || 15,
+                max: parseInt(document.getElementById('leveling-xp-max').value) || 25
+            },
+            levelUpMessage: {
+                ...(configData.levelUpMessage || {}),
+                enabled: document.getElementById('level-up-enabled').checked,
+                channelId: document.getElementById('level-up-channel').value || null,
+                message: document.getElementById('level-up-message').value || '🎉 Félicitations <@USER> ! Vous avez atteint le niveau **LEVEL** !'
+            }
+        };
+
+        try {
+            await window.api.put('/config/leveling', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration leveling enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    let levelRoles = [];
+
+    async function loadLevelRoles() {
+        try {
+            levelRoles = await window.api.get('/level-roles');
+            renderLevelRoles();
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement des rôles de niveau');
+        }
+    }
+
+    function renderLevelRoles() {
+        const container = document.getElementById('level-roles-list');
+        container.innerHTML = '';
+
+        if (levelRoles.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; padding: 1rem; text-align: center;">Aucun rôle de niveau configuré</div>';
+            return;
+        }
+
+        // Sort by level
+        const sorted = [...levelRoles].sort((a, b) => a.level - b.level);
+
+        for (const lr of sorted) {
+            const item = createLevelRoleItem(lr.level, lr.roleId);
+            container.appendChild(item);
+        }
+    }
+
+    function createLevelRoleItem(level, roleId) {
+        const div = document.createElement('div');
+        div.className = 'level-role-item';
+        div.style.cssText = 'display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 0.5rem;';
+        div.innerHTML = `
+            <div style="flex: 1; display: flex; align-items: center; gap: 1rem;">
+                <div style="min-width: 80px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Niveau</label>
+                    <input type="number" class="form-control level-input" value="${level}" min="1" style="width: 100%; margin-top: 0.25rem;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted);">Rôle</label>
+                    <div class="custom-select" style="margin-top: 0.25rem;">
+                        <select class="form-control role-select" style="width: 100%;">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-danger" onclick="window.removeLevelRole(this)" style="margin-top: 1.5rem;">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+
+        // Load roles into select
+        loadRolesIntoSelect(div.querySelector('.role-select'), roleId);
+
+        return div;
+    }
+
+    async function loadRolesIntoSelect(selectElement, selectedRoleId) {
+        try {
+            const roles = await window.api.get('/servers/roles');
+            selectElement.innerHTML = '<option value="">Sélectionner un rôle...</option>';
+            
+            for (const role of roles) {
+                const option = document.createElement('option');
+                option.value = role.id;
+                option.textContent = role.name;
+                if (role.id === selectedRoleId) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            }
+        } catch (error) {
+            selectElement.innerHTML = '<option value="">Erreur de chargement</option>';
+            window.toast.error('Erreur lors du chargement des rôles');
+        }
+    }
+
+    window.addLevelRole = function() {
+        const container = document.getElementById('level-roles-list');
+        const emptyMsg = container.querySelector('div[style*="Aucun rôle"]');
+        if (emptyMsg) {
+            emptyMsg.remove();
+        }
+
+        const item = createLevelRoleItem(1, '');
+        container.appendChild(item);
+    };
+
+    window.removeLevelRole = function(button) {
+        button.closest('.level-role-item').remove();
+        const container = document.getElementById('level-roles-list');
+        if (container.children.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; padding: 1rem; text-align: center;">Aucun rôle de niveau configuré</div>';
+        }
+    };
+
+    async function saveLevelRoles() {
+        const container = document.getElementById('level-roles-list');
+        const items = container.querySelectorAll('.level-role-item');
+        const newLevelRoles = [];
+
+        for (const item of items) {
+            const levelInput = item.querySelector('.level-input');
+            const roleSelect = item.querySelector('.role-select');
+            const level = parseInt(levelInput.value);
+            const roleId = roleSelect.value;
+
+            if (level && roleId) {
+                newLevelRoles.push({ level, roleId });
+            } else if (levelInput.value || roleSelect.value) {
+                // Warn about incomplete entries
+                window.toast.warning(`Entrée incomplète ignorée: niveau ${levelInput.value || '?'}, rôle ${roleSelect.value || '?'}`);
+            }
+        }
+
+        if (newLevelRoles.length === 0 && items.length > 0) {
+            window.toast.warning('Aucun rôle de niveau valide à enregistrer');
+            return;
+        }
+
+        try {
+            const response = await window.api.put('/level-roles', { levelRoles: newLevelRoles });
+            levelRoles = newLevelRoles;
+            window.toast.success(`Rôles de niveau enregistrés (${newLevelRoles.length} rôle(s))`);
+            
+            // Reload to show updated data
+            await loadLevelRoles();
+        } catch (error) {
+            console.error('Error saving level roles:', error);
+            window.toast.error('Erreur lors de l\'enregistrement des rôles de niveau: ' + (error.message || 'Erreur inconnue'));
+        }
+    }
+
+    window.initLevelingPage = function() {
+        loadConfig();
+        loadLevelRoles();
+        window.loadLevelingConfig = loadConfig;
+        window.saveLevelingConfig = async function() {
+            await saveConfig();
+            await saveLevelRoles();
+        };
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 200);
+    };
+})();
+</script>
+

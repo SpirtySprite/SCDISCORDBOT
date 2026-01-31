@@ -1,0 +1,90 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Présence du Bot</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadBotConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveBotConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Paramètres de présence</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="bot-status-input">Statut du Bot</label>
+                <div class="custom-select">
+                    <select id="bot-status-input" class="form-control">
+                        <option value="online">En ligne (Online)</option>
+                        <option value="idle">Inactif (Idle)</option>
+                        <option value="dnd">Ne pas déranger (DnD)</option>
+                        <option value="invisible">Invisible</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="bot-activity-type">Type d'activité</label>
+                <div class="custom-select">
+                    <select id="bot-activity-type" class="form-control">
+                        <option value="WATCHING">Regarde (WATCHING)</option>
+                        <option value="PLAYING">Joue à (PLAYING)</option>
+                        <option value="LISTENING">Écoute (LISTENING)</option>
+                        <option value="STREAMING">Streame (STREAMING)</option>
+                        <option value="COMPETING">Participe à (COMPETING)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="bot-activity-text">Texte de l'activité</label>
+                <input type="text" id="bot-activity-text" class="form-control" placeholder="Serenity Craft">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/bot');
+            
+            document.getElementById('bot-status-input').value = configData.presence?.status || 'online';
+            document.getElementById('bot-activity-type').value = configData.presence?.activity?.type || 'WATCHING';
+            document.getElementById('bot-activity-text').value = configData.presence?.activity?.text || '';
+            
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        const newConfig = {
+            presence: {
+                status: document.getElementById('bot-status-input').value,
+                activity: {
+                    type: document.getElementById('bot-activity-type').value,
+                    text: document.getElementById('bot-activity-text').value
+                }
+            }
+        };
+
+        try {
+            await window.api.put('/config/bot', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initBotPage = function() {
+        loadConfig();
+        window.loadBotConfig = loadConfig;
+        window.saveBotConfig = saveConfig;
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 100);
+    };
+})();
+</script>

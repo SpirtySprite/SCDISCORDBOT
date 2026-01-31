@@ -1,0 +1,151 @@
+<div class="dashboard-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Tableau de bord</h2>
+        <div id="uptime-display" class="text-muted" style="font-size: 0.9rem;"></div>
+    </div>
+
+    <div class="grid-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card stat-card">
+            <div class="flex align-center gap-1">
+                <div class="icon-box" style="background: rgba(139, 69, 19, 0.1); color: var(--primary);">
+                    <i class="fab fa-discord fa-lg"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Bot Discord</div>
+                    <div id="bot-status" class="stat-value">Chargement...</div>
+                </div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="flex align-center gap-1">
+                <div class="icon-box" style="background: rgba(135, 206, 235, 0.1); color: var(--secondary);">
+                    <i class="fas fa-terminal fa-lg"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Commandes actives</div>
+                    <div id="active-commands" class="stat-value">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="flex align-center gap-1">
+                <div class="icon-box" style="background: rgba(87, 242, 135, 0.1); color: var(--success);">
+                    <i class="fas fa-ticket-alt fa-lg"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Système Tickets</div>
+                    <div id="tickets-status" class="stat-value">Activé</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex gap-1">
+        <div class="card" style="flex: 2;">
+            <h3>Dernières activités</h3>
+            <div id="recent-logs" class="text-muted" style="text-align: center; padding: 2rem;">
+                Aucune activité récente à afficher
+            </div>
+        </div>
+        <div class="card" style="flex: 1;">
+            <h3>Quick Links</h3>
+            <ul class="quick-links">
+                <li><a href="#/config/bot" class="btn btn-secondary btn-block mb-1"><i class="fab fa-discord"></i> Config Bot</a></li>
+                <li><a href="#/commands" class="btn btn-secondary btn-block mb-1"><i class="fas fa-terminal"></i> Gérer Commandes</a></li>
+                <li><a href="#/config/moderation" class="btn btn-secondary btn-block mb-1"><i class="fas fa-shield-alt"></i> Modération</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.quick-links .btn {
+    justify-content: flex-start;
+    padding: 0.6rem 1rem;
+}
+</style>
+
+<script>
+(function() {
+    window.initDashboardPage = function() {
+        console.log('Dashboard Page Initialized');
+        
+        Promise.all([
+            window.api.get('/config/bot').catch((err) => {
+                // If 401, it's an auth issue, not a bot issue
+                if (err.message && err.message.includes('Unauthorized')) {
+                    return null; // Will show as unknown, not unavailable
+                }
+                return null;
+            }),
+            window.api.get('/config/tickets').catch(() => null),
+            window.api.get('/commands').catch(() => []),
+            window.api.get('/admin/status').catch(() => null)
+        ]).then(([botConfig, ticketsConfig, commands, status]) => {
+            const botStatusEl = document.getElementById('bot-status');
+            if (botConfig && botConfig.presence) {
+                botStatusEl.textContent = botConfig.presence.status || 'En ligne';
+                botStatusEl.style.color = 'var(--success)';
+            } else if (botConfig === null) {
+                // Auth issue or config not found
+                if (botStatusEl) {
+                    botStatusEl.textContent = 'Non configuré';
+                    botStatusEl.style.color = 'var(--text-muted)';
+                }
+            } else {
+                // Actual error
+                if (botStatusEl) {
+                    botStatusEl.textContent = 'Indisponible';
+                    botStatusEl.style.color = 'var(--error)';
+                }
+            }
+            
+            const commandsEl = document.getElementById('active-commands');
+            if (Array.isArray(commands)) {
+                const activeCount = commands.filter(c => c.enabled).length;
+                if (commandsEl) commandsEl.textContent = activeCount;
+            } else {
+                if (commandsEl) commandsEl.textContent = 'Erreur';
+            }
+            
+            const ticketsEl = document.getElementById('tickets-status');
+            if (ticketsConfig) {
+                const ticketsEnabled = ticketsConfig.enabled !== false;
+                if (ticketsEl) {
+                    ticketsEl.textContent = ticketsEnabled ? 'Activé' : 'Désactivé';
+                    ticketsEl.style.color = ticketsEnabled ? 'var(--success)' : 'var(--error)';
+                }
+            } else {
+                if (ticketsEl) ticketsEl.textContent = 'Inconnu';
+            }
+            
+            const uptimeEl = document.getElementById('uptime-display');
+            if (status && status.uptime && uptimeEl) {
+                const hours = Math.floor(status.uptime / 3600);
+                const minutes = Math.floor((status.uptime % 3600) / 60);
+                uptimeEl.textContent = `Uptime: ${hours}h ${minutes}m`;
+            }
+        }).catch(err => {
+            console.error('Dashboard init failed:', err);
+            window.toast.error('Erreur lors de la mise à jour des statistiques');
+        });
+    };
+})();
+</script>
+

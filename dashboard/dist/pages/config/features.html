@@ -1,0 +1,74 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Fonctionnalités Optionnelles</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadFeaturesConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveFeaturesConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Systèmes du Bot</h3>
+        <p class="text-muted mb-1">Activez ou désactivez les modules optionnels du bot.</p>
+        <div id="features-list" class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/features');
+            
+            const container = document.getElementById('features-list');
+            const labels = {
+                autoModeration: 'Modération automatique',
+                welcomeMessages: 'Messages de bienvenue',
+                goodbyeMessages: 'Messages de départ',
+                leveling: 'Système de niveaux (XP)',
+                economy: 'Système d\'économie'
+            };
+
+            container.innerHTML = Object.keys(configData).map(key => `
+                <div class="flex align-center justify-between p-1 card" style="background: var(--surface); margin-bottom: 0;">
+                    <div>
+                        <div style="font-weight: 600;">${labels[key] || key}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Statut: ${configData[key] ? 'Activé' : 'Désactivé'}</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" class="feature-toggle" data-key="${key}" ${configData[key] ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = { ...configData };
+        document.querySelectorAll('.feature-toggle').forEach(el => newConfig[el.dataset.key] = el.checked);
+
+        try {
+            await window.api.put('/config/features', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration fonctionnalités enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initFeaturesPage = function() {
+        loadConfig();
+        window.loadFeaturesConfig = loadConfig;
+        window.saveFeaturesConfig = saveConfig;
+    };
+})();
+</script>

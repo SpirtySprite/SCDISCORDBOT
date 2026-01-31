@@ -1,0 +1,357 @@
+<div class="todos-page">
+    <div class="flex justify-between align-center mb-2">
+        <h2>Gestion des Todos</h2>
+        <button class="btn btn-primary" onclick="window.openAddTodoModal()">
+            <i class="fas fa-plus"></i> Ajouter un Todo
+        </button>
+    </div>
+
+    <div class="card mb-2">
+        <div class="flex align-center gap-1 flex-wrap">
+            <span class="text-muted mr-1">Filtrer par catégorie:</span>
+            <div id="category-filters" class="flex gap-1 flex-wrap">
+                
+            </div>
+        </div>
+    </div>
+
+    <div id="todos-list" class="grid-todos">
+        
+        <div class="flex justify-center align-center" style="grid-column: 1/-1; min-height: 200px;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+        </div>
+    </div>
+</div>
+
+<style>
+.grid-todos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.todo-card {
+    border-top: 4px solid var(--todo-color, var(--primary));
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.todo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.todo-card.completed {
+    opacity: 0.7;
+}
+
+.todo-card.completed .todo-title {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.todo-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.todo-category {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: var(--surface-dark);
+    color: var(--todo-color);
+}
+
+.todo-description {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+    white-space: pre-wrap;
+}
+
+.todo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.todo-status-btn {
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: var(--transition);
+}
+
+.todo-status-btn:hover {
+    transform: scale(1.1);
+}
+
+.todo-pending { color: var(--text-muted); }
+.todo-completed { color: var(--success); }
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--surface-dark);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: 1.5px solid transparent;
+}
+
+.filter-btn:hover {
+    background: var(--surface);
+    color: var(--text-main);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .grid-todos {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+(function() {
+    let allTodos = [];
+    let currentFilter = 'all';
+
+    async function loadTodos() {
+        try {
+            const todos = await window.api.get(`/todos?t=${Date.now()}`);
+            allTodos = Array.isArray(todos) ? todos : [];
+            renderFilters();
+            renderTodos();
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement des todos');
+        }
+    }
+
+    function renderFilters() {
+        const categories = ['all', ...new Set(allTodos.map(t => t.category))];
+        const container = document.getElementById('category-filters');
+        if (!container) return;
+        
+        container.innerHTML = categories.map(cat => `
+            <div class="filter-btn ${currentFilter === cat ? 'active' : ''}" 
+                 onclick="window.filterTodos('${cat}')">
+                ${cat === 'all' ? 'Tous' : cat}
+            </div>
+        `).join('');
+    }
+
+    function renderTodos() {
+        const container = document.getElementById('todos-list');
+        if (!container) return;
+
+        const filtered = currentFilter === 'all' 
+            ? allTodos 
+            : allTodos.filter(t => t.category === currentFilter);
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="flex flex-column justify-center align-center" style="grid-column: 1/-1; min-height: 200px;">
+                    <div class="text-muted mb-1"><i class="fas fa-clipboard-list fa-3x"></i></div>
+                    <p class="text-muted">Aucun todo trouvé</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(todo => `
+            <div class="card todo-card ${todo.status === 'completed' ? 'completed' : ''}" 
+                 style="--todo-color: ${todo.color}">
+                <div class="todo-header">
+                    <h3 class="todo-title">${escapeHtml(todo.title)}</h3>
+                    <span class="todo-category">${escapeHtml(todo.category)}</span>
+                </div>
+                <div class="todo-description">${escapeHtml(todo.description || 'Pas de description')}</div>
+                <div class="todo-footer">
+                    <div class="flex align-center gap-1" style="cursor: pointer;" onclick="event.stopPropagation(); window.toggleTodoStatus(${todo.id})">
+                        <i class="${todo.status === 'completed' ? 'fas fa-check-circle todo-completed' : 'far fa-circle todo-pending'}" style="font-size: 1.5rem;"></i>
+                        <span class="text-muted">${todo.status === 'completed' ? 'Terminé' : 'En attente'}</span>
+                    </div>
+                    <div class="flex gap-1">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); window.openEditTodoModal(${todo.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); window.deleteTodo(${todo.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    window.filterTodos = function(cat) {
+        currentFilter = cat;
+        renderFilters();
+        renderTodos();
+    };
+
+    window.openAddTodoModal = function() {
+        window.modal.show({
+            title: 'Ajouter un Todo',
+            content: `
+                <div class="form-group mb-1">
+                    <label>Titre</label>
+                    <input type="text" id="todo-title" class="form-control" placeholder="Ex: Faire les courses">
+                </div>
+                <div class="form-group mb-1">
+                    <label>Description</label>
+                    <textarea id="todo-description" class="form-control" rows="3" placeholder="Détails du todo..."></textarea>
+                </div>
+                <div class="grid-2 gap-1 mb-1">
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <input type="text" id="todo-category" class="form-control" placeholder="Général" value="General">
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur</label>
+                        <input type="color" id="todo-color" class="form-control" value="#3498db" style="height: 45px; padding: 2px;">
+                    </div>
+                </div>
+            `,
+            confirmText: 'Créer',
+            onConfirm: async () => {
+                const title = document.getElementById('todo-title').value.trim();
+                const description = document.getElementById('todo-description').value.trim();
+                const category = document.getElementById('todo-category').value.trim();
+                const color = document.getElementById('todo-color').value;
+
+                if (!title) return window.toast.error('Le titre est requis');
+
+                try {
+                    await window.api.post('/todos', { title, description, category, color });
+                    window.toast.success('Todo créé avec succès');
+                    currentFilter = 'all';
+                    await loadTodos();
+                } catch (error) {
+                    console.error('Create todo error:', error);
+                    window.toast.error('Échec de la création du todo');
+                }
+            }
+        });
+    };
+
+    window.openEditTodoModal = function(id) {
+        const todo = allTodos.find(t => t.id === id);
+        if (!todo) return;
+
+        window.modal.show({
+            title: 'Modifier le Todo',
+            content: `
+                <div class="form-group mb-1">
+                    <label>Titre</label>
+                    <input type="text" id="edit-todo-title" class="form-control" value="${escapeHtml(todo.title)}">
+                </div>
+                <div class="form-group mb-1">
+                    <label>Description</label>
+                    <textarea id="edit-todo-description" class="form-control" rows="3">${escapeHtml(todo.description || '')}</textarea>
+                </div>
+                <div class="grid-2 gap-1 mb-1">
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <input type="text" id="edit-todo-category" class="form-control" value="${escapeHtml(todo.category)}">
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur</label>
+                        <input type="color" id="edit-todo-color" class="form-control" value="${todo.color}" style="height: 45px; padding: 2px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Statut</label>
+                    <div class="custom-select">
+                        <select id="edit-todo-status" class="form-control">
+                            <option value="pending" ${todo.status === 'pending' ? 'selected' : ''}>En attente</option>
+                            <option value="completed" ${todo.status === 'completed' ? 'selected' : ''}>Terminé</option>
+                        </select>
+                    </div>
+                </div>
+            `,
+            confirmText: 'Mettre à jour',
+            onConfirm: async () => {
+                const data = {
+                    title: document.getElementById('edit-todo-title').value.trim(),
+                    description: document.getElementById('edit-todo-description').value.trim(),
+                    category: document.getElementById('edit-todo-category').value.trim(),
+                    color: document.getElementById('edit-todo-color').value,
+                    status: document.getElementById('edit-todo-status').value
+                };
+
+                if (!data.title) return window.toast.error('Le titre est requis');
+
+                try {
+                    await window.api.put(`/todos/${id}`, data);
+                    window.toast.success('Todo mis à jour');
+                    await loadTodos();
+                } catch (error) {
+                    window.toast.error('Échec de la mise à jour');
+                }
+            }
+        });
+    };
+
+    window.toggleTodoStatus = async function(id) {
+        try {
+            await window.api.patch(`/todos/${id}/toggle`);
+            await loadTodos();
+        } catch (error) {
+            console.error('Toggle error:', error);
+            window.toast.error('Échec du changement de statut');
+        }
+    };
+
+    window.deleteTodo = async function(id) {
+        if (!confirm('Voulez-vous vraiment supprimer ce todo ?')) return;
+
+        try {
+            await window.api.delete(`/todos/${id}`);
+            window.toast.success('Todo supprimé');
+            await loadTodos();
+        } catch (error) {
+            console.error('Delete error:', error);
+            window.toast.error('Échec de la suppression');
+        }
+    };
+
+    window.initTodosPage = function() {
+        loadTodos();
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 100);
+    };
+})();
+</script>
+

@@ -1,0 +1,123 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Marché</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadMarketConfig()"><i class="fas fa-undo"></i>
+                Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveMarketConfig()"><i class="fas fa-save"></i>
+                Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Général</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer le marché</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Activer ou désactiver les commandes de marché
+                </div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="mkt-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Rotation automatique</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Activer la rotation hebdomadaire des prix
+                    </div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="mkt-rot-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Publication autorisée</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Autoriser la publication des prix sur le
+                        marché</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="mkt-pub-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Paramètres de Rotation & Équilibrage</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="mkt-items">Nombre d'objets par rotation</label>
+                <input type="number" id="mkt-items" class="form-control" placeholder="8">
+            </div>
+            <div class="form-group">
+                <label for="mkt-buff">Multiplicateur Buff</label>
+                <input type="number" step="0.1" id="mkt-buff" class="form-control" placeholder="1.3">
+            </div>
+            <!-- Nerf multiplier removed -->
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        let configData = {};
+
+        async function loadConfig() {
+            try {
+                configData = await window.api.get('/config/market');
+
+                document.getElementById('mkt-enabled').checked = configData.enabled !== false;
+                document.getElementById('mkt-rot-enabled').checked = configData.rotation?.enabled !== false;
+                document.getElementById('mkt-pub-enabled').checked = configData.rotation?.publishEnabled !== false;
+                document.getElementById('mkt-items').value = configData.rotation?.itemsPerRotation || 8;
+                document.getElementById('mkt-buff').value = configData.balancing?.buffMultiplier || 1.3;
+                // Nerf removed
+
+            } catch (error) {
+                window.toast.error('Erreur lors du chargement');
+            }
+        }
+
+        async function saveConfig() {
+            // Merge UI values with existing config to preserve keys not shown in UI
+            const newConfig = {
+                ...configData,
+                enabled: document.getElementById('mkt-enabled').checked,
+                rotation: {
+                    ...(configData.rotation || {}),
+                    enabled: document.getElementById('mkt-rot-enabled').checked,
+                    publishEnabled: document.getElementById('mkt-pub-enabled').checked,
+                    itemsPerRotation: parseInt(document.getElementById('mkt-items').value, 10)
+                },
+                balancing: {
+                    ...(configData.balancing || {}),
+                    buffMultiplier: parseFloat(document.getElementById('mkt-buff').value),
+                    // Remove nerf multiplier from save if it existed involved? 
+                    // We just won't update it, or we can explicitly set it to null or ignore it.
+                    // Keeping it cleaner:
+                    nerfMultiplier: undefined
+                }
+            };
+
+            try {
+                await window.api.put('/config/market', newConfig);
+                configData = newConfig;
+                window.toast.success('Configuration marché enregistrée');
+            } catch (error) {
+                window.toast.error('Erreur lors de l\'enregistrement');
+            }
+        }
+
+        window.initMarketPage = function () {
+            loadConfig();
+            window.loadMarketConfig = loadConfig;
+            window.saveMarketConfig = saveConfig;
+        };
+    })();
+</script>

@@ -1,0 +1,272 @@
+<div class="user-history-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Historique Utilisateur</h2>
+        <button class="btn btn-primary" onclick="searchUser()"><i class="fas fa-search"></i> Rechercher</button>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Recherche d'utilisateur</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr auto; gap: 1rem;">
+            <div class="form-group">
+                <label for="user-search">User ID ou Username</label>
+                <input type="text" id="user-search" class="form-control" placeholder="123456789012345678" onkeypress="if(event.key==='Enter') searchUser()">
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-primary" onclick="searchUser()"><i class="fas fa-search"></i> Rechercher</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="user-info-container" style="display: none;">
+        
+    </div>
+
+    <div id="user-logs-container" style="display: none;">
+        <div class="card">
+            <h3>Historique des infractions</h3>
+            <div id="user-logs-list">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let currentUserId = null;
+
+    async function searchUser() {
+        const searchInput = document.getElementById('user-search');
+        const userId = searchInput.value.trim();
+
+        if (!userId) {
+            window.toast?.error('Veuillez entrer un User ID');
+            return;
+        }
+
+        try {
+            currentUserId = userId;
+            await loadUserHistory(userId);
+        } catch (error) {
+            console.error('Failed to search user:', error);
+            window.toast?.error('Erreur lors de la recherche');
+        }
+    }
+
+    async function loadUserHistory(userId) {
+        try {
+            // Get all logs for this user
+            const params = new URLSearchParams({
+                userId: userId,
+                limit: 1000 // Get all logs
+            });
+
+            const data = await window.api.get(`/modlogs?${params.toString()}`);
+            const logs = data.logs || [];
+
+            // Calculate statistics
+            const stats = {
+                total: logs.length,
+                bans: logs.filter(l => l.action === 'ban').length,
+                kicks: logs.filter(l => l.action === 'kick').length,
+                mutes: logs.filter(l => l.action === 'mute').length,
+                timeouts: logs.filter(l => l.action === 'timeout').length,
+                warnings: logs.filter(l => l.action === 'warn').length
+            };
+
+            // Display user info and stats
+            const userInfoContainer = document.getElementById('user-info-container');
+            userInfoContainer.style.display = 'block';
+            userInfoContainer.innerHTML = `
+                <div class="card mb-1">
+                    <h3>Informations Utilisateur</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <strong>User ID:</strong> ${userId}
+                    </div>
+                    <div class="grid-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Infractions</div>
+                            <div class="stat-value">${stats.total}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Bans</div>
+                            <div class="stat-value" style="color: var(--error);">${stats.bans}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Kicks</div>
+                            <div class="stat-value" style="color: var(--warning);">${stats.kicks}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Mutes</div>
+                            <div class="stat-value" style="color: var(--primary);">${stats.mutes}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Timeouts</div>
+                            <div class="stat-value" style="color: var(--warning);">${stats.timeouts}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Warnings</div>
+                            <div class="stat-value" style="color: var(--warning);">${stats.warnings}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Display logs
+            const logsContainer = document.getElementById('user-logs-container');
+            const logsList = document.getElementById('user-logs-list');
+            logsContainer.style.display = 'block';
+
+            if (logs.length === 0) {
+                logsList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        Aucun log trouvé pour cet utilisateur
+                    </div>
+                `;
+                return;
+            }
+
+            const actionColors = {
+                ban: '#ED4245',
+                kick: '#FEE75C',
+                mute: '#5865F2',
+                timeout: '#FEE75C',
+                warn: '#FEE75C',
+                unban: '#57F287',
+                unmute: '#57F287',
+                untimeout: '#57F287'
+            };
+
+            const actionLabels = {
+                ban: 'Ban',
+                kick: 'Kick',
+                mute: 'Mute',
+                timeout: 'Timeout',
+                warn: 'Warn',
+                unban: 'Unban',
+                unmute: 'Unmute',
+                untimeout: 'Untimeout'
+            };
+
+            // Sort by date (newest first)
+            logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            logsList.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    ${logs.map(log => {
+                        const date = new Date(log.created_at);
+                        const actionColor = actionColors[log.action] || '#5865F2';
+                        const duration = log.duration ? formatDuration(log.duration) : null;
+                        
+                        return `
+                            <div class="card" style="border-left: 4px solid ${actionColor};">
+                                <div class="flex justify-between align-start">
+                                    <div style="flex: 1;">
+                                        <div class="flex align-center gap-1 mb-1">
+                                            <span style="padding: 0.25rem 0.5rem; border-radius: 4px; background: ${actionColor}20; color: ${actionColor}; font-weight: 600; font-size: 0.85rem;">
+                                                ${actionLabels[log.action] || log.action}
+                                            </span>
+                                            <span style="color: var(--text-muted); font-size: 0.85rem;">Case #${log.id}</span>
+                                        </div>
+                                        <div style="margin-bottom: 0.5rem;">
+                                            <strong>Moderator:</strong> ${log.moderator_id}
+                                        </div>
+                                        ${log.reason ? `
+                                            <div style="margin-bottom: 0.5rem;">
+                                                <strong>Raison:</strong> ${log.reason}
+                                            </div>
+                                        ` : ''}
+                                        ${duration ? `
+                                            <div style="margin-bottom: 0.5rem;">
+                                                <strong>Durée:</strong> ${duration}
+                                            </div>
+                                        ` : ''}
+                                        <div style="color: var(--text-muted); font-size: 0.85rem;">
+                                            ${date.toLocaleString('fr-FR')}
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <button class="btn btn-sm btn-secondary" onclick="viewLog(${log.id}, '${log.user_id}')" title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteLog(${log.id}, '${log.user_id}')" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        } catch (error) {
+            console.error('Failed to load user history:', error);
+            window.toast?.error('Erreur lors du chargement de l\'historique');
+        }
+    }
+
+    function formatDuration(seconds) {
+        if (!seconds) return null;
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        
+        if (days > 0) return `${days}j ${hours}h`;
+        if (hours > 0) return `${hours}h ${minutes}m`;
+        return `${minutes}m`;
+    }
+
+    async function viewLog(logId, userId) {
+        try {
+            const log = await window.api.get(`/modlogs/${logId}?userId=${userId}`);
+            const date = new Date(log.created_at);
+            
+            window.modal?.show({
+                title: `Case #${log.id}`,
+                content: `
+                    <div style="line-height: 1.8;">
+                        <div><strong>User ID:</strong> ${log.user_id}</div>
+                        <div><strong>Moderator ID:</strong> ${log.moderator_id}</div>
+                        <div><strong>Action:</strong> ${log.action}</div>
+                        <div><strong>Reason:</strong> ${log.reason || 'Aucune raison'}</div>
+                        <div><strong>Duration:</strong> ${log.duration ? formatDuration(log.duration) : 'N/A'}</div>
+                        <div><strong>Date:</strong> ${date.toLocaleString('fr-FR')}</div>
+                    </div>
+                `,
+                buttons: [
+                    { text: 'Fermer', class: 'btn-secondary', onclick: 'window.modal.hide()' }
+                ]
+            });
+        } catch (error) {
+            console.error('Failed to view log:', error);
+            window.toast?.error('Erreur lors du chargement du log');
+        }
+    }
+
+    async function deleteLog(logId, userId) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce log ?')) {
+            return;
+        }
+
+        try {
+            await window.api.delete(`/modlogs/${logId}?userId=${userId}`);
+            window.toast?.success('Log supprimé');
+            if (currentUserId) {
+                loadUserHistory(currentUserId);
+            }
+        } catch (error) {
+            console.error('Failed to delete log:', error);
+            window.toast?.error('Erreur lors de la suppression');
+        }
+    }
+
+    window.searchUser = searchUser;
+    window.viewLog = viewLog;
+    window.deleteLog = deleteLog;
+
+    window.initUserHistoryPage = function() {
+        // Page initialized
+    };
+})();
+</script>
+

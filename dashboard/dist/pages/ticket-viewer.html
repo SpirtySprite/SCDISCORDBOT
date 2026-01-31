@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Viewer - Serenity Craft</title>
+    <link rel="stylesheet" href="/styles/global.css">
+    <link rel="stylesheet" href="/styles/components.css">
+    <link rel="stylesheet" href="/styles/pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .ticket-viewer-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 100%;
+        }
+        .ticket-header {
+            background: var(--surface);
+            padding: 1rem;
+            border-bottom: 1px solid var(--surface-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ticket-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg);
+        }
+        .message-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--surface);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        .message-author {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .message-content {
+            margin: 0.5rem 0;
+            word-wrap: break-word;
+        }
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .message-input-container {
+            background: var(--surface);
+            padding: 1rem;
+            border-top: 1px solid var(--surface-dark);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .message-input {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--surface-dark);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            resize: none;
+        }
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .send-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .send-btn:hover {
+            opacity: 0.9;
+        }
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .live-indicator {
+            color: var(--success);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .live-indicator i {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-viewer-container">
+        <div class="ticket-header">
+            <div class="ticket-info">
+                <h2 id="ticket-title">Ticket Viewer</h2>
+                <span class="live-indicator" id="live-indicator" style="display: none;">
+                    <i class="fas fa-circle"></i> Live
+                </span>
+            </div>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+        </div>
+        
+        <div class="messages-container" id="messages-container">
+            <div class="flex justify-center">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+            </div>
+        </div>
+        
+        <div class="message-input-container">
+            <textarea 
+                id="message-input" 
+                class="message-input" 
+                rows="2" 
+                placeholder="Tapez votre message ici... (Envoyé en tant que bot)"
+                onkeydown="handleKeyDown(event)"
+            ></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i> Envoyer
+            </button>
+        </div>
+    </div>
+
+    <script src="/scripts/api.js"></script>
+    <script>
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                if (!response.ok) {
+                    window.location.href = '/index.html#/login';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                window.location.href = '/index.html#/login';
+                return false;
+            }
+        }
+
+        let channelId = null;
+        let ticketId = null;
+        let pollingInterval = null;
+        let lastMessageId = null;
+
+        (async function() {
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            channelId = urlParams.get('channelId');
+            ticketId = urlParams.get('ticketId') || 'Unknown';
+
+            if (!channelId) {
+                document.getElementById('messages-container').innerHTML = 
+                    '<div class="card"><p class="error-text">Aucun canal spécifié</p></div>';
+            } else {
+                document.getElementById('ticket-title').textContent = `🎫 Ticket: ${ticketId}`;
+                loadMessages();
+                startPolling();
+            }
+        })();
+
+        async function loadMessages(isUpdate = false, forceUpdate = false) {
+            const container = document.getElementById('messages-container');
+            if (!container) return;
+
+            try {
+                const messages = await window.api.get(`/monitoring/tickets/${channelId}/messages?limit=100`);
+                
+                if (messages.length === 0) {
+                    if (!isUpdate) {
+                        container.innerHTML = '<p class="text-muted">Aucun message</p>';
+                    }
+                    return;
+                }
+
+                const latestMessageId = messages[messages.length - 1]?.id;
+                // Only skip update if it's a polling update (not forced) and message ID hasn't changed
+                if (isUpdate && !forceUpdate && lastMessageId === latestMessageId) {
+                    return;
+                }
+                lastMessageId = latestMessageId;
+
+                container.innerHTML = messages.map(msg => `
+                    <div class="message-item" data-message-id="${msg.id}">
+                        <div class="message-author">
+                            <img src="${msg.author.avatar}" style="width: 24px; height: 24px; border-radius: 50%;">
+                            ${msg.author.tag}
+                        </div>
+                        <div class="message-content">${msg.content || '<em>Aucun contenu texte</em>'}</div>
+                        ${msg.attachments && msg.attachments.length > 0 ? `
+                            <div class="message-attachments" style="margin-top: 0.5rem;">
+                                ${msg.attachments.map(att => `
+                                    <a href="${att.url}" target="_blank" style="color: var(--primary); text-decoration: none; margin-right: 0.5rem;">
+                                        <i class="fas fa-paperclip"></i> ${att.name}
+                                    </a>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="message-time">${new Date(msg.createdAt).toLocaleString('fr-FR')}</div>
+                    </div>
+                `).join('');
+
+                const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+                if (isNearBottom || !isUpdate) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch (error) {
+                if (!isUpdate) {
+                    container.innerHTML = `<div class="card"><p class="error-text">Erreur: ${error.message || 'Erreur lors du chargement des messages'}</p></div>`;
+                }
+                console.error('Failed to load messages:', error);
+            }
+        }
+
+        function startPolling() {
+            document.getElementById('live-indicator').style.display = 'flex';
+            pollingInterval = setInterval(() => {
+                loadMessages(true, false);
+            }, 1000); // Poll every 1 second for faster updates
+            
+            // Listen for localStorage events to detect when messages are sent in other tabs/windows
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'ticket-message-sent' && e.newValue) {
+                    const data = JSON.parse(e.newValue);
+                    if (data.channelId === channelId) {
+                        // Force immediate refresh when message is sent in this ticket
+                        loadMessages(true, true);
+                    }
+                }
+            });
+            
+            // Also listen for custom events (for same-tab notifications)
+            window.addEventListener('ticketMessageSent', (e) => {
+                if (e.detail && e.detail.channelId === channelId) {
+                    loadMessages(true, true);
+                }
+            });
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+            document.getElementById('live-indicator').style.display = 'none';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const content = input.value.trim();
+
+            if (!content) return;
+
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+
+            try {
+                await window.api.post(`/monitoring/tickets/${channelId}/send`, { content });
+                input.value = '';
+                
+                // Notify all open ticket viewer pages (including this one) that a message was sent
+                const notificationData = { channelId, timestamp: Date.now() };
+                localStorage.setItem('ticket-message-sent', JSON.stringify(notificationData));
+                // Dispatch custom event for same-tab listeners
+                window.dispatchEvent(new CustomEvent('ticketMessageSent', { detail: notificationData }));
+                // Remove the item after a short delay to allow other tabs to detect the change
+                setTimeout(() => {
+                    localStorage.removeItem('ticket-message-sent');
+                }, 100);
+                
+                // Force update immediately, then retry a few times to catch the new message
+                loadMessages(true, true);
+                setTimeout(() => {
+                    loadMessages(true, true);
+                }, 500);
+                setTimeout(() => {
+                    loadMessages(true, true);
+                }, 1000);
+                setTimeout(() => {
+                    loadMessages(true, true);
+                }, 2000);
+            } catch (error) {
+                alert(`Erreur: ${error.message || 'Impossible d\'envoyer le message'}`);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer';
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            stopPolling();
+        });
+        
+        // Refresh messages when page becomes visible (user switches back to tab)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // Page became visible, force immediate refresh
+                loadMessages(true, true);
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', () => {
+            loadMessages(true, true);
+        });
+    </script>
+</body>
+</html>
+

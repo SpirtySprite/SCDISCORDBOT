@@ -1,0 +1,623 @@
+<div class="applications-page">
+    <div class="flex justify-between align-center mb-2">
+        <h2>Gestion des Candidatures Orales</h2>
+        <button class="btn btn-primary" onclick="openNewApplicationModal()">
+            <i class="fas fa-plus"></i> Nouvelle Candidature
+        </button>
+    </div>
+
+    <div class="card mb-2">
+        <div class="flex align-center gap-1 flex-wrap">
+            <span class="text-muted mr-1">Filtrer par statut:</span>
+            <button class="filter-btn active" data-status="all" onclick="filterApplications('all')">Tous</button>
+            <button class="filter-btn" data-status="pending" onclick="filterApplications('pending')">En attente</button>
+            <button class="filter-btn" data-status="reviewed" onclick="filterApplications('reviewed')">Examiné</button>
+            <button class="filter-btn" data-status="accepted" onclick="filterApplications('accepted')">Accepté</button>
+            <button class="filter-btn" data-status="rejected" onclick="filterApplications('rejected')">Refusé</button>
+        </div>
+    </div>
+
+    <div id="applications-list" class="applications-grid">
+        <div class="flex justify-center align-center" style="grid-column: 1/-1; min-height: 200px;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+        </div>
+    </div>
+</div>
+
+<!-- New Application Modal -->
+<div id="new-application-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h3>Nouvelle Candidature</h3>
+            <button class="modal-close-btn" onclick="closeNewApplicationModal()" title="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group mb-2">
+                <label>ID Discord de l'utilisateur *</label>
+                <input type="text" id="new-app-user-id" class="input" placeholder="123456789012345678" required>
+            </div>
+            <div class="form-group mb-2">
+                <label>Tag Discord de l'utilisateur *</label>
+                <input type="text" id="new-app-user-tag" class="input" placeholder="Username#1234" required>
+            </div>
+            <div class="form-group mb-2">
+                <label>Avatar URL (optionnel)</label>
+                <input type="text" id="new-app-user-avatar" class="input" placeholder="https://...">
+            </div>
+            
+            <div id="questions-container"></div>
+            
+            <div class="flex gap-1 justify-end mt-2">
+                <button class="btn btn-secondary" onclick="closeNewApplicationModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveNewApplication()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View/Edit Application Modal -->
+<div id="view-application-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h3 id="view-app-title">Candidature</h3>
+            <button class="modal-close-btn" onclick="closeViewApplicationModal()" title="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="view-questions-container"></div>
+            
+            <div class="form-group mt-2">
+                <label>Notes</label>
+                <textarea id="view-app-notes" class="custom-textarea" rows="3" placeholder="Notes sur cette candidature..."></textarea>
+            </div>
+            
+            <div class="flex gap-1 justify-between mt-2">
+                <div class="flex gap-1">
+                    <button class="btn btn-success" onclick="updateApplicationStatus('accepted')">
+                        <i class="fas fa-check"></i> Accepter
+                    </button>
+                    <button class="btn btn-danger" onclick="updateApplicationStatus('rejected')">
+                        <i class="fas fa-times"></i> Refuser
+                    </button>
+                    <button class="btn btn-secondary" onclick="updateApplicationStatus('reviewed')">
+                        <i class="fas fa-eye"></i> Marquer comme examiné
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteApplication()" style="background: var(--error);">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+                <div class="flex gap-1">
+                    <button class="btn btn-secondary" onclick="closeViewApplicationModal()">Fermer</button>
+                    <button class="btn btn-primary" onclick="saveApplicationChanges()">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.applications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.application-card {
+    border-top: 4px solid var(--primary);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.application-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.application-card.pending { border-top-color: var(--warning); }
+.application-card.reviewed { border-top-color: var(--info); }
+.application-card.accepted { border-top-color: var(--success); }
+.application-card.rejected { border-top-color: var(--error); }
+
+.application-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.application-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.application-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.application-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.application-info p {
+    margin: 0.25rem 0 0 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.application-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.application-status.pending { background: var(--warning); color: white; }
+.application-status.reviewed { background: var(--info); color: white; }
+.application-status.accepted { background: var(--success); color: white; }
+.application-status.rejected { background: var(--error); color: white; }
+
+.application-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color-light);
+    margin-top: auto;
+}
+
+.question-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--surface-glass-border);
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-glass);
+}
+
+.question-section h4 {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-main);
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 0.75rem;
+    letter-spacing: 0.01em;
+}
+
+.question-item {
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--surface-glass-border);
+}
+
+.question-item:last-child {
+    margin-bottom: 0;
+}
+
+.question-text {
+    font-weight: 600;
+    margin-bottom: 0.875rem;
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+}
+
+.question-answer,
+.custom-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--surface-glass-border);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    resize: vertical;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.question-answer:focus,
+.custom-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), var(--shadow-glow);
+    background: var(--surface-glass-hover);
+}
+
+.question-answer::placeholder,
+.custom-textarea::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.custom-textarea {
+    min-height: 120px;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--surface-dark);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: 1.5px solid transparent;
+}
+
+.filter-btn:hover {
+    background: var(--surface);
+    color: var(--text-main);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-glass-border);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.modal-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    line-height: 1;
+}
+
+.modal-close-btn:hover {
+    background: var(--surface-glass-hover);
+    color: var(--error);
+    transform: rotate(90deg);
+}
+
+.modal-close-btn:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+.modal-close-btn i {
+    font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+    .applications-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+(function() {
+    let allApplications = [];
+    let currentFilter = 'all';
+    let questions = {};
+    let currentApplicationId = null;
+
+    async function loadQuestions() {
+        try {
+            questions = await window.api.get('/applications/questions');
+        } catch (error) {
+            console.error('Failed to load questions:', error);
+            window.toast.error('Erreur lors du chargement des questions');
+        }
+    }
+
+    async function loadApplications() {
+        try {
+            const status = currentFilter === 'all' ? null : currentFilter;
+            const url = status ? `/applications?status=${status}` : '/applications';
+            allApplications = await window.api.get(url);
+            renderApplications();
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement des candidatures');
+        }
+    }
+
+    function filterApplications(status) {
+        currentFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.status === status);
+        });
+        loadApplications();
+    }
+
+    function renderApplications() {
+        const container = document.getElementById('applications-list');
+        if (allApplications.length === 0) {
+            container.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align: center; padding: 2rem;"><p class="text-muted">Aucune candidature trouvée</p></div>';
+            return;
+        }
+
+        container.innerHTML = allApplications.map(app => {
+            const statusClass = app.status || 'pending';
+            const statusText = {
+                pending: 'En attente',
+                reviewed: 'Examiné',
+                accepted: 'Accepté',
+                rejected: 'Refusé'
+            }[statusClass] || 'Inconnu';
+
+            const avatar = app.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const date = new Date(app.created_at).toLocaleDateString('fr-FR');
+
+            return `
+                <div class="card application-card ${statusClass}" onclick="viewApplication(${app.id})">
+                    <div class="application-header">
+                        <div class="application-user">
+                            <img src="${avatar}" alt="${app.user_tag}" class="application-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                            <div class="application-info">
+                                <h4>${app.user_tag}</h4>
+                                <p>${app.user_id}</p>
+                            </div>
+                        </div>
+                        <span class="application-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="application-footer">
+                        <span class="text-muted" style="font-size: 0.875rem;">Créé le ${date}</span>
+                        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); viewApplication(${app.id})">
+                            <i class="fas fa-eye"></i> Voir
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function openNewApplicationModal() {
+        await loadQuestions();
+        document.getElementById('new-application-modal').style.display = 'flex';
+        renderQuestionsForNew();
+    }
+
+    function closeNewApplicationModal() {
+        document.getElementById('new-application-modal').style.display = 'none';
+        document.getElementById('new-app-user-id').value = '';
+        document.getElementById('new-app-user-tag').value = '';
+        document.getElementById('new-app-user-avatar').value = '';
+    }
+
+    function renderQuestionsForNew() {
+        const container = document.getElementById('questions-container');
+        container.innerHTML = Object.entries(questions).map(([section, sectionQuestions]) => {
+            const sectionTitle = {
+                S1: 'S1 – Questions Générales',
+                S2: 'S2 – Mises en Situation',
+                S3: 'S3 – Questions Finales'
+            }[section] || section;
+
+            return `
+                <div class="question-section">
+                    <h4>${sectionTitle}</h4>
+                    ${sectionQuestions.map(q => `
+                        <div class="question-item">
+                            <div class="question-text">${q.text}</div>
+                            <textarea 
+                                class="question-answer" 
+                                data-question-id="${q.id}"
+                                placeholder="Réponse de l'utilisateur..."
+                            ></textarea>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function saveNewApplication() {
+        const userId = document.getElementById('new-app-user-id').value.trim();
+        const userTag = document.getElementById('new-app-user-tag').value.trim();
+        const userAvatar = document.getElementById('new-app-user-avatar').value.trim();
+
+        if (!userId || !userTag) {
+            window.toast.error('L\'ID et le tag Discord sont requis');
+            return;
+        }
+
+        const answers = {};
+        document.querySelectorAll('#questions-container .question-answer').forEach(textarea => {
+            const questionId = textarea.dataset.questionId;
+            answers[questionId] = textarea.value.trim();
+        });
+
+        try {
+            await window.api.post('/applications', {
+                userId,
+                userTag,
+                userAvatar: userAvatar || null,
+                answers
+            });
+            window.toast.success('Candidature créée avec succès');
+            closeNewApplicationModal();
+            loadApplications();
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de la création de la candidature');
+        }
+    }
+
+    async function viewApplication(id) {
+        currentApplicationId = id;
+        try {
+            const app = await window.api.get(`/applications/${id}`);
+            await loadQuestions();
+            
+            document.getElementById('view-app-title').textContent = `Candidature - ${app.user_tag}`;
+            document.getElementById('view-app-notes').value = app.notes || '';
+            
+            renderQuestionsForView(app);
+            document.getElementById('view-application-modal').style.display = 'flex';
+        } catch (error) {
+            console.error('View error:', error);
+            window.toast.error('Erreur lors du chargement de la candidature');
+        }
+    }
+
+    function closeViewApplicationModal() {
+        document.getElementById('view-application-modal').style.display = 'none';
+        currentApplicationId = null;
+    }
+
+    function renderQuestionsForView(app) {
+        const container = document.getElementById('view-questions-container');
+        const answers = app.answers || {};
+        
+        container.innerHTML = `
+            <div class="card mb-2" style="padding: 1.5rem; background: var(--surface-glass); backdrop-filter: blur(10px); border: 1px solid var(--surface-glass-border);">
+                <div class="application-user">
+                    <img src="${app.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="${app.user_tag}" class="application-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div>
+                        <h4 style="margin: 0; color: var(--text-main); font-weight: 700;">${app.user_tag}</h4>
+                        <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.875rem;">ID: ${app.user_id}</p>
+                    </div>
+                </div>
+            </div>
+        ` + Object.entries(questions).map(([section, sectionQuestions]) => {
+            const sectionTitle = {
+                S1: 'S1 – Questions Générales',
+                S2: 'S2 – Mises en Situation',
+                S3: 'S3 – Questions Finales'
+            }[section] || section;
+
+            return `
+                <div class="question-section">
+                    <h4>${sectionTitle}</h4>
+                    ${sectionQuestions.map(q => {
+                        const answer = answers[q.id] || '';
+                        return `
+                            <div class="question-item">
+                                <div class="question-text">${q.text}</div>
+                                <textarea 
+                                    class="question-answer" 
+                                    data-question-id="${q.id}"
+                                    placeholder="Réponse de l'utilisateur..."
+                                >${answer}</textarea>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function saveApplicationChanges() {
+        if (!currentApplicationId) return;
+
+        const answers = {};
+        document.querySelectorAll('#view-questions-container .question-answer').forEach(textarea => {
+            const questionId = textarea.dataset.questionId;
+            answers[questionId] = textarea.value.trim();
+        });
+
+        const notes = document.getElementById('view-app-notes').value.trim();
+
+        try {
+            await window.api.patch(`/applications/${currentApplicationId}`, {
+                answers,
+                notes
+            });
+            window.toast.success('Candidature mise à jour avec succès');
+            loadApplications();
+        } catch (error) {
+            console.error('Update error:', error);
+            window.toast.error('Erreur lors de la mise à jour');
+        }
+    }
+
+    async function updateApplicationStatus(status) {
+        if (!currentApplicationId) return;
+
+        try {
+            await window.api.patch(`/applications/${currentApplicationId}`, { status });
+            window.toast.success(`Statut mis à jour: ${status}`);
+            loadApplications();
+            viewApplication(currentApplicationId); // Reload to show updated status
+        } catch (error) {
+            console.error('Status update error:', error);
+            window.toast.error('Erreur lors de la mise à jour du statut');
+        }
+    }
+
+    async function deleteApplication() {
+        if (!currentApplicationId) return;
+
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette candidature ? Cette action est irréversible.')) {
+            return;
+        }
+
+        try {
+            await window.api.delete(`/applications/${currentApplicationId}`);
+            window.toast.success('Candidature supprimée avec succès');
+            closeViewApplicationModal();
+            loadApplications();
+        } catch (error) {
+            console.error('Delete error:', error);
+            window.toast.error('Erreur lors de la suppression de la candidature');
+        }
+    }
+
+    // Expose functions globally
+    window.openNewApplicationModal = openNewApplicationModal;
+    window.closeNewApplicationModal = closeNewApplicationModal;
+    window.saveNewApplication = saveNewApplication;
+    window.viewApplication = viewApplication;
+    window.closeViewApplicationModal = closeViewApplicationModal;
+    window.saveApplicationChanges = saveApplicationChanges;
+    window.updateApplicationStatus = updateApplicationStatus;
+    window.deleteApplication = deleteApplication;
+    window.filterApplications = filterApplications;
+
+    // Initialize
+    loadQuestions();
+    loadApplications();
+})();
+</script>
+

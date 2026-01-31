@@ -1,0 +1,129 @@
+<div class="commands-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Gestion des Commandes</h2>
+        <div class="search-container" style="width: 300px;">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="command-search" class="search-input" placeholder="Filtrer les commandes..." oninput="filterCommands()">
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <div class="flex gap-1">
+            <button class="btn btn-secondary active-filter" onclick="setFilter('all', this)">Toutes</button>
+            <button class="btn btn-secondary" onclick="setFilter('enabled', this)">Activées</button>
+            <button class="btn btn-secondary" onclick="setFilter('disabled', this)">Désactivées</button>
+        </div>
+    </div>
+
+    <div id="commands-list" class="grid-commands" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+    </div>
+</div>
+
+<style>
+.grid-commands .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-bottom: 0;
+}
+.active-filter {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.badge-category {
+    background: var(--surface-dark);
+    color: var(--text-muted);
+}
+</style>
+
+<script>
+(function() {
+    let allCommands = [];
+    let currentFilter = 'all';
+
+    async function loadCommands() {
+        try {
+            console.log('Fetching commands from API...');
+            allCommands = await window.api.get('/commands');
+            console.log(`Loaded ${allCommands.length} commands:`, allCommands);
+            renderCommands();
+        } catch (error) {
+            console.error('Failed to load commands:', error);
+            window.toast.error('Erreur lors du chargement des commandes');
+        }
+    }
+
+    function renderCommands() {
+        const list = document.getElementById('commands-list');
+        const searchInput = document.getElementById('command-search');
+        if (!list || !searchInput) return;
+
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        let filtered = allCommands.filter(cmd => {
+            const matchesSearch = cmd.name.toLowerCase().includes(searchTerm) || 
+                                cmd.description.toLowerCase().includes(searchTerm);
+            
+            if (currentFilter === 'enabled') return matchesSearch && cmd.enabled;
+            if (currentFilter === 'disabled') return matchesSearch && !cmd.enabled;
+            return matchesSearch;
+        });
+
+        list.innerHTML = filtered.map(cmd => `
+            <div class="card">
+                <div class="flex justify-between align-center mb-1">
+                    <div class="flex align-center gap-1">
+                        <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">/${cmd.name}</div>
+                        <span class="badge badge-category">${cmd.category}</span>
+                    </div>
+                    ${cmd.feature ? `
+                        <label class="switch">
+                            <input type="checkbox" ${cmd.enabled ? 'checked' : ''} onchange="window.toggleCommand('${cmd.name}', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    ` : '<span class="badge" style="background: var(--surface-dark); color: var(--text-muted); opacity: 0.6;">Admin</span>'}
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); flex: 1;">${cmd.description}</p>
+            </div>
+        `).join('');
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">Aucune commande trouvée</div>';
+        }
+    }
+
+    window.toggleCommand = async function(name, enabled) {
+        try {
+            await window.api.put(`/commands/${name}/toggle`, { enabled });
+            const cmd = allCommands.find(c => c.name === name);
+            if (cmd) cmd.enabled = enabled;
+            window.toast.success(`Commande /${name} ${enabled ? 'activée' : 'désactivée'}`);
+        } catch (error) {
+            window.toast.error('Erreur lors de la modification');
+            renderCommands();
+        }
+    };
+
+    window.filterCommands = function() {
+        renderCommands();
+    };
+
+    window.setFilter = function(filter, btn) {
+        currentFilter = filter;
+        document.querySelectorAll('.commands-page .btn').forEach(b => b.classList.remove('active-filter'));
+        btn.classList.add('active-filter');
+        renderCommands();
+    };
+
+    window.initCommandsPage = function() {
+        loadCommands();
+    };
+})();
+</script>
+

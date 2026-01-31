@@ -1,0 +1,1388 @@
+<div class="monitoring-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Monitoring</h2>
+        <button class="btn btn-secondary" onclick="window.refreshAll()"><i class="fas fa-sync-alt"></i>
+            Actualiser</button>
+    </div>
+
+    <div class="tabs mb-1">
+        <button class="tab-btn active" data-tab="giveaways" onclick="switchTab('giveaways', this)">
+            <i class="fas fa-gift"></i> Concours
+        </button>
+        <button class="tab-btn" data-tab="tickets" onclick="switchTab('tickets', this)">
+            <i class="fas fa-ticket-alt"></i> Tickets
+        </button>
+        <button class="tab-btn" data-tab="market" onclick="switchTab('market', this)">
+            <i class="fas fa-store"></i> Marché
+        </button>
+        <button class="tab-btn" data-tab="patch-notes" onclick="switchTab('patch-notes', this)">
+            <i class="fas fa-file-alt"></i> Patch Notes
+        </button>
+        <button class="tab-btn" data-tab="market-config" onclick="switchTab('market-config', this)">
+            <i class="fas fa-cog"></i> Config Marché
+        </button>
+        <button class="tab-btn" data-tab="ratings" onclick="switchTab('ratings', this)">
+            <i class="fas fa-star"></i> Statistiques
+        </button>
+    </div>
+
+    <div id="tab-giveaways" class="tab-content active">
+        <div id="giveaways-list" class="grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+            <div class="flex justify-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+        </div>
+    </div>
+
+    <div id="tab-tickets" class="tab-content">
+        <div id="tickets-list" class="grid" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+            <div class="flex justify-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+        </div>
+    </div>
+
+
+    <div id="tab-market" class="tab-content">
+        <div class="card mb-1">
+            <div class="flex justify-between align-center mb-1">
+                <h3>État actuel du marché</h3>
+                <div class="flex align-center gap-1">
+                    <span id="market-last-updated" class="text-muted"></span>
+                    <button class="btn btn-primary" onclick="window.rotateMarket()" id="rotate-market-btn">
+                        <i class="fas fa-sync-alt"></i> Cycler
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.revertMarket()" id="revert-market-btn">
+                        <i class="fas fa-undo"></i> Revenir en arrière
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="card" id="market-buffed">
+                <h3 style="color: #57F287;">🟢 Objets Buffés (×1.5)</h3>
+                <div id="buffed-items" class="market-items"></div>
+            </div>
+            <div class="card" id="market-reset">
+                <h3 style="color: #FEE75C;">🟡 Objets Réinitialisés</h3>
+                <div id="reset-items" class="market-items"></div>
+            </div>
+        </div>
+
+        <!-- Previous State Section -->
+        <div class="card mt-1" id="previous-market-section" style="display: none;">
+            <div class="flex justify-between align-center mb-1">
+                <h3>État précédent du marché</h3>
+                <span id="previous-market-last-updated" class="text-muted"></span>
+            </div>
+            <div class="grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="card" id="previous-market-buffed" style="opacity: 0.7;">
+                    <h3 style="color: #57F287;">🟢 Objets Buffés (×1.5)</h3>
+                    <div id="previous-buffed-items" class="market-items"></div>
+                </div>
+                <div class="card" id="previous-market-reset" style="opacity: 0.7;">
+                    <h3 style="color: #FEE75C;">🟡 Objets Réinitialisés</h3>
+                    <div id="previous-reset-items" class="market-items"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="tab-patch-notes" class="tab-content">
+        <div class="flex justify-between align-center mb-1">
+            <h3>Patch Notes</h3>
+            <button class="btn btn-primary" onclick="window.createPatchNote()" id="create-patch-btn"
+                style="display: none;">
+                <i class="fas fa-plus"></i> Nouveau
+            </button>
+        </div>
+        <div id="patch-notes-list" class="mb-1"></div>
+        <div id="patch-note-editor" class="card" style="display: none;">
+            <h3 id="editor-title">Nouveau Patch Note</h3>
+            <div class="form-group mb-1">
+                <label>Version</label>
+                <input type="text" id="patch-version" class="form-control" placeholder="ex: 1.2.3">
+            </div>
+            <div class="form-group mb-1">
+                <label>Contenu (Markdown supporté)</label>
+                <textarea id="patch-content" class="form-control" rows="15"
+                    placeholder="Écrivez vos notes de patch ici..."></textarea>
+            </div>
+            <div class="flex gap-1">
+                <button class="btn btn-primary" onclick="window.savePatchNote()">Enregistrer</button>
+                <button class="btn btn-secondary" onclick="window.cancelPatchNote()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="tab-market-config" class="tab-content">
+        <div class="flex justify-between align-center mb-1">
+            <h3>Configuration du Marché</h3>
+            <div class="flex gap-1">
+                <button class="btn btn-secondary" onclick="window.resetMarketConfig()">
+                    <i class="fas fa-undo"></i> Réinitialiser
+                </button>
+                <button class="btn btn-secondary" onclick="window.downloadMarketConfig()">
+                    <i class="fas fa-download"></i> Télécharger
+                </button>
+                <button class="btn btn-primary" onclick="window.saveMarketConfig()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </div>
+        <div class="card">
+            <div id="market-config-content" style="position: relative;">
+                <div class="flex justify-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+            </div>
+        </div>
+
+
+        <div id="config-search-overlay" class="config-search-overlay">
+            <div id="config-search-container" class="config-search-container">
+                <input type="text" id="config-search-input" class="config-search-input"
+                    placeholder="Tapez votre recherche..." autocomplete="off">
+                <div class="config-search-info">
+                    <span id="config-search-count">0 résultat</span>
+                    <span id="config-search-position"></span>
+                </div>
+                <div class="config-search-buttons">
+                    <button class="btn btn-secondary" onclick="window.configSearchPrevious()">
+                        <i class="fas fa-chevron-up"></i> Précédent
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.configSearchNext()">
+                        <i class="fas fa-chevron-down"></i> Suivant
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.configSearchClose()">
+                        <i class="fas fa-times"></i> Fermer (Échap)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-ratings" class="tab-content">
+        <div id="ratings-container" class="grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="flex justify-center"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 2px solid var(--surface-dark);
+        padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+        color: var(--text);
+    }
+
+    .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .market-items {
+        overflow-y: visible;
+    }
+
+    .market-items .item {
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        background: var(--surface-dark);
+        border-radius: 8px;
+        border-left: 3px solid transparent;
+    }
+
+    .market-items .item:hover {
+        background: var(--surface);
+        border-left-color: var(--primary);
+    }
+
+    .giveaway-card,
+    .ticket-card {
+        position: relative;
+    }
+
+    .countdown {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+    }
+
+    .ticket-messages {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--surface-dark);
+        border-radius: 8px;
+        display: none;
+    }
+
+    .ticket-messages.active {
+        display: block;
+    }
+
+    .message-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: var(--surface);
+        border-radius: 4px;
+        border-left: 3px solid var(--primary);
+    }
+
+    .message-author {
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .live-indicator {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .message-attachments {
+        font-size: 0.85rem;
+    }
+
+    .message-attachments a {
+        display: inline-block;
+        margin-right: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        background: var(--surface-dark);
+        border-radius: 4px;
+    }
+
+    .payment-type-icon {
+        width: 28px;
+        height: 28px;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        vertical-align: middle;
+        display: inline-block;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .payment-type-fallback {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .config-viewer {
+        background: #1a1a1a;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        min-height: 70vh;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #e0e0e0;
+        border: 1px solid #333;
+        width: 100%;
+        box-sizing: border-box;
+        resize: vertical;
+    }
+
+    .config-viewer:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: -1px;
+    }
+
+    .editor-container {
+        position: relative;
+        width: 100%;
+        height: 70vh;
+        background: #1a1a1a;
+        border-radius: 8px;
+        border: 1px solid #333;
+        overflow: hidden;
+    }
+
+    .config-highlights {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 1rem;
+        box-sizing: border-box;
+        white-space: pre;
+        color: transparent;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .config-viewer-editable {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent !important;
+        color: #e0e0e0;
+        padding: 1rem;
+        box-sizing: border-box;
+        border: none !important;
+        outline: none !important;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        resize: none;
+        z-index: 1;
+        overflow-y: auto;
+    }
+
+    .search-match {
+        background-color: rgba(255, 255, 0, 0.25);
+        border-radius: 2px;
+    }
+
+    .search-match.current {
+        background-color: rgba(255, 165, 0, 0.7) !important;
+    }
+
+    .config-viewer code {
+        background: transparent;
+        padding: 0;
+        font-family: inherit;
+    }
+
+    .config-search-overlay {
+        position: fixed !important;
+        top: 80px !important;
+        right: 20px !important;
+        background: var(--surface) !important;
+        border: 1px solid var(--surface-dark) !important;
+        border-radius: 8px !important;
+        padding: 1rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        z-index: 2000 !important;
+        display: none;
+        width: 350px !important;
+        box-sizing: border-box !important;
+    }
+
+    .config-search-overlay.active {
+        display: block !important;
+        animation: searchSlideIn 0.2s ease-out;
+    }
+
+    @keyframes searchSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .config-search-container {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .config-search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--surface-dark);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .config-search-input:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: -1px;
+    }
+
+    .config-search-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+
+    .config-search-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .config-search-buttons button {
+        flex: 1;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .config-search-match {
+        background: rgba(255, 255, 0, 0.3);
+        color: var(--text);
+    }
+</style>
+
+<script>
+    (function () {
+        let currentTab = 'giveaways';
+        let editingPatchNoteId = null;
+        let itemTranslations = {};
+
+        async function loadTranslations() {
+            try {
+                const response = await fetch('/api/monitoring/translations').catch(() =>
+                    fetch('/data/item-translations.json')
+                );
+                if (response && response.ok) {
+                    itemTranslations = await response.json();
+                }
+            } catch (e) {
+                console.warn('Failed to load translations, using item names as-is');
+            }
+        }
+
+        function translateItem(itemName) {
+            return itemTranslations[itemName] || itemName;
+        }
+
+        function switchTab(tabName, btn) {
+            currentTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'giveaways') loadGiveaways();
+            else if (tabName === 'tickets') loadTickets();
+            else if (tabName === 'market') loadMarket();
+            else if (tabName === 'patch-notes') loadPatchNotes();
+            else if (tabName === 'ratings') {
+                loadRatings();
+            } else {
+                // Close search if switching away from market-config
+                configSearchClose();
+            }
+        }
+
+        function formatTimeRemaining(endTime) {
+            const end = new Date(endTime);
+            const now = new Date();
+            const diff = end - now;
+
+            if (diff <= 0) return 'Terminé';
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (days > 0) return `${days}j ${hours}h`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        async function loadGiveaways() {
+            const container = document.getElementById('giveaways-list');
+            try {
+                const giveaways = await window.api.get('/monitoring/giveaways');
+                if (giveaways.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-muted">Aucun concours actif</p></div>';
+                    return;
+                }
+                container.innerHTML = giveaways.map(g => `
+                <div class="card giveaway-card">
+                    <h3>🎉 ${g.prize}</h3>
+                    <div class="flex justify-between mb-1">
+                        <span><strong>Gagnants:</strong> ${g.winners}</span>
+                        <span><strong>Participants:</strong> ${g.participantCount}</span>
+                    </div>
+                    <div class="countdown">
+                        <i class="fas fa-clock"></i> Se termine: ${formatTimeRemaining(g.endTime)}
+                    </div>
+                    ${g.requirements ? `<div class="mt-1"><strong>Conditions:</strong> ${g.requirements}</div>` : ''}
+                </div>
+            `).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="card"><p class="error-text">Erreur lors du chargement</p></div>';
+            }
+        }
+
+        async function loadTickets() {
+            const container = document.getElementById('tickets-list');
+            try {
+                const tickets = await window.api.get('/monitoring/tickets');
+                if (tickets.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-muted">Aucun ticket ouvert</p></div>';
+                    return;
+                }
+                container.innerHTML = tickets.map(t => `
+                <div class="card ticket-card">
+                    <div class="flex justify-between align-center mb-1">
+                        <h3>🎫 ${t.ticketId}</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openTicketViewer('${t.channelId}', '${t.ticketId}')">
+                            <i class="fas fa-external-link-alt"></i> Ouvrir
+                        </button>
+                    </div>
+                    <div class="text-muted">
+                        <div>Créé le: ${new Date(t.createdAt).toLocaleString('fr-FR')}</div>
+                        <div>Utilisateur: <code>${t.userId}</code></div>
+                        ${t.rating ? `<div style="color: #f1c40f; margin-top: 4px;">Note: ${'⭐'.repeat(t.rating)}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="card"><p class="error-text">Erreur lors du chargement</p></div>';
+            }
+        }
+
+        async function loadRatings() {
+            const container = document.getElementById('ratings-container');
+            if (!container) return;
+            try {
+                const ratings = await window.api.get('/monitoring/ratings');
+                if (ratings.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-muted">Aucune donnée de notation disponible</p></div>';
+                    return;
+                }
+
+                container.innerHTML = ratings.map(r => {
+                    const stars = Math.round(r.averageRating);
+                    const starHtml = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
+
+                    return `
+                    <div class="card">
+                        <div class="flex justify-between align-center mb-1">
+                            <h3>${r.category.toUpperCase()}</h3>
+                            <span class="badge ${r.averageRating >= 4 ? 'badge-success' : r.averageRating >= 3 ? 'badge-warning' : 'badge-danger'}">
+                                ${r.averageRating} / 5
+                            </span>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #f1c40f; margin-bottom: 0.5rem;">${starHtml}</div>
+                        <div class="text-muted" style="font-size: 0.9rem;">
+                            <div class="flex justify-between mb-05">
+                                <span>Note moyenne:</span>
+                                <strong>${r.averageRating}</strong>
+                            </div>
+                            <div class="flex justify-between mb-05">
+                                <span>Total tickets:</span>
+                                <strong>${r.totalTickets}</strong>
+                            </div>
+                            <div class="flex justify-between mb-05">
+                                <span>Tickets notés:</span>
+                                <strong>${r.ratedTickets} (${Math.round((r.ratedTickets / r.totalTickets) * 100)}%)</strong>
+                            </div>
+                        </div>
+                        <div class="mt-1" style="border-top: 1px solid var(--surface-dark); padding-top: 0.75rem;">
+                            <h4 style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted);">DISTRIBUTION DES NOTES</h4>
+                            ${[5, 4, 3, 2, 1].map(s => {
+                        const count = r.distribution[s] || 0;
+                        const percent = r.ratedTickets > 0 ? Math.round((count / r.ratedTickets) * 100) : 0;
+                        return `
+                                <div class="flex align-center gap-1 mb-05">
+                                    <span style="width: 30px; font-size: 0.8rem;">${s} ⭐</span>
+                                    <div style="flex: 1; height: 8px; background: var(--surface-dark); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${percent}%; height: 100%; background: var(--primary);"></div>
+                                    </div>
+                                    <span style="width: 30px; font-size: 0.8rem; text-align: right;">${count}</span>
+                                </div>
+                                `;
+                    }).join('')}
+                        </div>
+                    </div>
+                `}).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="card"><p class="error-text">Erreur lors du chargement des statistiques</p></div>';
+            }
+        }
+
+        function openTicketViewer(channelId, ticketId) {
+            const url = `/pages/ticket-viewer.html?channelId=${channelId}&ticketId=${encodeURIComponent(ticketId)}`;
+            window.open(url, '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+        }
+
+        let basePrices = {};
+
+        const paymentTypeImages = {
+            'GOLD_NUGGET': '/assets/Gold_Nugget_JE3_BE2-removebg-preview.png',
+            'IRON_NUGGET': '/assets/Iron_Nugget_JE1_BE1-removebg-preview.png',
+            'IRON_INGOT': '/assets/Iron_Ingot_JE3_BE2-removebg-preview.png',
+            'GOLD_INGOT': '/assets/Gold_Ingot_JE4_BE2-removebg-preview.png',
+            'DIAMOND': 'https://minecraft.wiki/images/thumb/e/ea/Diamond_JE3_BE3.png/32px-Diamond_JE3_BE3.png',
+            'EMERALD': 'https://minecraft.wiki/images/thumb/7/7d/Emerald_JE3_BE3.png/32px-Emerald_JE3_BE3.png'
+        };
+
+        function getPaymentTypeImage(paymentType) {
+            const imageUrl = paymentTypeImages[paymentType];
+            if (imageUrl) {
+                return `<img src="${imageUrl}" alt="${paymentType}" class="payment-type-icon" title="${paymentType}" 
+                onerror="this.onerror=null; this.style.display='none'; const fallback = this.nextElementSibling; if(fallback) fallback.style.display='inline';">
+                <span class="payment-type-fallback" style="display:none;">${paymentType}</span>`;
+            }
+            return `<span class="payment-type-fallback">${paymentType}</span>`;
+        }
+
+        async function loadBasePrices() {
+            try {
+                const response = await fetch('/api/monitoring/base-prices');
+                if (response.ok) {
+                    basePrices = await response.json();
+                }
+            } catch (e) {
+                console.warn('Failed to load base prices');
+            }
+        }
+
+        function calculatePrice(itemName, state) {
+            const basePriceData = basePrices[itemName];
+            if (!basePriceData) return { base: '?', current: '?', paymentType: '?' };
+
+            const basePrice = basePriceData.basePrice;
+            const paymentType = basePriceData.paymentType;
+            let currentPrice;
+
+            if (state.buffed.includes(itemName)) {
+                currentPrice = Math.round(basePrice * 1.5);
+            } else if (state.nerfed.includes(itemName)) {
+                currentPrice = Math.round(basePrice / 1.5);
+            } else if (state.reset.includes(itemName)) {
+                currentPrice = basePrice;
+            } else {
+                currentPrice = basePrice;
+            }
+
+            return { base: basePrice, current: currentPrice, paymentType };
+        }
+
+        async function loadMarket() {
+            try {
+                await loadBasePrices();
+                const [state, previousState] = await Promise.all([
+                    window.api.get('/monitoring/market'),
+                    window.api.get('/monitoring/market/previous').catch(() => null)
+                ]);
+
+                document.getElementById('market-last-updated').textContent =
+                    state.lastUpdated ? `Dernière mise à jour: ${state.lastUpdated}` : 'Aucune donnée';
+
+                // Render current state
+                renderMarketState(state, 'buffed', 'nerfed', 'reset');
+
+                // Render previous state if available
+                if (previousState) {
+                    document.getElementById('previous-market-section').style.display = 'block';
+                    document.getElementById('previous-market-last-updated').textContent =
+                        previousState.lastUpdated ? `Dernière mise à jour: ${previousState.lastUpdated}` : '';
+                    renderMarketState(previousState, 'previous-buffed', 'previous-nerfed', 'previous-reset', true);
+                } else {
+                    document.getElementById('previous-market-section').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to load market:', error);
+            }
+        }
+
+        function renderMarketState(state, buffedId, nerfedId, resetId, isPrevious = false) {
+            const buffedContainer = document.getElementById(buffedId + '-items');
+            const nerfedContainer = document.getElementById(nerfedId + '-items');
+            const resetContainer = document.getElementById(resetId + '-items');
+
+            if (buffedContainer) {
+                buffedContainer.innerHTML = state.buffed.length > 0
+                    ? state.buffed.map(entry => {
+                        let itemName, quantity, currentPrice, currentType, basePrice, baseType, baseQuantity;
+
+                        if (typeof entry === 'object') {
+                            // New Object format
+                            itemName = entry.item;
+                            quantity = entry.quantity || 1;
+                            currentPrice = entry.price;
+                            currentType = entry.type;
+
+                            // Get base info for comparison
+                            const baseData = basePrices[itemName];
+                            basePrice = baseData ? baseData.basePrice : '?';
+                            baseType = baseData ? baseData.paymentType : '?';
+                            baseQuantity = baseData ? (baseData.quantity || 1) : 1;
+                        } else {
+                            // Old String format fallback
+                            itemName = entry;
+                            const baseData = basePrices[itemName];
+                            basePrice = baseData ? baseData.basePrice : '?';
+                            baseType = baseData ? baseData.paymentType : '?';
+                            baseQuantity = baseData ? (baseData.quantity || 1) : 1;
+
+                            const calc = calculatePrice(itemName, state);
+                            quantity = 1;
+                            currentPrice = calc.current;
+                            currentType = calc.paymentType;
+                        }
+
+                        // Display Quantity Change if different
+                        let qtyDisplay = '';
+                        if (quantity !== baseQuantity) {
+                            // Check if baseQuantity is defined and not null
+                            const safeBaseQty = baseQuantity || 1;
+                            qtyDisplay = `<span style="font-size:0.9em; opacity:0.8;">${safeBaseQty}x →</span> <strong>${quantity}x</strong> `;
+                        } else if (quantity > 1) {
+                            qtyDisplay = `<strong>${quantity}x</strong> `;
+                        }
+
+                        const displayType = getPaymentTypeImage(currentType);
+
+                        let priceDisplay = '';
+                        if (baseType !== currentType && baseType !== '?') {
+                            priceDisplay = `${basePrice} ${getPaymentTypeImage(baseType)} → ${currentPrice} ${displayType}`;
+                        } else {
+                            priceDisplay = `${basePrice} → ${currentPrice} ${displayType}`;
+                        }
+
+                        return `<div class="item">
+                    <div style="margin-bottom:0.25rem;">${qtyDisplay}<strong>${translateItem(itemName)}</strong></div>
+                    <span style="color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                        ${priceDisplay}
+                    </span>
+                </div>`;
+                    }).join('')
+                    : '<p class="text-muted">Aucun objet buffé</p>';
+            }
+
+            // Hide Nerfed Section or empty it
+            if (nerfedContainer) {
+                nerfedContainer.innerHTML = '<p class="text-muted">Aucun objet nerfé</p>';
+            }
+
+            if (resetContainer) {
+                resetContainer.innerHTML = state.reset.length > 0
+                    ? state.reset.map(entry => {
+                        let itemName, quantity, currentPrice, currentType, basePrice, baseType, baseQuantity;
+                        let prevPrice, prevType, prevQuantity;
+
+                        if (typeof entry === 'object') {
+                            // Object from previous buff state
+                            itemName = entry.item;
+                            prevQuantity = entry.quantity || 1;
+                            prevPrice = entry.price;
+                            prevType = entry.type;
+
+                            const baseData = basePrices[itemName];
+                            basePrice = baseData ? baseData.basePrice : '?';
+                            baseType = baseData ? baseData.paymentType : '?';
+                            baseQuantity = baseData ? (baseData.quantity || 1) : 1;
+                        } else {
+                            // Fallback for old string state
+                            itemName = entry;
+                            const baseData = basePrices[itemName];
+                            basePrice = baseData ? baseData.basePrice : '?';
+                            baseType = baseData ? baseData.paymentType : '?';
+                            baseQuantity = baseData ? (baseData.quantity || 1) : 1;
+
+                            // Estimate previous buffed price (1.5x)
+                            prevPrice = Math.round(basePrice * 1.5);
+                            prevType = baseType; // Assume same type
+                            prevQuantity = 1;
+                        }
+
+                        // Current State (Reset) = Base Values
+                        currentPrice = basePrice;
+                        currentType = baseType;
+                        quantity = baseQuantity;
+
+                        // Display Quantity Change: Old(Buffed) -> New(Base)
+                        let qtyDisplay = '';
+                        // If previous quantity was different from current (base) quantity
+                        if (prevQuantity !== quantity) {
+                            qtyDisplay = `<span style="font-size:0.9em; opacity:0.8;">${prevQuantity}x →</span> <strong>${quantity}x</strong> `;
+                        } else if (quantity > 1) {
+                            qtyDisplay = `<strong>${quantity}x</strong> `;
+                        }
+
+                        const displayType = getPaymentTypeImage(currentType);
+                        const prevDisplayType = getPaymentTypeImage(prevType);
+
+                        let priceDisplay = '';
+                        if (prevType !== currentType && prevType !== '?') {
+                            priceDisplay = `${prevPrice} ${prevDisplayType} → ${currentPrice} ${displayType}`;
+                        } else {
+                            priceDisplay = `${prevPrice} → ${currentPrice} ${displayType}`;
+                        }
+
+                        return `<div class="item">
+                    <div style="margin-bottom:0.25rem;">${qtyDisplay}<strong>${translateItem(itemName)}</strong></div>
+                    <span style="color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                        ${priceDisplay}
+                    </span>
+                </div>`;
+                    }).join('')
+                    : '<p class="text-muted">Aucun objet réinitialisé</p>';
+            }
+        }
+
+        async function rotateMarket() {
+            const btn = document.getElementById('rotate-market-btn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rotation en cours...';
+
+            try {
+                const result = await window.api.post('/monitoring/market/rotate');
+                // Clear all market-related cache entries
+                window.api.clearCache('/monitoring/market');
+                // Add a small delay to ensure file system has written the changes
+                await new Promise(resolve => setTimeout(resolve, 500));
+                window.toast.success('Marché rotationné avec succès');
+                // Force reload by clearing cache and fetching fresh data
+                await loadMarket();
+            } catch (error) {
+                window.toast.error('Erreur lors de la rotation: ' + (error.message || 'Erreur inconnue'));
+                console.error('Failed to rotate market:', error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        async function revertMarket() {
+            if (!confirm('Êtes-vous sûr de vouloir revenir à l\'état précédent du marché ? Cette action remplacera l\'état actuel.')) {
+                return;
+            }
+
+            const btn = document.getElementById('revert-market-btn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retour en arrière...';
+
+            try {
+                await window.api.post('/monitoring/market/revert');
+                // Clear cache for market endpoints to force fresh data
+                window.api.clearCache('/monitoring/market');
+                window.toast.success('État précédent restauré avec succès');
+                await loadMarket();
+            } catch (error) {
+                window.toast.error('Erreur lors du retour en arrière: ' + (error.message || 'Erreur inconnue'));
+                console.error('Failed to revert market:', error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        async function loadPatchNotes() {
+            const container = document.getElementById('patch-notes-list');
+            const createBtn = document.getElementById('create-patch-btn');
+
+            try {
+                const notes = await window.api.get('/monitoring/patch-notes');
+                const isAdmin = window.auth.isAdmin();
+                createBtn.style.display = isAdmin ? 'block' : 'none';
+
+                if (notes.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-muted">Aucun patch note</p></div>';
+                    return;
+                }
+
+                container.innerHTML = notes.map(note => `
+                            < div class="card mb-1" >
+                    <div class="flex justify-between align-center mb-1">
+                        <h3>Version ${note.version}</h3>
+                        ${isAdmin ? `
+                            <div class="flex gap-1">
+                                <button class="btn btn-secondary btn-sm" onclick="editPatchNote(${note.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deletePatchNote(${note.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="patch-content" style="white-space: pre-wrap; line-height: 1.6;">${note.content}</div>
+                    <div class="text-muted mt-1" style="font-size: 0.85rem;">
+                        Créé le ${new Date(note.created_at).toLocaleString('fr-FR')} par ${note.created_by}
+                    </div>
+                </div >
+                            `).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="card"><p class="error-text">Erreur lors du chargement</p></div>';
+            }
+        }
+
+        function createPatchNote() {
+            editingPatchNoteId = null;
+            document.getElementById('editor-title').textContent = 'Nouveau Patch Note';
+            document.getElementById('patch-version').value = '';
+            document.getElementById('patch-content').value = '';
+            document.getElementById('patch-note-editor').style.display = 'block';
+            document.getElementById('patch-notes-list').style.display = 'none';
+        }
+
+        function editPatchNote(id) {
+            editingPatchNoteId = id;
+            window.api.get(`/ monitoring / patch - notes / ${id} `).then(note => {
+                document.getElementById('editor-title').textContent = `Modifier Patch Note #${id} `;
+                document.getElementById('patch-version').value = note.version;
+                document.getElementById('patch-content').value = note.content;
+                document.getElementById('patch-note-editor').style.display = 'block';
+                document.getElementById('patch-notes-list').style.display = 'none';
+            });
+        }
+
+        async function savePatchNote() {
+            const version = document.getElementById('patch-version').value.trim();
+            const content = document.getElementById('patch-content').value.trim();
+
+            if (!version || !content) {
+                window.toast.error('Version et contenu sont requis');
+                return;
+            }
+
+            try {
+                if (editingPatchNoteId) {
+                    await window.api.put(`/ monitoring / patch - notes / ${editingPatchNoteId} `, { version, content });
+                    window.toast.success('Patch note modifié');
+                } else {
+                    await window.api.post('/monitoring/patch-notes', { version, content });
+                    window.toast.success('Patch note créé');
+                }
+                cancelPatchNote();
+                loadPatchNotes();
+            } catch (error) {
+                window.toast.error('Erreur lors de l\'enregistrement');
+            }
+        }
+
+        function cancelPatchNote() {
+            editingPatchNoteId = null;
+            document.getElementById('patch-note-editor').style.display = 'none';
+            document.getElementById('patch-notes-list').style.display = 'block';
+        }
+
+        async function deletePatchNote(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce patch note ?')) return;
+            try {
+                await window.api.delete(`/ monitoring / patch - notes / ${id} `);
+                window.toast.success('Patch note supprimé');
+                loadPatchNotes();
+            } catch (error) {
+                window.toast.error('Erreur lors de la suppression');
+            }
+        }
+
+        let originalMarketConfig = '';
+        let configSearchMatches = [];
+        let configSearchCurrentIndex = -1;
+        let configSearchTerm = '';
+        let configSearchSetup = false;
+
+        async function loadMarketConfig() {
+            const container = document.getElementById('market-config-content');
+            try {
+                const config = await window.api.get('/monitoring/market-config');
+                originalMarketConfig = config.content;
+                container.innerHTML = `
+                            < div class="editor-container" >
+                    <div id="market-config-highlights" class="config-highlights"></div>
+                    <textarea id="market-config-editor" class="config-viewer-editable" spellcheck="false">${escapeHtml(config.content)}</textarea>
+                </div >
+                            `;
+
+                const editor = document.getElementById('market-config-editor');
+                const highlights = document.getElementById('market-config-highlights');
+
+                // Sync scrolling
+                editor.onscroll = () => {
+                    highlights.scrollTop = editor.scrollTop;
+                    highlights.scrollLeft = editor.scrollLeft;
+                };
+
+                // Update highlights on typing
+                editor.oninput = () => {
+                    if (configSearchTerm) performConfigSearch(configSearchTerm);
+                };
+
+                setupConfigSearch();
+            } catch (error) {
+                container.innerHTML = '<div class="card"><p class="error-text">Erreur lors du chargement de la configuration</p></div>';
+                console.error('Failed to load market config:', error);
+            }
+        }
+
+        function setupConfigSearch() {
+            const editor = document.getElementById('market-config-editor');
+            const searchOverlay = document.getElementById('config-search-overlay');
+            const searchInput = document.getElementById('config-search-input');
+
+            if (!editor || !searchOverlay || !searchInput) return;
+
+            // Prevent duplicate setup
+            if (configSearchSetup) return;
+            configSearchSetup = true;
+
+            // Listen for Ctrl+F
+            const handleKeyDown = (e) => {
+                // Only handle if we're on the market-config tab
+                if (currentTab !== 'market-config') return;
+
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openConfigSearch();
+                }
+
+                // Handle Escape to close search
+                if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                    e.preventDefault();
+                    configSearchClose();
+                }
+            };
+
+            // Handle search input
+            searchInput.addEventListener('input', (e) => {
+                performConfigSearch(e.target.value);
+            });
+
+            // Handle Enter/Shift+Enter for navigation
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        configSearchPrevious();
+                    } else {
+                        configSearchNext();
+                    }
+                }
+            });
+
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        function openConfigSearch() {
+            const searchOverlay = document.getElementById('config-search-overlay');
+            const searchInput = document.getElementById('config-search-input');
+
+            if (!searchOverlay || !searchInput) return;
+
+            searchOverlay.classList.add('active');
+            searchInput.focus();
+            searchInput.select();
+
+            // If there's already a search term, perform search
+            if (searchInput.value) {
+                performConfigSearch(searchInput.value);
+            }
+        }
+
+        function configSearchClose() {
+            const searchOverlay = document.getElementById('config-search-overlay');
+            const searchInput = document.getElementById('config-search-input');
+            const editor = document.getElementById('market-config-editor');
+
+            if (!searchOverlay || !searchInput) return;
+
+            searchOverlay.classList.remove('active');
+            searchOverlay.style.display = 'none';
+
+            // Clear selection
+            if (editor) {
+                editor.setSelectionRange(0, 0);
+                editor.focus();
+            }
+
+            configSearchMatches = [];
+            configSearchCurrentIndex = -1;
+            configSearchTerm = '';
+        }
+
+        function performConfigSearch(term) {
+            const editor = document.getElementById('market-config-editor');
+            const countElement = document.getElementById('config-search-count');
+            const positionElement = document.getElementById('config-search-position');
+            const highlightsElement = document.getElementById('market-config-highlights');
+
+            if (!editor || !countElement || !positionElement || !highlightsElement) return;
+
+            configSearchTerm = term;
+            const content = editor.value;
+
+            if (!term || term.trim() === '') {
+                configSearchMatches = [];
+                configSearchCurrentIndex = -1;
+                countElement.textContent = '0 résultat';
+                positionElement.textContent = '';
+                highlightsElement.innerHTML = escapeHtml(content);
+                return;
+            }
+
+            const searchTerm = term.toLowerCase();
+            const matches = [];
+            let index = 0;
+
+            while ((index = content.toLowerCase().indexOf(searchTerm, index)) !== -1) {
+                matches.push({
+                    start: index,
+                    end: index + term.length
+                });
+                index += term.length;
+            }
+
+            configSearchMatches = matches;
+            if (matches.length > 0 && configSearchCurrentIndex === -1) {
+                configSearchCurrentIndex = 0;
+            } else if (matches.length === 0) {
+                configSearchCurrentIndex = -1;
+            } else if (configSearchCurrentIndex >= matches.length) {
+                configSearchCurrentIndex = matches.length - 1;
+            }
+
+            renderHighlights();
+
+            if (matches.length === 0) {
+                countElement.textContent = '0 résultat';
+                positionElement.textContent = '';
+            } else {
+                countElement.textContent = `${matches.length} résultat${matches.length > 1 ? 's' : ''} `;
+                positionElement.textContent = `${configSearchCurrentIndex + 1} / ${matches.length}`;
+                scrollToMatch(false);
+            }
+        }
+
+        function renderHighlights() {
+            const editor = document.getElementById('market-config-editor');
+            const highlightsElement = document.getElementById('market-config-highlights');
+            if (!editor || !highlightsElement) return;
+
+            const content = editor.value;
+            if (!configSearchTerm || configSearchMatches.length === 0) {
+                highlightsElement.innerHTML = escapeHtml(content);
+                return;
+            }
+
+            let result = '';
+            let lastIndex = 0;
+
+            configSearchMatches.forEach((match, idx) => {
+                result += escapeHtml(content.substring(lastIndex, match.start));
+                const isCurrent = idx === configSearchCurrentIndex;
+                result += `<span class="search-match ${isCurrent ? 'current' : ''}">${escapeHtml(content.substring(match.start, match.end))}</span>`;
+                lastIndex = match.end;
+            });
+
+            result += escapeHtml(content.substring(lastIndex));
+            // Add a trailing newline to fix scrolling sync at the very bottom
+            highlightsElement.innerHTML = result + '\n';
+        }
+
+        function scrollToMatch(focusEditor = true) {
+            const editor = document.getElementById('market-config-editor');
+            if (!editor || configSearchCurrentIndex < 0) return;
+
+            const match = configSearchMatches[configSearchCurrentIndex];
+
+            // Scroll logic
+            const textBeforeMatch = editor.value.substring(0, match.start);
+            const linesBeforeMatch = textBeforeMatch.split('\n').length - 1;
+            const lineHeight = parseInt(getComputedStyle(editor).lineHeight) || 20;
+            const scrollTop = linesBeforeMatch * lineHeight - (editor.clientHeight / 3);
+
+            editor.scrollTop = Math.max(0, scrollTop);
+
+            if (focusEditor) {
+                editor.focus();
+                // We still set selection range so standard browser shortcuts (like copy) work
+                editor.setSelectionRange(match.start, match.end);
+            }
+        }
+
+        function configSearchNext() {
+            if (configSearchMatches.length === 0) return;
+            configSearchCurrentIndex = (configSearchCurrentIndex + 1) % configSearchMatches.length;
+            renderHighlights();
+            updateSearchPosition();
+            scrollToMatch(false);
+        }
+
+        function configSearchPrevious() {
+            if (configSearchMatches.length === 0) return;
+            configSearchCurrentIndex = configSearchCurrentIndex <= 0
+                ? configSearchMatches.length - 1
+                : configSearchCurrentIndex - 1;
+            renderHighlights();
+            updateSearchPosition();
+            scrollToMatch(false);
+        }
+
+        function updateSearchPosition() {
+            const positionElement = document.getElementById('config-search-position');
+            if (!positionElement) return;
+
+            if (configSearchMatches.length === 0) {
+                positionElement.textContent = '';
+            } else {
+                positionElement.textContent = `${configSearchCurrentIndex + 1} / ${configSearchMatches.length}`;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function saveMarketConfig() {
+            const editor = document.getElementById('market-config-editor');
+            if (!editor) {
+                window.toast.error('Éditeur non disponible');
+                return;
+            }
+
+            const content = editor.value;
+            if (!content.trim()) {
+                window.toast.error('Le contenu ne peut pas être vide');
+                return;
+            }
+
+            try {
+                await window.api.put('/monitoring/market-config', { content });
+                originalMarketConfig = content;
+                window.toast.success('Configuration enregistrée');
+            } catch (error) {
+                window.toast.error('Erreur lors de l\'enregistrement');
+                console.error('Failed to save market config:', error);
+            }
+        }
+
+        function resetMarketConfig() {
+            const editor = document.getElementById('market-config-editor');
+            if (!editor) {
+                window.toast.error('Éditeur non disponible');
+                return;
+            }
+
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser les modifications ?')) {
+                editor.value = originalMarketConfig;
+                window.toast.info('Modifications réinitialisées');
+            }
+        }
+
+        async function downloadMarketConfig() {
+            try {
+                const response = await fetch('/api/monitoring/market-config/download', {
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to download config');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'config.yml';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                window.toast.success('Configuration téléchargée');
+            } catch (error) {
+                window.toast.error('Erreur lors du téléchargement');
+                console.error('Failed to download config:', error);
+            }
+        }
+
+        async function refreshAll() {
+            window.toast.info('Actualisation...');
+            if (currentTab === 'giveaways') await loadGiveaways();
+            else if (currentTab === 'tickets') await loadTickets();
+            else if (currentTab === 'market') await loadMarket();
+            else if (currentTab === 'patch-notes') await loadPatchNotes();
+            else if (currentTab === 'market-config') await loadMarketConfig();
+            else if (currentTab === 'ratings') await loadRatings();
+            window.toast.success('Actualisé');
+        }
+
+        window.switchTab = switchTab;
+        window.openTicketViewer = openTicketViewer;
+        window.createPatchNote = createPatchNote;
+        window.editPatchNote = editPatchNote;
+        window.savePatchNote = savePatchNote;
+        window.cancelPatchNote = cancelPatchNote;
+        window.deletePatchNote = deletePatchNote;
+        window.refreshAll = refreshAll;
+        window.loadMarketConfig = loadMarketConfig;
+        window.loadRatings = loadRatings;
+        window.downloadMarketConfig = downloadMarketConfig;
+        window.saveMarketConfig = saveMarketConfig;
+        window.resetMarketConfig = resetMarketConfig;
+        window.openConfigSearch = openConfigSearch;
+        window.configSearchClose = configSearchClose;
+        window.configSearchNext = configSearchNext;
+        window.configSearchPrevious = configSearchPrevious;
+        window.rotateMarket = rotateMarket;
+        window.revertMarket = revertMarket;
+
+        window.initMonitoringPage = function () {
+            loadTranslations();
+            loadGiveaways();
+            // Setup search functionality (will be re-setup when config loads)
+            setTimeout(() => {
+                if (currentTab === 'market-config') {
+                    setupConfigSearch();
+                }
+            }, 100);
+        };
+    })();
+</script>

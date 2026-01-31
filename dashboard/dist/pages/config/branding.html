@@ -1,0 +1,124 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Branding & UI</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadBrandingConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveBrandingConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Palette de couleurs</h3>
+        <div id="colors-list" class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Messages globaux</h3>
+        <div id="messages-list" class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Apparence des Embeds</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="branding-footer">Texte de bas de page (Footer)</label>
+                <input type="text" id="branding-footer" class="form-control" placeholder="Serenity Craft">
+            </div>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Afficher l'horodatage</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Ajouter la date/heure sur les embeds</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="branding-timestamp">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/branding');
+            
+            const colorsContainer = document.getElementById('colors-list');
+            const colors = configData.colors || {};
+            const colorLabels = { primary: 'Principale', success: 'Succès', error: 'Erreur', warning: 'Avertissement', info: 'Information' };
+            
+            colorsContainer.innerHTML = Object.keys(colors).map(key => `
+                <div class="form-group mb-1">
+                    <label>${colorLabels[key] || key}</label>
+                    <div class="flex gap-1 align-center">
+                        <input type="color" class="color-picker" data-key="${key}" value="${colors[key]}" style="width: 50px; height: 40px; padding: 0; border: none; cursor: pointer;">
+                        <input type="text" class="form-control color-text" data-key="${key}" value="${colors[key]}" maxlength="7">
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.color-picker').forEach(picker => {
+                const key = picker.dataset.key;
+                const textInput = document.querySelector(`.color-text[data-key="${key}"]`);
+                picker.oninput = (e) => { textInput.value = e.target.value.toUpperCase(); };
+                textInput.oninput = (e) => { if (/^#[0-9A-F]{6}$/i.test(e.target.value)) picker.value = e.target.value; };
+            });
+
+            const msgsContainer = document.getElementById('messages-list');
+            const msgs = configData.messages || {};
+            const msgLabels = { defaultReason: 'Raison par défaut', noPermission: 'Pas de permission', errorOccurred: 'Erreur système', commandDisabled: 'Commande désactivée' };
+            
+            msgsContainer.innerHTML = Object.keys(msgs).map(key => `
+                <div class="form-group mb-1">
+                    <label>${msgLabels[key] || key}</label>
+                    <textarea class="form-control msg-input" data-key="${key}" rows="2">${msgs[key]}</textarea>
+                </div>
+            `).join('');
+
+            document.getElementById('branding-footer').value = configData.embeds?.footerText || '';
+            document.getElementById('branding-timestamp').checked = configData.embeds?.showTimestamp !== false;
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        const colors = {};
+        document.querySelectorAll('.color-text').forEach(el => colors[el.dataset.key] = el.value);
+        
+        const messages = {};
+        document.querySelectorAll('.msg-input').forEach(el => messages[el.dataset.key] = el.value);
+
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            colors,
+            messages,
+            embeds: {
+                ...(configData.embeds || {}),
+                footerText: document.getElementById('branding-footer').value,
+                showTimestamp: document.getElementById('branding-timestamp').checked
+            }
+        };
+
+        try {
+            await window.api.put('/config/branding', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration branding enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initBrandingPage = function() {
+        loadConfig();
+        window.loadBrandingConfig = loadConfig;
+        window.saveBrandingConfig = saveConfig;
+    };
+})();
+</script>

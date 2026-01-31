@@ -1,0 +1,93 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Soundboard</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadSoundboardConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveSoundboardConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Activation</h3>
+        <div class="flex align-center justify-between">
+            <div>
+                <div style="font-weight: 600; color: var(--text-main);">Soundboard activé</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de soundboard</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="soundboard-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Paramètres</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="soundboard-max-file-size">Taille max des fichiers (octets)</label>
+                <input type="number" id="soundboard-max-file-size" class="form-control" placeholder="10485760" min="1024">
+                <small class="text-muted">10MB = 10485760</small>
+            </div>
+            <div class="form-group">
+                <label for="soundboard-allowed-formats">Formats autorisés (séparés par virgule)</label>
+                <input type="text" id="soundboard-allowed-formats" class="form-control" placeholder="mp3,ogg,wav">
+            </div>
+            <div class="form-group">
+                <label for="soundboard-play-delay">Délai entre les lectures (ms)</label>
+                <input type="number" id="soundboard-play-delay" class="form-control" placeholder="200" min="0">
+            </div>
+            <div class="form-group">
+                <label for="soundboard-max-concurrent">Lectures simultanées max</label>
+                <input type="number" id="soundboard-max-concurrent" class="form-control" placeholder="3" min="1">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/soundboard').catch(() => ({}));
+            
+            document.getElementById('soundboard-enabled').checked = configData.enabled !== false;
+            document.getElementById('soundboard-max-file-size').value = configData.maxFileSize || '';
+            document.getElementById('soundboard-allowed-formats').value = Array.isArray(configData.allowedFormats) ? configData.allowedFormats.join(',') : configData.allowedFormats || '';
+            document.getElementById('soundboard-play-delay').value = configData.playDelay || '';
+            document.getElementById('soundboard-max-concurrent').value = configData.maxConcurrentPlays || '';
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        try {
+            const newConfig = {
+                enabled: document.getElementById('soundboard-enabled').checked,
+                maxFileSize: parseInt(document.getElementById('soundboard-max-file-size').value) || null,
+                allowedFormats: document.getElementById('soundboard-allowed-formats').value.split(',').map(f => f.trim()).filter(f => f),
+                playDelay: parseInt(document.getElementById('soundboard-play-delay').value) || null,
+                maxConcurrentPlays: parseInt(document.getElementById('soundboard-max-concurrent').value) || null
+            };
+
+            await window.api.put('/config/soundboard', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration soundboard enregistrée');
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initSoundboardPage = function() {
+        loadConfig();
+        window.loadSoundboardConfig = loadConfig;
+        window.saveSoundboardConfig = saveConfig;
+    };
+})();
+</script>
+
