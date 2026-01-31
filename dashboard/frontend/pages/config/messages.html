@@ -1,0 +1,72 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Messages du Bot</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="loadConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="saveConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Personnalisation des messages</h3>
+        <div id="messages-list">
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/messages');
+            
+            const container = document.getElementById('messages-list');
+            const keys = Object.keys(configData);
+            
+            const labelMap = {
+                defaultReason: 'Raison par défaut (Modération)',
+                noPermission: 'Message: Pas de permission',
+                errorOccurred: 'Message: Erreur survenue',
+                commandDisabled: 'Message: Commande désactivée'
+            };
+
+            container.innerHTML = keys.map(key => `
+                <div class="form-group mb-1">
+                    <label>${labelMap[key] || key}</label>
+                    <textarea class="form-control msg-input" data-key="${key}" rows="2">${configData[key]}</textarea>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = { ...configData };
+        document.querySelectorAll('.msg-input').forEach(el => {
+            newConfig[el.dataset.key] = el.value;
+        });
+
+        try {
+            await window.api.put('/config/messages', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration messages enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initMessagesPage = function() {
+        loadConfig();
+        const saveBtn = document.querySelector('.config-page .btn-primary');
+        const resetBtn = document.querySelector('.config-page .btn-secondary');
+        if (saveBtn) saveBtn.onclick = saveConfig;
+        if (resetBtn) resetBtn.onclick = loadConfig;
+    };
+})();
+</script>
+

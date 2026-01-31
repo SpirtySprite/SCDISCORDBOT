@@ -1,0 +1,185 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Messages de Bienvenue</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadWelcomeConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveWelcomeConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Activation</h3>
+        <div class="flex align-center justify-between">
+            <div>
+                <div style="font-weight: 600;">Messages de bienvenue</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">Activez les messages de bienvenue personnalisés avec images</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="welcome-enabled" onchange="updateWelcomeVisibility()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div id="welcome-settings">
+        <div class="card mb-1">
+            <h3>Salon de bienvenue</h3>
+            <div class="form-group">
+                <label for="welcome-channel">ID du salon</label>
+                <input type="text" id="welcome-channel" class="form-control" placeholder="123456789012345678">
+                <small class="text-muted">L'ID du salon Discord où envoyer les messages de bienvenue</small>
+            </div>
+        </div>
+
+        <div class="card mb-1">
+            <h3>Message texte</h3>
+            <div class="form-group">
+                <label for="welcome-message">Message de bienvenue</label>
+                <textarea id="welcome-message" class="form-control" rows="3" placeholder="Bienvenue {user} sur {server}! 🎉"></textarea>
+                <small class="text-muted">
+                    Variables disponibles: <code>{user}</code> (mention), <code>{username}</code> (nom), <code>{server}</code> (nom du serveur), <code>{memberCount}</code> (nombre de membres)
+                </small>
+            </div>
+        </div>
+
+        <div class="card mb-1">
+            <h3>Image de bienvenue</h3>
+            <div class="form-group">
+                <label class="flex align-center gap-1">
+                    <input type="checkbox" id="welcome-send-image" onchange="updateImageSettingsVisibility()">
+                    <span>Envoyer une image personnalisée</span>
+                </label>
+            </div>
+
+            <div id="image-settings">
+                <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="image-width">Largeur (px)</label>
+                        <input type="number" id="image-width" class="form-control" value="1200" min="400" max="2000">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-height">Hauteur (px)</label>
+                        <input type="number" id="image-height" class="form-control" value="400" min="200" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-bg-color">Couleur de fond</label>
+                        <input type="color" id="image-bg-color" class="form-control" value="#1a1a2e">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-text-color">Couleur du texte</label>
+                        <input type="color" id="image-text-color" class="form-control" value="#ffffff">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-avatar-size">Taille de l'avatar (px)</label>
+                        <input type="number" id="image-avatar-size" class="form-control" value="150" min="50" max="300">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="image-title">Titre de l'image</label>
+                    <input type="text" id="image-title" class="form-control" placeholder="Bienvenue {username}!">
+                    <small class="text-muted">Variables: <code>{username}</code>, <code>{user}</code></small>
+                </div>
+                <div class="form-group">
+                    <label for="image-subtitle">Sous-titre de l'image</label>
+                    <input type="text" id="image-subtitle" class="form-control" placeholder="Tu es le {memberCount}ème membre">
+                    <small class="text-muted">Variables: <code>{memberCount}</code>, <code>{server}</code></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            const features = await window.api.get('/config/features');
+            configData = features;
+            
+            // Load welcome settings
+            const welcomeEnabled = features.welcomeMessages === true;
+            document.getElementById('welcome-enabled').checked = welcomeEnabled;
+            
+            // Always load settings, regardless of enabled state
+            const welcomeSettings = features.welcomeSettings || {};
+            document.getElementById('welcome-channel').value = features.welcomeChannelId || '';
+            document.getElementById('welcome-message').value = welcomeSettings.message || 'Bienvenue {user} sur {server}! 🎉';
+            document.getElementById('welcome-send-image').checked = welcomeSettings.sendImage !== false;
+            
+            // Load image settings
+            document.getElementById('image-width').value = welcomeSettings.imageWidth || 1200;
+            document.getElementById('image-height').value = welcomeSettings.imageHeight || 400;
+            document.getElementById('image-bg-color').value = welcomeSettings.imageBackgroundColor || '#1a1a2e';
+            document.getElementById('image-text-color').value = welcomeSettings.imageTextColor || '#ffffff';
+            document.getElementById('image-avatar-size').value = welcomeSettings.imageAvatarSize || 150;
+            document.getElementById('image-title').value = welcomeSettings.imageTitle || 'Bienvenue {username}!';
+            document.getElementById('image-subtitle').value = welcomeSettings.imageSubtitle || 'Tu es le {memberCount}ème membre';
+            
+            // Update visibility
+            updateWelcomeVisibility();
+            updateImageSettingsVisibility();
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        try {
+            const welcomeEnabled = document.getElementById('welcome-enabled').checked;
+            const welcomeChannelId = document.getElementById('welcome-channel').value.trim();
+            const sendImage = document.getElementById('welcome-send-image').checked;
+
+            const welcomeSettings = {
+                sendImage: sendImage,
+                message: document.getElementById('welcome-message').value.trim() || 'Bienvenue {user} sur {server}! 🎉',
+                imageWidth: parseInt(document.getElementById('image-width').value) || 1200,
+                imageHeight: parseInt(document.getElementById('image-height').value) || 400,
+                imageBackgroundColor: document.getElementById('image-bg-color').value,
+                imageTextColor: document.getElementById('image-text-color').value,
+                imageAvatarSize: parseInt(document.getElementById('image-avatar-size').value) || 150,
+                imageTitle: document.getElementById('image-title').value.trim() || 'Bienvenue {username}!',
+                imageSubtitle: document.getElementById('image-subtitle').value.trim() || 'Tu es le {memberCount}ème membre'
+            };
+
+            // Get current features config
+            const currentFeatures = await window.api.get('/config/features');
+            
+            // Update features config
+            const updatedFeatures = {
+                ...currentFeatures,
+                welcomeMessages: welcomeEnabled,
+                welcomeChannelId: welcomeEnabled ? welcomeChannelId : null,
+                welcomeSettings: welcomeEnabled ? welcomeSettings : currentFeatures.welcomeSettings || {}
+            };
+
+            await window.api.put('/config/features', updatedFeatures);
+            configData = updatedFeatures;
+            window.toast.success('Configuration de bienvenue enregistrée');
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.updateWelcomeVisibility = function() {
+        // Always show settings - they can be edited even if disabled
+        // The enabled checkbox just controls if messages are sent
+        document.getElementById('welcome-settings').style.display = 'block';
+    };
+
+    window.updateImageSettingsVisibility = function() {
+        const sendImage = document.getElementById('welcome-send-image').checked;
+        document.getElementById('image-settings').style.display = sendImage ? 'block' : 'none';
+    };
+
+    window.initWelcomePage = function() {
+        loadConfig();
+        window.loadWelcomeConfig = loadConfig;
+        window.saveWelcomeConfig = saveConfig;
+    };
+})();
+</script>
+

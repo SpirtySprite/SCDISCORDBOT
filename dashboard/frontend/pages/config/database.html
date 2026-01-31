@@ -1,0 +1,140 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Base de Données</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadDatabaseConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveDatabaseConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Pool de connexions</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="db-connection-limit">Limite de connexions</label>
+                <input type="number" id="db-connection-limit" class="form-control" placeholder="100" min="1" max="200">
+                <small class="text-muted">Nombre maximum de connexions simultanées</small>
+            </div>
+            <div class="form-group">
+                <label for="db-queue-limit">Limite de la file d'attente</label>
+                <input type="number" id="db-queue-limit" class="form-control" placeholder="0" min="0">
+                <small class="text-muted">0 = illimité</small>
+            </div>
+            <div class="form-group">
+                <label for="db-connect-timeout">Timeout de connexion (ms)</label>
+                <input type="number" id="db-connect-timeout" class="form-control" placeholder="10000" min="1000">
+            </div>
+            <div class="form-group">
+                <label for="db-idle-timeout">Timeout d'inactivité (ms)</label>
+                <input type="number" id="db-idle-timeout" class="form-control" placeholder="600000" min="10000">
+            </div>
+            <div class="form-group">
+                <label for="db-max-idle">Connexions inactives max</label>
+                <input type="number" id="db-max-idle" class="form-control" placeholder="10" min="1">
+            </div>
+            <div class="form-group">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Activer Keep-Alive</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Maintient les connexions actives</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="db-enable-keepalive">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <h3>Paramètres de requête</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="db-acquire-timeout">Timeout d'acquisition (ms)</label>
+                <input type="number" id="db-acquire-timeout" class="form-control" placeholder="30000" min="1000">
+            </div>
+            <div class="form-group">
+                <label for="db-retry-max">Tentatives max</label>
+                <input type="number" id="db-retry-max" class="form-control" placeholder="3" min="1" max="10">
+            </div>
+            <div class="form-group">
+                <label for="db-retry-delay">Délai initial (ms)</label>
+                <input type="number" id="db-retry-delay" class="form-control" placeholder="1000" min="100">
+            </div>
+            <div class="form-group">
+                <label for="db-retry-backoff">Multiplicateur de backoff</label>
+                <input type="number" id="db-retry-backoff" class="form-control" step="0.1" placeholder="2" min="1" max="5">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/database').catch(() => ({}));
+            
+            if (configData.connectionPool) {
+                document.getElementById('db-connection-limit').value = configData.connectionPool.connectionLimit || '';
+                document.getElementById('db-queue-limit').value = configData.connectionPool.queueLimit || '';
+                document.getElementById('db-connect-timeout').value = configData.connectionPool.connectTimeout || '';
+                document.getElementById('db-idle-timeout').value = configData.connectionPool.idleTimeout || '';
+                document.getElementById('db-max-idle').value = configData.connectionPool.maxIdle || '';
+                document.getElementById('db-enable-keepalive').checked = configData.connectionPool.enableKeepAlive !== false;
+            }
+            
+            if (configData.query) {
+                document.getElementById('db-acquire-timeout').value = configData.query.acquireTimeout || '';
+                if (configData.query.retry) {
+                    document.getElementById('db-retry-max').value = configData.query.retry.maxRetries || '';
+                    document.getElementById('db-retry-delay').value = configData.query.retry.initialDelay || '';
+                    document.getElementById('db-retry-backoff').value = configData.query.retry.backoffMultiplier || '';
+                }
+            }
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        try {
+            const newConfig = {
+                connectionPool: {
+                    connectionLimit: parseInt(document.getElementById('db-connection-limit').value) || null,
+                    queueLimit: parseInt(document.getElementById('db-queue-limit').value) || null,
+                    connectTimeout: parseInt(document.getElementById('db-connect-timeout').value) || null,
+                    idleTimeout: parseInt(document.getElementById('db-idle-timeout').value) || null,
+                    maxIdle: parseInt(document.getElementById('db-max-idle').value) || null,
+                    enableKeepAlive: document.getElementById('db-enable-keepalive').checked
+                },
+                query: {
+                    acquireTimeout: parseInt(document.getElementById('db-acquire-timeout').value) || null,
+                    retry: {
+                        maxRetries: parseInt(document.getElementById('db-retry-max').value) || null,
+                        initialDelay: parseInt(document.getElementById('db-retry-delay').value) || null,
+                        backoffMultiplier: parseFloat(document.getElementById('db-retry-backoff').value) || null
+                    }
+                }
+            };
+
+            await window.api.put('/config/database', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration base de données enregistrée');
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initDatabasePage = function() {
+        loadConfig();
+        window.loadDatabaseConfig = loadConfig;
+        window.saveDatabaseConfig = saveConfig;
+    };
+})();
+</script>
+

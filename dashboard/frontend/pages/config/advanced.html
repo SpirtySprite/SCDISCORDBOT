@@ -1,0 +1,104 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Paramètres Avancés</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadAdvancedConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveAdvancedConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Système et Débogage</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Mode Débogage (Debug)</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Activer les logs détaillés</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="adv-debug">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="adv-log-level">Niveau de log</label>
+                <div class="custom-select">
+                    <select id="adv-log-level" class="form-control">
+                        <option value="debug">Debug</option>
+                        <option value="info">Info</option>
+                        <option value="warn">Warn</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="adv-prefix">Préfixe des commandes</label>
+                <input type="text" id="adv-prefix" class="form-control" placeholder="/">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Limites de Contenu</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="adv-max-msg">Longueur max message</label>
+                <input type="number" id="adv-max-msg" class="form-control" placeholder="2000">
+            </div>
+            <div class="form-group">
+                <label for="adv-max-embed">Longueur max embed</label>
+                <input type="number" id="adv-max-embed" class="form-control" placeholder="6000">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+    
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/advanced');
+            
+            document.getElementById('adv-debug').checked = configData.debugMode === true;
+            document.getElementById('adv-log-level').value = configData.logLevel || 'info';
+            document.getElementById('adv-prefix').value = configData.commandPrefix || '/';
+            document.getElementById('adv-max-msg').value = configData.maxMessageLength || 2000;
+            document.getElementById('adv-max-embed').value = configData.maxEmbedLength || 6000;
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            ...configData,
+            debugMode: document.getElementById('adv-debug').checked,
+            logLevel: document.getElementById('adv-log-level').value,
+            commandPrefix: document.getElementById('adv-prefix').value,
+            maxMessageLength: parseInt(document.getElementById('adv-max-msg').value, 10),
+            maxEmbedLength: parseInt(document.getElementById('adv-max-embed').value, 10)
+        };
+
+        try {
+            await window.api.put('/config/advanced', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration avancée enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initAdvancedPage = function() {
+        loadConfig();
+        window.loadAdvancedConfig = loadConfig;
+        window.saveAdvancedConfig = saveConfig;
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 100);
+    };
+})();
+</script>

@@ -1,0 +1,396 @@
+<div class="soundboard-page">
+    <h2>Soundboard & Recording</h2>
+
+    <div class="grid-2-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+        <!-- Soundboard Section -->
+        <div class="card">
+            <h3>🔊 Soundboard</h3>
+            
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="voice-channel-select">Voice Channel</label>
+                <div class="custom-select">
+                    <select id="voice-channel-select" class="form-control">
+                        <option value="">Loading channels...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="sound-select">Sound</label>
+                <div class="custom-select">
+                    <select id="sound-select" class="form-control">
+                        <option value="">Loading sounds...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="play-times">Times to Play</label>
+                <input type="number" id="play-times" class="input" value="1" min="1" max="50">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Allow Spam</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Play multiple times simultaneously</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="allow-spam" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="play-sound-btn" class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-play"></i> Play Sound
+            </button>
+
+            <div id="soundboard-status" class="status-message" style="margin-top: 1rem; display: none;"></div>
+        </div>
+
+        <!-- Recording Section -->
+        <div class="card">
+            <h3>🎙️ Recording</h3>
+            
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="recording-channel-select">Voice Channel</label>
+                <div class="custom-select">
+                    <select id="recording-channel-select" class="form-control">
+                        <option value="">Loading channels...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="recording-name">Recording Name (optional)</label>
+                <input type="text" id="recording-name" class="input" placeholder="recording-123456">
+            </div>
+
+            <div id="recording-controls">
+                <button id="start-recording-btn" class="btn btn-danger" style="width: 100%; margin-bottom: 0.5rem;">
+                    <i class="fas fa-circle"></i> Start Recording
+                </button>
+                <button id="stop-recording-btn" class="btn btn-secondary" style="width: 100%;" disabled>
+                    <i class="fas fa-stop"></i> Stop Recording
+                </button>
+            </div>
+
+            <div id="recording-status" class="status-message" style="margin-top: 1rem; display: none;"></div>
+            <div id="recording-timer" style="margin-top: 0.5rem; font-size: 1.2rem; font-weight: bold; color: var(--error); display: none;">
+                Recording: <span id="recording-time">0:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Sounds Grid -->
+    <div class="card" style="margin-top: 1.5rem;">
+        <h3>Available Sounds</h3>
+        <div id="sounds-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+            <div class="text-muted" style="text-align: center; padding: 2rem;">
+                Loading sounds...
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.soundboard-page {
+    padding: 1.5rem;
+}
+
+.status-message {
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.status-message.success {
+    background: rgba(87, 242, 135, 0.1);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.status-message.error {
+    background: rgba(237, 66, 69, 0.1);
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+.status-message.info {
+    background: rgba(88, 101, 242, 0.1);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.sound-item {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card-bg);
+}
+
+.sound-item:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.sound-item.active {
+    border-color: var(--primary);
+    background: rgba(88, 101, 242, 0.1);
+}
+</style>
+
+<script>
+(async function() {
+    const api = window.api;
+    let recordingTimer = null;
+    let recordingStartTime = null;
+
+    // Load voice channels
+    async function loadVoiceChannels() {
+        try {
+            const channels = await api.request('/voice/channels');
+            const select1 = document.getElementById('voice-channel-select');
+            const select2 = document.getElementById('recording-channel-select');
+            
+            select1.innerHTML = '<option value="">Select a voice channel...</option>';
+            select2.innerHTML = '<option value="">Select a voice channel...</option>';
+            
+            channels.forEach(channel => {
+                const option1 = document.createElement('option');
+                option1.value = channel.id;
+                option1.textContent = `${channel.name} (${channel.members} members)`;
+                select1.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = channel.id;
+                option2.textContent = `${channel.name} (${channel.members} members)`;
+                select2.appendChild(option2);
+            });
+            
+            // Update custom selects after updating options
+            setTimeout(() => {
+                if (window.initCustomSelects) {
+                    window.initCustomSelects();
+                }
+            }, 100);
+        } catch (error) {
+            console.error('Failed to load voice channels:', error);
+            showStatus('soundboard-status', 'Failed to load voice channels', 'error');
+        }
+    }
+
+    // Load sounds
+    async function loadSounds() {
+        try {
+            const sounds = await api.request('/voice/sounds');
+            const select = document.getElementById('sound-select');
+            const grid = document.getElementById('sounds-grid');
+            
+            select.innerHTML = '<option value="">Select a sound...</option>';
+            grid.innerHTML = '';
+            
+            sounds.forEach(sound => {
+                const option = document.createElement('option');
+                option.value = sound.name;
+                option.textContent = sound.description || sound.name;
+                select.appendChild(option);
+                
+                const soundItem = document.createElement('div');
+                soundItem.className = 'sound-item';
+                soundItem.textContent = sound.name;
+                soundItem.onclick = () => {
+                    const selectEl = document.getElementById('sound-select');
+                    selectEl.value = sound.name;
+                    // Update custom select display
+                    if (window.initCustomSelects) {
+                        const wrapper = selectEl.closest('.custom-select');
+                        if (wrapper) {
+                            const selectedDiv = wrapper.querySelector('.select-selected');
+                            if (selectedDiv) {
+                                selectedDiv.innerHTML = sound.description || sound.name;
+                            }
+                        }
+                    }
+                    // Highlight selected
+                    document.querySelectorAll('.sound-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    soundItem.classList.add('active');
+                };
+                grid.appendChild(soundItem);
+            });
+            
+            // Update custom select after adding sounds
+            setTimeout(() => {
+                if (window.initCustomSelects) {
+                    window.initCustomSelects();
+                }
+            }, 100);
+        } catch (error) {
+            console.error('Failed to load sounds:', error);
+            showStatus('soundboard-status', 'Failed to load sounds', 'error');
+        }
+    }
+
+    // Play sound
+    document.getElementById('play-sound-btn').onclick = async () => {
+        const channelId = document.getElementById('voice-channel-select').value;
+        const soundName = document.getElementById('sound-select').value;
+        const times = parseInt(document.getElementById('play-times').value) || 1;
+        const allowSpam = document.getElementById('allow-spam').checked;
+        
+        if (!channelId || !soundName) {
+            showStatus('soundboard-status', 'Please select a channel and sound', 'error');
+            return;
+        }
+        
+        try {
+            const btn = document.getElementById('play-sound-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Playing...';
+            
+            await api.request('/voice/play', {
+                method: 'POST',
+                body: {
+                    channelId,
+                    soundName,
+                    times,
+                    allowSpam
+                }
+            });
+            
+            showStatus('soundboard-status', `Playing ${soundName} ${times} time(s)`, 'success');
+        } catch (error) {
+            showStatus('soundboard-status', `Failed to play sound: ${error.message}`, 'error');
+        } finally {
+            const btn = document.getElementById('play-sound-btn');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Play Sound';
+        }
+    };
+
+    // Start recording
+    document.getElementById('start-recording-btn').onclick = async () => {
+        const channelId = document.getElementById('recording-channel-select').value;
+        const soundName = document.getElementById('recording-name').value || null;
+        
+        if (!channelId) {
+            showStatus('recording-status', 'Please select a voice channel', 'error');
+            return;
+        }
+        
+        try {
+            await api.request('/voice/recording/start', {
+                method: 'POST',
+                body: { channelId, soundName }
+            });
+            
+            document.getElementById('start-recording-btn').disabled = true;
+            document.getElementById('stop-recording-btn').disabled = false;
+            document.getElementById('recording-timer').style.display = 'block';
+            
+            recordingStartTime = Date.now();
+            startRecordingTimer();
+            
+            showStatus('recording-status', 'Recording started', 'success');
+        } catch (error) {
+            showStatus('recording-status', `Failed to start recording: ${error.message}`, 'error');
+        }
+    };
+
+    // Stop recording
+    document.getElementById('stop-recording-btn').onclick = async () => {
+        try {
+            const btn = document.getElementById('stop-recording-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            const result = await api.request('/voice/recording/stop', {
+                method: 'POST'
+            });
+            
+            document.getElementById('start-recording-btn').disabled = false;
+            document.getElementById('recording-timer').style.display = 'none';
+            stopRecordingTimer();
+            
+            showStatus('recording-status', `Recording saved as: ${result.soundName}`, 'success');
+            
+            // Reload sounds to include the new recording
+            await loadSounds();
+        } catch (error) {
+            showStatus('recording-status', `Failed to stop recording: ${error.message}`, 'error');
+            document.getElementById('start-recording-btn').disabled = false;
+            document.getElementById('stop-recording-btn').disabled = false;
+        } finally {
+            const btn = document.getElementById('stop-recording-btn');
+            btn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+        }
+    };
+
+    // Recording timer
+    function startRecordingTimer() {
+        recordingTimer = setInterval(() => {
+            if (recordingStartTime) {
+                const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('recording-time').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    }
+
+    function stopRecordingTimer() {
+        if (recordingTimer) {
+            clearInterval(recordingTimer);
+            recordingTimer = null;
+        }
+        recordingStartTime = null;
+    }
+
+    // Check recording status on load
+    async function checkRecordingStatus() {
+        try {
+            const status = await api.request('/voice/recording/status');
+            if (status.isRecording) {
+                document.getElementById('start-recording-btn').disabled = true;
+                document.getElementById('stop-recording-btn').disabled = false;
+                document.getElementById('recording-timer').style.display = 'block';
+                recordingStartTime = status.startTime;
+                startRecordingTimer();
+            }
+        } catch (error) {
+            console.error('Failed to check recording status:', error);
+        }
+    }
+
+    // Helper function
+    function showStatus(elementId, message, type) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = `status-message ${type}`;
+        element.style.display = 'block';
+        
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 5000);
+    }
+
+    // Initialize
+    await loadVoiceChannels();
+    await loadSounds();
+    await checkRecordingStatus();
+    
+    // Initialize custom selects
+    setTimeout(() => {
+        if (window.initCustomSelects) window.initCustomSelects();
+    }, 200);
+})();
+</script>
+

@@ -1,0 +1,104 @@
+{
+  "lastUpdated": "2026-01-11",
+  "buffed": [
+    {
+      "item": "PURPLE_WOOL",
+      "quantity": 16,
+      "price": 23,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "ARROW",
+      "quantity": 64,
+      "price": 14,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "MELON_SLICE",
+      "quantity": 16,
+      "price": 3,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "PUMPKIN_PIE",
+      "quantity": 2,
+      "price": 3,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "COD",
+      "quantity": 16,
+      "price": 10,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "CHERRY_LOG",
+      "quantity": 64,
+      "price": 26,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "SHROOMLIGHT",
+      "quantity": 16,
+      "price": 21,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "CLAY",
+      "quantity": 16,
+      "price": 12,
+      "type": "IRON_NUGGET"
+    }
+  ],
+  "nerfed": [],
+  "reset": [
+    {
+      "item": "CAKE",
+      "quantity": 16,
+      "price": 21,
+      "type": "GOLD_INGOT"
+    },
+    {
+      "item": "CARROT",
+      "quantity": 16,
+      "price": 3,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "CHORUS_FRUIT",
+      "quantity": 32,
+      "price": 1,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "ROSE_BUSH",
+      "quantity": 64,
+      "price": 4,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "RABBIT_HIDE",
+      "quantity": 32,
+      "price": 9,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "COOKED_PORKCHOP",
+      "quantity": 64,
+      "price": 5,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "DARK_OAK_SAPLING",
+      "quantity": 16,
+      "price": 1,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "BROWN_MUSHROOM_BLOCK",
+      "quantity": 8,
+      "price": 7,
+      "type": "IRON_NUGGET"
+    }
+  ]
+}

@@ -1,0 +1,637 @@
+{
+  "WHITE_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "LIGHT_GRAY_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "GRAY_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "BLACK_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "BROWN_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "RED_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "ORANGE_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "YELLOW_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "GREEN_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "LIME_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "CYAN_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "LIGHT_BLUE_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "BLUE_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "PURPLE_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "MAGENTA_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "PINK_WOOL": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 18,
+    "quantity": 16
+  },
+  "OAK_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "SPRUCE_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "BIRCH_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "JUNGLE_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "ACACIA_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "DARK_OAK_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "MANGROVE_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "CHERRY_LOG": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 20,
+    "quantity": 64
+  },
+  "BAMBOO_BLOCK": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 16
+  },
+  "MOSSY_COBBLESTONE": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 32
+  },
+  "WARPED_STEM": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 4
+  },
+  "GLOWSTONE": {
+    "paymentType": "GOLD_INGOT",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "NETHER_WART": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 32
+  },
+  "NETHER_SPROUTS": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 16
+  },
+  "WARPED_ROOTS": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 64
+  },
+  "WARPED_FUNGUS": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 7,
+    "quantity": 64
+  },
+  "MAGMA_CREAM": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 8
+  },
+  "QUARTZ": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 8
+  },
+  "NETHER_BRICK": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 18,
+    "quantity": 64
+  },
+  "KELP": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "COD": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 4
+  },
+  "COOKED_COD": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 4
+  },
+  "SALMON": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 4
+  },
+  "COOKED_SALMON": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 4
+  },
+  "TROPICAL_FISH": {
+    "paymentType": "IRON_INGOT",
+    "basePrice": 2,
+    "quantity": 2
+  },
+  "PUFFERFISH": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 9,
+    "quantity": 2
+  },
+  "SEA_PICKLE": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 4,
+    "quantity": 64
+  },
+  "BEEF": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 32
+  },
+  "PORKCHOP": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 32
+  },
+  "MUTTON": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 32
+  },
+  "CHICKEN": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 32
+  },
+  "COOKED_BEEF": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 64
+  },
+  "COOKED_PORKCHOP": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 64
+  },
+  "COOKED_MUTTON": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 64
+  },
+  "COOKED_CHICKEN": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 64
+  },
+  "COOKED_RABBIT": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 64
+  },
+  "RABBIT": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "LEATHER": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 32
+  },
+  "RABBIT_HIDE": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 7,
+    "quantity": 32
+  },
+  "FEATHER": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "GOLDEN_APPLE": {
+    "paymentType": "GOLD_INGOT",
+    "basePrice": 8,
+    "quantity": 1
+  },
+  "ENCHANTED_GOLDEN_APPLE": {
+    "paymentType": "DIAMOND",
+    "basePrice": 2,
+    "quantity": 1
+  },
+  "ROTTEN_FLESH": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 6,
+    "quantity": 32
+  },
+  "BONE_BLOCK": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 1
+  },
+  "STRING": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 6,
+    "quantity": 32
+  },
+  "GUNPOWDER": {
+    "paymentType": "IRON_INGOT",
+    "basePrice": 1,
+    "quantity": 32
+  },
+  "ARROW": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 11,
+    "quantity": 64
+  },
+  "SLIME_BLOCK": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 6,
+    "quantity": 6
+  },
+  "ENDER_PEARL": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 8
+  },
+  "BLAZE_ROD": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 16
+  },
+  "BREEZE_ROD": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 8,
+    "quantity": 16
+  },
+  "GHAST_TEAR": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 4,
+    "quantity": 8
+  },
+  "SPIDER_EYE": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 6,
+    "quantity": 32
+  },
+  "SKELETON_SKULL": {
+    "paymentType": "DIAMOND",
+    "basePrice": 4,
+    "quantity": 1
+  },
+  "WITHER_SKELETON_SKULL": {
+    "paymentType": "EMERALD",
+    "basePrice": 3,
+    "quantity": 1
+  },
+  "CORNFLOWER": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "BLUE_ORCHID": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "PINK_PETALS": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 64
+  },
+  "ALLIUM": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "AZURE_BLUET": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "CHERRY_SAPLING": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 5,
+    "quantity": 16
+  },
+  "ORANGE_TULIP": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "WHITE_TULIP": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "PINK_TULIP": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "RED_TULIP": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "OXEYE_DAISY": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "FLOWERING_AZALEA": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 12,
+    "quantity": 64
+  },
+  "SPRUCE_SAPLING": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "BIRCH_SAPLING": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "OAK_SAPLING": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "JUNGLE_SAPLING": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "ACACIA_SAPLING": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "DARK_OAK_SAPLING": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "CACTUS": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 32
+  },
+  "GREEN_DYE": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 9,
+    "quantity": 16
+  },
+  "ROSE_BUSH": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 64
+  },
+  "LILAC": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 64
+  },
+  "PEONY": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 64
+  },
+  "MELON_SLICE": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "SWEET_BERRIES": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 5,
+    "quantity": 16
+  },
+  "GLOW_BERRIES": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "POTATO": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "SUGAR_CANE": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 32
+  },
+  "CARROT": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "POISONOUS_POTATO": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 3,
+    "quantity": 8
+  },
+  "BEETROOT": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "COCOA_BEANS": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "BAKED_POTATO": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 2,
+    "quantity": 8
+  },
+  "BREAD": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 1,
+    "quantity": 8
+  },
+  "COOKIE": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 2,
+    "quantity": 8
+  },
+  "CAKE": {
+    "paymentType": "GOLD_INGOT",
+    "basePrice": 1,
+    "quantity": 1
+  },
+  "PUMPKIN_PIE": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 1
+  },
+  "HAY_BLOCK": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 11,
+    "quantity": 8
+  },
+  "MELON": {
+    "paymentType": "IRON_INGOT",
+    "basePrice": 9,
+    "quantity": 64
+  },
+  "PUMPKIN": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 10,
+    "quantity": 16
+  },
+  "RED_MUSHROOM": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 7,
+    "quantity": 16
+  },
+  "BROWN_MUSHROOM": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 7,
+    "quantity": 16
+  },
+  "RED_MUSHROOM_BLOCK": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 5,
+    "quantity": 8
+  },
+  "BROWN_MUSHROOM_BLOCK": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 5,
+    "quantity": 8
+  },
+  "SHROOMLIGHT": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 2
+  },
+  "VERDANT_FROGLIGHT": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 3,
+    "quantity": 2
+  },
+  "PEARLESCENT_FROGLIGHT": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 3,
+    "quantity": 2
+  },
+  "OCHRE_FROGLIGHT": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 3,
+    "quantity": 2
+  },
+  "SEA_LANTERN": {
+    "paymentType": "GOLD_INGOT",
+    "basePrice": 1,
+    "quantity": 16
+  },
+  "END_STONE": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 5,
+    "quantity": 16
+  },
+  "SPONGE": {
+    "paymentType": "GOLD_INGOT",
+    "basePrice": 5,
+    "quantity": 16
+  },
+  "TNT": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 14,
+    "quantity": 64
+  },
+  "CLAY": {
+    "paymentType": "IRON_NUGGET",
+    "basePrice": 9,
+    "quantity": 16
+  },
+  "CHORUS_FRUIT": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 1,
+    "quantity": 32
+  },
+  "CRYING_OBSIDIAN": {
+    "paymentType": "DIAMOND",
+    "basePrice": 5,
+    "quantity": 4
+  },
+  "AMETHYST_SHARD": {
+    "paymentType": "GOLD_NUGGET",
+    "basePrice": 2,
+    "quantity": 4
+  }
+}

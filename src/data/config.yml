@@ -1,0 +1,676 @@
+pnjs:
+  "§eMarchand de Laines":
+    location:
+      world: "default"
+      x: 1015.5
+      y: 62
+      z: 537.5
+      yaw: 0
+      pitch: 0
+    trades:
+      - WHITE_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - LIGHT_GRAY_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - GRAY_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - BLACK_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - BROWN_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - RED_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - ORANGE_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - YELLOW_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - GREEN_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - LIME_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - CYAN_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - LIGHT_BLUE_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - BLUE_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - PURPLE_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - MAGENTA_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+      - PINK_WOOL:
+          - 16
+          - IRON_NUGGET:
+              18
+  "§eMarchand de Bois":
+    location:
+      world: "default"
+      x: 1000.5
+      y: 63.0
+      z: 538.5
+      yaw: -36
+      pitch: 0.0
+    trades:
+      - OAK_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - SPRUCE_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - BIRCH_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - JUNGLE_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - ACACIA_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - DARK_OAK_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - MANGROVE_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - CHERRY_LOG:
+          - 64
+          - GOLD_NUGGET:
+              20
+      - BAMBOO_BLOCK:
+          - 16
+          - GOLD_NUGGET:
+              5
+      - MOSSY_COBBLESTONE:
+          - 32
+          - GOLD_NUGGET:
+              5
+      - WARPED_STEM:
+          - 4
+          - GOLD_NUGGET:
+              1
+  "§eMarchand du Nether":
+    location:
+      world: "default"
+      x: 1003.5
+      y: 63.0
+      z: 535.5
+      yaw: -47
+      pitch: -1.0
+    profession: SHEPHERD
+    trades:
+      - GLOWSTONE:
+          - 8
+          - GOLD_INGOT:
+              1
+      - NETHER_WART:
+          - 32
+          - GOLD_NUGGET:
+              2
+      - NETHER_SPROUTS:
+          - 16
+          - GOLD_NUGGET:
+              3
+      - WARPED_ROOTS:
+          - 64
+          - IRON_NUGGET:
+              1
+      - WARPED_FUNGUS:
+          - 64
+          - IRON_NUGGET:
+              7
+      - MAGMA_CREAM:
+          - 8
+          - GOLD_NUGGET:
+              3
+      - QUARTZ:
+          - 8
+          - GOLD_NUGGET:
+              3
+      - NETHER_BRICK:
+          - 64
+          - GOLD_NUGGET:
+              18
+  "§eMarchand de Poissons":
+    location:
+      world: "default"
+      x: 1019.5
+      y: 56.0
+      z: 587.5
+      yaw: -90.0
+      pitch: 0
+    profession: SHEPHERD
+    trades:
+      - KELP:
+          - 8
+          - IRON_NUGGET:
+              1
+      - COD:
+          - 4
+          - GOLD_NUGGET:
+              2
+      - COOKED_COD:
+          - 4
+          - GOLD_NUGGET:
+              4
+      - SALMON:
+          - 4
+          - GOLD_NUGGET:
+              2
+      - COOKED_SALMON:
+          - 4
+          - GOLD_NUGGET:
+              4
+      - TROPICAL_FISH:
+          - 2
+          - IRON_INGOT:
+              2
+      - PUFFERFISH:
+          - 2
+          - GOLD_NUGGET:
+              9
+      - SEA_PICKLE:
+          - 64
+          - IRON_NUGGET:
+              4
+  "§eMarchand de Nourritures":
+    location:
+      world: "default"
+      x: 1003.3
+      y: 62.0
+      z: 559.6
+      yaw: -134
+      pitch: 0.0
+    profession: SHEPHERD
+    trades:
+      - BEEF:
+          - 32
+          - GOLD_NUGGET:
+              1
+      - PORKCHOP:
+          - 32
+          - GOLD_NUGGET:
+              1
+      - MUTTON:
+          - 32
+          - GOLD_NUGGET:
+              2
+      - CHICKEN:
+          - 32
+          - GOLD_NUGGET:
+              2
+      - COOKED_BEEF:
+          - 64
+          - GOLD_NUGGET:
+              4
+      - COOKED_PORKCHOP:
+          - 64
+          - GOLD_NUGGET:
+              4
+      - COOKED_MUTTON:
+          - 64
+          - GOLD_NUGGET:
+              4
+      - COOKED_CHICKEN:
+          - 64
+          - GOLD_NUGGET:
+              4
+      - COOKED_RABBIT:
+          - 64
+          - GOLD_NUGGET:
+              4
+      - RABBIT:
+          - 8
+          - GOLD_NUGGET:
+              1
+      - LEATHER:
+          - 32
+          - GOLD_NUGGET:
+              5
+      - RABBIT_HIDE:
+          - 32
+          - GOLD_NUGGET:
+              7
+      - FEATHER:
+          - 16
+          - IRON_NUGGET:
+              1
+      - GOLDEN_APPLE:
+          - 1
+          - GOLD_INGOT:
+              8
+      - ENCHANTED_GOLDEN_APPLE:
+          - 1
+          - DIAMOND:
+              2
+  "§eMarchand de Loots":
+    location:
+      world: "default"
+      x: 998.5
+      y: 62.0
+      z: 552.5
+      yaw: -90.0
+      pitch: 0.0
+    profession: SHEPHERD
+    trades:
+      - ROTTEN_FLESH:
+          - 32
+          - IRON_NUGGET:
+              6
+      - BONE_BLOCK:
+          - 1
+          - IRON_NUGGET:
+              1
+      - STRING:
+          - 32
+          - IRON_NUGGET:
+              6
+      - GUNPOWDER:
+          - 32
+          - IRON_INGOT:
+              1
+      - ARROW:
+          - 64
+          - IRON_NUGGET:
+              11
+      - SLIME_BLOCK:
+          - 6
+          - IRON_NUGGET:
+              6
+      - ENDER_PEARL:
+          - 8
+          - GOLD_NUGGET:
+              5
+      - BLAZE_ROD:
+          - 16
+          - GOLD_NUGGET:
+              5
+      - BREEZE_ROD:
+          - 16
+          - GOLD_NUGGET:
+              8
+      - GHAST_TEAR:
+          - 8
+          - GOLD_NUGGET:
+              4
+      - SPIDER_EYE:
+          - 32
+          - IRON_NUGGET:
+              6
+      - SKELETON_SKULL:
+          - 1
+          - DIAMOND:
+              4
+      - WITHER_SKELETON_SKULL:
+          - 1
+          - EMERALD:
+              3
+  "§eMarchand de Fleurs":
+    location:
+      world: "default"
+      x: 1005.7
+      y: 62.0
+      z: 560.6
+      yaw: -140
+      pitch: 0.0
+    profession: SHEPHERD
+    trades:
+      - CORNFLOWER:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - BLUE_ORCHID:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - PINK_PETALS:
+          - 64
+          - GOLD_NUGGET:
+              5
+      - ALLIUM:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - AZURE_BLUET:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - CHERRY_SAPLING:
+          - 16
+          - IRON_NUGGET:
+              5
+      - ORANGE_TULIP:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - WHITE_TULIP:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - PINK_TULIP:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - RED_TULIP:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - OXEYE_DAISY:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - FLOWERING_AZALEA:
+          - 64
+          - GOLD_NUGGET:
+              12
+      - SPRUCE_SAPLING:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - BIRCH_SAPLING:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - OAK_SAPLING:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - JUNGLE_SAPLING:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - ACACIA_SAPLING:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - DARK_OAK_SAPLING:
+          - 16
+          - GOLD_NUGGET:
+              1
+      - CACTUS:
+          - 32
+          - GOLD_NUGGET:
+              5
+      - GREEN_DYE:
+          - 16
+          - IRON_NUGGET:
+              9
+      - ROSE_BUSH:
+          - 64
+          - GOLD_NUGGET:
+              3
+      - LILAC:
+          - 64
+          - GOLD_NUGGET:
+              3
+      - PEONY:
+          - 64
+          - GOLD_NUGGET:
+              3
+  "§eMarchand de Provisions":
+    location:
+      world: "default"
+      x: 997.5
+      y: 62.0
+      z: 549.3
+      yaw: -90.0
+      pitch: 0.0
+    profession: SHEPHERD
+    trades:
+      - MELON_SLICE:
+          - 8
+          - IRON_NUGGET:
+              1
+      - SWEET_BERRIES:
+          - 16
+          - IRON_NUGGET:
+             5
+      - GLOW_BERRIES:
+          - 8
+          - IRON_NUGGET:
+              1
+      - POTATO:
+          - 8
+          - IRON_NUGGET:
+              1
+      - SUGAR_CANE:
+          - 32
+          - GOLD_NUGGET:
+              5
+      - CARROT:
+          - 8
+          - IRON_NUGGET:
+              1
+      - POISONOUS_POTATO:
+          - 8
+          - GOLD_NUGGET:
+              3
+      - BEETROOT:
+          - 8
+          - IRON_NUGGET:
+              1
+      - COCOA_BEANS:
+          - 8
+          - IRON_NUGGET:
+              1
+
+      - BAKED_POTATO:
+          - 8
+          - IRON_NUGGET:
+              2
+      - BREAD:
+          - 8
+          - IRON_NUGGET:
+              1
+      - COOKIE:
+          - 8
+          - IRON_NUGGET:
+              2
+      - CAKE:
+          - 1
+          - GOLD_INGOT:
+              1
+      - PUMPKIN_PIE:
+          - 1
+          - GOLD_NUGGET:
+              1
+      - HAY_BLOCK:
+          - 8
+          - GOLD_NUGGET:
+              11
+      - MELON:
+          - 64
+          - IRON_INGOT:
+              9
+      - PUMPKIN:
+          - 16
+          - IRON_NUGGET:
+              10
+  "§eMarchand de Vivres":
+    location:
+      world: "default"
+      x: 1019.5
+      y: 62.0
+      z: 537.5
+      yaw: 0.0
+      pitch: 0.0
+    profession: SHEPHERD
+    trades:
+      - RED_MUSHROOM:
+          - 16
+          - IRON_NUGGET:
+              7
+      - BROWN_MUSHROOM:
+          - 16
+          - IRON_NUGGET:
+              7
+      - RED_MUSHROOM_BLOCK:
+          - 8
+          - IRON_NUGGET:
+              5
+      - BROWN_MUSHROOM_BLOCK:
+          - 8
+          - IRON_NUGGET:
+              5
+      - SHROOMLIGHT:
+          - 2
+          - GOLD_NUGGET:
+              2
+      - VERDANT_FROGLIGHT:
+          - 2
+          - IRON_NUGGET:
+              3
+      - PEARLESCENT_FROGLIGHT:
+          - 2
+          - IRON_NUGGET:
+              3
+      - OCHRE_FROGLIGHT:
+          - 2
+          - IRON_NUGGET:
+              3
+      - SEA_LANTERN:
+          - 16
+          - GOLD_INGOT:
+              1
+      - END_STONE:
+          - 16
+          - GOLD_NUGGET:
+              5
+      - SPONGE:
+          - 16
+          - GOLD_INGOT:
+              5
+      - TNT:
+          - 64
+          - GOLD_NUGGET:
+              14
+      - CLAY:
+          - 16
+          - IRON_NUGGET:
+              9
+      - CHORUS_FRUIT:
+          - 32
+          - GOLD_NUGGET:
+              1
+      - CRYING_OBSIDIAN:
+          - 4
+          - DIAMOND:
+              5
+      - AMETHYST_SHARD:
+          - 4
+          - GOLD_NUGGET:
+              2
+  "§eL’Arboriste":
+    location:
+      world: "default"
+      x: 997.5
+      y: 62.0
+      z: 555.5
+      yaw: -90
+      pitch: 0.0
+    trades:
+      - IRON_INGOT:
+          - 1
+          - JUNGLE_SAPLING:
+              8
+      - IRON_INGOT:
+          - 1
+          - OAK_SAPLING:
+              8
+      - IRON_INGOT:
+          - 1
+          - SPRUCE_SAPLING:
+              8
+      - IRON_INGOT:
+          - 1
+          - BIRCH_SAPLING:
+              8
+      - IRON_INGOT:
+          - 1
+          - DARK_OAK_SAPLING:
+              8
+      - IRON_INGOT:
+          - 1
+          - ACACIA_SAPLING:
+              8
+      - IRON_INGOT:
+          - 1
+          - CHERRY_SAPLING:
+              8
+  "§eMarché Dynamique":
+    location:
+      world: "default"
+      x: 1001.5
+      y: 63.0
+      z: 536.5
+      yaw: -45
+      pitch: 0.0
+    trades:
+      - PURPLE_WOOL:
+          - 16
+          - IRON_NUGGET:
+              23
+      - ARROW:
+          - 64
+          - IRON_NUGGET:
+              14
+      - MELON_SLICE:
+          - 16
+          - IRON_NUGGET:
+              3
+      - PUMPKIN_PIE:
+          - 2
+          - GOLD_NUGGET:
+              3
+      - COD:
+          - 16
+          - GOLD_NUGGET:
+              10
+      - CHERRY_LOG:
+          - 64
+          - GOLD_NUGGET:
+              26
+      - SHROOMLIGHT:
+          - 16
+          - GOLD_NUGGET:
+              21
+      - CLAY:
+          - 16
+          - IRON_NUGGET:
+              12

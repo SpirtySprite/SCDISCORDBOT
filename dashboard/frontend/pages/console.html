@@ -1,0 +1,494 @@
+<div class="console-page">
+    <div class="console-header">
+        <div class="flex justify-between align-center mb-1">
+            <h2>Console</h2>
+            <div class="flex gap-1 align-center">
+                <button class="btn btn-secondary btn-sm" onclick="window.clearConsole()">
+                    <i class="fas fa-trash"></i> Effacer
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="window.toggleAutoScroll()">
+                    <i class="fas fa-arrow-down" id="autoscroll-icon"></i> 
+                    <span id="autoscroll-text">Auto-scroll</span>
+                </button>
+            </div>
+        </div>
+        <div class="console-filters">
+            <div class="flex gap-1 align-center" style="flex-wrap: wrap; gap: 0.75rem;">
+                <label class="filter-toggle">
+                    <input type="checkbox" id="filter-info" checked onchange="window.applyFilters()">
+                    <span class="filter-label" style="color: #00BCD4;">[INFO]</span>
+                </label>
+                <label class="filter-toggle">
+                    <input type="checkbox" id="filter-success" checked onchange="window.applyFilters()">
+                    <span class="filter-label" style="color: #4CAF50;">[SUCCESS]</span>
+                </label>
+                <label class="filter-toggle">
+                    <input type="checkbox" id="filter-warn" checked onchange="window.applyFilters()">
+                    <span class="filter-label" style="color: #FFC107;">[WARN]</span>
+                </label>
+                <label class="filter-toggle">
+                    <input type="checkbox" id="filter-error" checked onchange="window.applyFilters()">
+                    <span class="filter-label" style="color: #F44336;">[ERROR]</span>
+                </label>
+                <label class="filter-toggle">
+                    <input type="checkbox" id="filter-debug" checked onchange="window.applyFilters()">
+                    <span class="filter-label" style="color: #9C27B0;">[DEBUG]</span>
+                </label>
+                <div class="log-count">
+                    <span id="log-count">0</span> logs
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="console-output" class="console-output"></div>
+</div>
+
+<style>
+.console-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+}
+
+.console-header {
+    margin-bottom: 1rem;
+}
+
+.console-filters {
+    background: var(--surface);
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    margin-top: 0.75rem;
+}
+
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.filter-toggle:hover {
+    background: var(--surface-dark);
+}
+
+.filter-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    margin: 0;
+}
+
+.filter-label {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    font-family: 'Courier New', monospace;
+}
+
+.log-count {
+    margin-left: auto;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+}
+
+.console-output {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.8125rem;
+    padding: 1rem 1.25rem;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid #30363d;
+    border-radius: var(--border-radius);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.console-output::-webkit-scrollbar {
+    width: 10px;
+}
+
+.console-output::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+
+.console-output::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 5px;
+    border: 2px solid #0d1117;
+}
+
+.console-output::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}
+
+.console-output .log-entry {
+    margin-bottom: 0.125rem;
+    padding: 0;
+    display: block;
+}
+
+.console-output .log-entry.hidden {
+    display: none;
+}
+
+.console-output .log-timestamp {
+    color: #6e7681;
+    margin-right: 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.console-output .log-level {
+    font-weight: 600;
+    margin-right: 0.5rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.3px;
+}
+
+.console-output .log-level.info {
+    color: #00BCD4;
+}
+
+.console-output .log-level.success {
+    color: #4CAF50;
+}
+
+.console-output .log-level.warn {
+    color: #FFC107;
+}
+
+.console-output .log-level.error {
+    color: #F44336;
+}
+
+.console-output .log-level.debug {
+    color: #9C27B0;
+}
+
+.console-output .log-message {
+    color: #c9d1d9;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+</style>
+
+<script>
+(function() {
+    let logs = [];
+    let autoScroll = true;
+    let filters = {
+        info: true,
+        success: true,
+        warn: true,
+        error: true,
+        debug: true
+    };
+
+    function updateFilters() {
+        filters.info = document.getElementById('filter-info').checked;
+        filters.success = document.getElementById('filter-success').checked;
+        filters.warn = document.getElementById('filter-warn').checked;
+        filters.error = document.getElementById('filter-error').checked;
+        filters.debug = document.getElementById('filter-debug').checked;
+    }
+
+    function parseLogLine(line) {
+        // Parse log format: [LEVEL] timestamp - message
+        // More flexible regex to handle various formats
+        const levelMatch = line.match(/\[(INFO|SUCCESS|WARN|WARNING|ERROR|DEBUG|DASHBOARD)\]/i);
+        const timestampMatch = line.match(/(\d{4}-\d{2}-\d{2}T[\d:\.]+Z)/);
+        const messageMatch = line.match(/-\s*(.+)$/);
+        
+        let level = 'info';
+        if (levelMatch) {
+            const levelStr = levelMatch[1].toUpperCase();
+            if (levelStr === 'SUCCESS') level = 'success';
+            else if (levelStr === 'WARN' || levelStr === 'WARNING') level = 'warn';
+            else if (levelStr === 'ERROR') level = 'error';
+            else if (levelStr === 'DEBUG') level = 'debug';
+            else if (levelStr === 'INFO' || levelStr === 'DASHBOARD') level = 'info';
+        }
+        
+        const timestamp = timestampMatch ? timestampMatch[1] : '';
+        const message = messageMatch ? messageMatch[1] : line.replace(/\[.*?\]\s*\d{4}-\d{2}-\d{2}T[\d:\.]+Z\s*-\s*/, '').trim() || line;
+        
+        return { level, timestamp, message, raw: line };
+    }
+
+    function formatTimestamp(timestamp) {
+        if (!timestamp) return '';
+        try {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        } catch {
+            return timestamp;
+        }
+    }
+
+    function renderLogs() {
+        const container = document.getElementById('console-output');
+        updateFilters();
+        
+        let visibleCount = 0;
+        const html = logs.map(log => {
+            // Check if this log level is filtered out
+            const shouldShow = filters[log.level];
+            if (!shouldShow) {
+                return ''; // Don't render hidden logs at all
+            }
+            visibleCount++;
+            const timestamp = formatTimestamp(log.timestamp);
+            // Format like terminal: [LEVEL] timestamp - message
+            return `<div class="log-entry ${log.level}">
+                <span class="log-level ${log.level}">[${log.level.toUpperCase()}]</span>
+                ${timestamp ? `<span class="log-timestamp">${escapeHtml(timestamp)}</span>` : ''}
+                <span class="log-message">${escapeHtml(log.message || log.raw)}</span>
+            </div>`;
+        }).filter(html => html !== '').join(''); // Filter out empty strings
+
+        container.innerHTML = html;
+        document.getElementById('log-count').textContent = visibleCount;
+
+        if (autoScroll) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function addLog(logText, skipRender = false) {
+        const log = parseLogLine(logText);
+        logs.push(log);
+        
+        // Keep only last 1000 logs to prevent memory issues
+        if (logs.length > 1000) {
+            logs = logs.slice(-1000);
+        }
+        
+        if (!skipRender) {
+            // Only render if this log should be visible
+            const shouldShow = filters[log.level];
+            if (shouldShow) {
+                appendLogToConsole(log);
+            }
+            // Update count
+            updateLogCount();
+        }
+    }
+    
+    function appendLogToConsole(log) {
+        const container = document.getElementById('console-output');
+        if (!container) return;
+        
+        const timestamp = formatTimestamp(log.timestamp);
+        const logHtml = `<div class="log-entry ${log.level}">
+            <span class="log-level ${log.level}">[${log.level.toUpperCase()}]</span>
+            ${timestamp ? `<span class="log-timestamp">${escapeHtml(timestamp)}</span>` : ''}
+            <span class="log-message">${escapeHtml(log.message || log.raw)}</span>
+        </div>`;
+        
+        container.insertAdjacentHTML('beforeend', logHtml);
+        
+        // Auto-scroll if enabled
+        if (autoScroll) {
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Update count
+        updateLogCount();
+    }
+    
+    function updateLogCount() {
+        const visibleCount = logs.filter(log => filters[log.level]).length;
+        const countEl = document.getElementById('log-count');
+        if (countEl) {
+            countEl.textContent = visibleCount;
+        }
+    }
+
+    function clearConsole() {
+        logs = [];
+        renderLogs();
+    }
+
+    function toggleAutoScroll() {
+        autoScroll = !autoScroll;
+        const icon = document.getElementById('autoscroll-icon');
+        const text = document.getElementById('autoscroll-text');
+        
+        if (autoScroll) {
+            icon.classList.remove('fa-pause');
+            icon.classList.add('fa-arrow-down');
+            text.textContent = 'Auto-scroll';
+        } else {
+            icon.classList.remove('fa-arrow-down');
+            icon.classList.add('fa-pause');
+            text.textContent = 'Pause';
+        }
+    }
+
+    async function applyFilters() {
+        updateFilters();
+        
+        // Send filter preferences to backend to control actual logging
+        try {
+            await window.api.post('/admin/logs/filters', {
+                filters: filters
+            });
+        } catch (error) {
+            console.error('Failed to update log filters:', error);
+        }
+        
+        // Re-render to update display
+        renderLogs();
+    }
+    
+    // Load filter preferences on page load
+    async function loadFilters() {
+        try {
+            const response = await window.api.get('/admin/logs/filters').catch(() => null);
+            if (response && response.filters) {
+                filters = response.filters;
+                // Update checkboxes
+                document.getElementById('filter-info').checked = filters.info !== false;
+                document.getElementById('filter-success').checked = filters.success !== false;
+                document.getElementById('filter-warn').checked = filters.warn !== false;
+                document.getElementById('filter-error').checked = filters.error !== false;
+                document.getElementById('filter-debug').checked = filters.debug !== false;
+            }
+        } catch (error) {
+            console.error('Failed to load log filters:', error);
+        }
+    }
+
+    // Load initial logs from API (only recent ones for faster loading)
+    async function loadLogs() {
+        try {
+            // Only load last 200 logs initially for faster loading
+            const response = await window.api.get('/admin/logs?limit=200').catch(() => null);
+            if (response && Array.isArray(response.logs)) {
+                // Clear existing logs and add initial batch
+                logs = [];
+                response.logs.forEach(log => {
+                    const parsed = parseLogLine(log);
+                    logs.push(parsed);
+                });
+                renderLogs();
+            }
+        } catch (error) {
+            console.error('Failed to load logs:', error);
+        }
+    }
+
+    // Real-time log streaming via Server-Sent Events
+    let eventSource = null;
+    let isStreaming = false;
+    
+    function startLiveStreaming() {
+        if (isStreaming) return; // Already streaming
+        
+        const url = `/api/admin/logs/stream`;
+        isStreaming = true;
+        
+        eventSource = new EventSource(url);
+        
+        eventSource.onopen = () => {
+            console.log('[Console] Live streaming connected');
+        };
+        
+        eventSource.onmessage = (event) => {
+            try {
+                // Handle heartbeat
+                if (event.data.trim() === '' || event.data === 'heartbeat') {
+                    return;
+                }
+                
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'connected') {
+                    console.log('[Console] SSE connection established');
+                } else if (data.type === 'initial' && Array.isArray(data.logs)) {
+                    // Initial batch of logs - clear existing and add these
+                    logs = [];
+                    data.logs.forEach(log => {
+                        const parsed = parseLogLine(log);
+                        logs.push(parsed);
+                    });
+                    renderLogs();
+                } else if (data.log) {
+                    // Single new log - add in real-time (don't re-render everything)
+                    addLog(data.log, false);
+                }
+            } catch (error) {
+                // Ignore parse errors for heartbeat messages
+                if (event.data && !event.data.includes('heartbeat')) {
+                    console.error('[Console] Failed to parse SSE message:', error);
+                }
+            }
+        };
+        
+        eventSource.onerror = (error) => {
+            console.error('[Console] SSE error:', error);
+            isStreaming = false;
+            
+            // Try to reconnect after 3 seconds
+            setTimeout(() => {
+                if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+                    eventSource.close();
+                    eventSource = null;
+                    startLiveStreaming();
+                }
+            }, 3000);
+        };
+    }
+
+    function stopLiveStreaming() {
+        if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+            isStreaming = false;
+        }
+    }
+
+    window.initConsolePage = async function() {
+        // Load filter preferences first
+        await loadFilters();
+        
+        // Load initial logs quickly (only recent ones)
+        loadLogs();
+        // Start live streaming for real-time updates
+        startLiveStreaming();
+        
+        window.clearConsole = clearConsole;
+        window.toggleAutoScroll = toggleAutoScroll;
+        window.applyFilters = applyFilters;
+        window.addLog = addLog; // Expose for external use
+    };
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        stopLiveStreaming();
+    });
+})();
+</script>
+

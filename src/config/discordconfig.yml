@@ -1,0 +1,482 @@
+Discord:
+  bot:
+    presence:
+      status: online
+      activity:
+        type: WATCHING
+        text: Un serveur au pif
+  moderation:
+    enabled: true
+    channels:
+      logId: "1371620495744827492"
+    rules:
+      requireReason: false
+      sendDM: true
+      defaultDurations:
+        timeout: 10m
+        ban: null
+    actions:
+      ban: true
+      kick: true
+      mute: true
+      timeout: true
+      warn: true
+      unban: true
+      unmute: true
+      untimeout: true
+    antiSpam:
+      enabled: true
+      messageLimit: 28
+      timeWindow: 100s
+  voiceSupport:
+    enabled: true
+    triggerChannelId: "1464419807557452050"
+    targetChannelName: 👮┃Support vocal
+    categoryId: "1371089627599077427"
+    anchorChannelId: "1371089854863114241"
+    basePosition: 1
+    allowedRoles:
+      - "1371079966334390332"
+      - "1371078614027731054"
+      - "1371077690282610808"
+  tickets:
+    enabled: true
+    roles:
+      staffId: null #Pour ping automatiquement un role
+    channels:
+      transcriptId: "1372278101115142164"
+    settings:
+      autoCloseAfter: null #Temps avant la fermeture automatique (si aucun message n'est envoyé)
+      deleteAfterClose: false #Supprimer le ticket après la fermeture
+      deleteDelay: 2s #Délai avant la suppression (Laisser comme ca pour que le bot ait le temps de save)
+      autoRoles:
+        - "1374066352075182141" #Roles automatiquement ajouter au ticket
+        - "1374066353731801238"
+        - "1374066481310072934"
+        - "1371077690282610808"
+        - "1371078614027731054"
+        - "1371079966334390332"
+      autoUsers: [] #Roles automatiquement ajouter au ticket
+      maxOpenTickets: 3 #Nombre maximum de tickets ouverts / personne
+    categories: # Les catégorie sont dynamique pas besoin de refaire la commande sauvegarder le fichier mettras automatiquement toute la config a jour
+      - key: claim-totem
+        name: 🔴 Bug Claim / Totem
+        description: Ouvrir un ticket pour tout problème lié au claim ou au totem.
+        categoryId: "1458242374214877377"
+        onCreateMessage: Bonjour <@USER> 👋 ! Merci de nous préciser les coordonnées de chaque claim / totem.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: coords
+            type: text
+            label: Coordonnées
+            placeholder: "Ex: 100 64 -200"
+            required: true
+            style: short
+      - key: connexion
+        name: 🔑 Connexion
+        description: Ouvrir un ticket pour tout problème lié à la connexion ou à l'accès au serveur.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Bonjour <@USER> 👋 ! Indiquez-nous le problème de connexion que vous rencontrez afin que nous puissions vous aider rapidement.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+      - key: bug
+        name: 🐞 Bug
+        description: Signalez un bug ou un dysfonctionnement afin que l'équipe puisse le résoudre rapidement.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Salut <@USER> 🐞 ! Merci de signaler un bug. Peux-tu nous décrire ce qui ne fonctionne pas, Nous fournir ton pseudo, ainsi que les étapes pour reproduire le bug si possible ?
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+      - key: support
+        name: 💬 support
+        description: Ouvrez un ticket pour poser une question générale ou obtenir de l'aide.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Bonjour <@USER> 💬 ! Posez votre question ici, nous sommes là pour vous aider.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+      - key: report
+        name: 🚨 report
+        description: Signaler un membre ou un comportement ne respectant pas les règles.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Bonjour <@USER> 🚨. Merci de votre vigilance. Pouvez-vous détailler le problème et fournir, si possible, des preuves (captures, IDs, etc.) ?
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+      - key: boutique
+        name: 🛒 boutique
+        description: Contacter le staff concernant un achat, une commande ou un problème lié à la boutique.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Salut <@USER> 🛒 ! Expliquez-nous votre souci concernant la boutique ou votre achat afin que nous puissions le régler au plus vite.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+      - key: event
+        name: 🎉 event
+        description: Obtenir des informations ou un support concernant les événements du serveur.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Bonjour <@USER> 🎉 ! Que souhaitez-vous savoir ou régler concernant nos événements ? Nous sommes là pour vous aider.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+      - key: reclamation
+        name: ⚖️ Faire un Appel
+        description: Contester un bannissement, un mute ou un avertissement.
+        categoryId: "1372284455649017899"
+        onCreateMessage: |
+          Bonjour <@USER> ⚖️.
+          Merci de vouloir clarifier la situation. Pour que l'équipe puisse réévaluer votre sanction, merci de remplir les champs ci-dessous avec honnêteté.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Votre Pseudo
+            placeholder: Quel est votre pseudo en jeu ou Discord ?
+            required: true
+            style: short
+          - id: type_sanction
+            type: select
+            label: Sanction à contester
+            placeholder: Quelle sanction souhaitez-vous retirer ?
+            required: true
+            options:
+              - label: Débannissement
+                value: unban
+                description: Vous avez été banni définitivement ou temporairement.
+                emoji: 🔨
+              - label: Unmute
+                value: unmute
+                description: Vous ne pouvez plus parler dans les salons.
+                emoji: 🔇
+              - label: Retrait d'Avertissement
+                value: unwarn
+                description: Vous souhaitez contester un Warn reçu.
+                emoji: ⚠️
+          - id: staff_member
+            type: text
+            label: Staff qui vous a sanctionné (si connu)
+            placeholder: Le nom du modérateur...
+            required: false
+            style: short
+      - key: giveaway
+        name: 🎁 giveaway
+        description: Réclamer votre prix de concours.
+        categoryId: "1372284455649017899"
+        onCreateMessage: Bonjour <@USER> 🎁 ! Félicitations pour votre victoire au concours ! Indiquez-nous quel concours vous avez gagné et nous vous aiderons à réclamer votre prix.
+        inputs:
+          - id: pseudo
+            type: text
+            label: Pseudo
+            placeholder: Entrez votre pseudo...
+            required: true
+            style: short
+          - id: platform
+            type: select
+            label: Plateforme
+            placeholder: Sélectionnez votre plateforme
+            options:
+              - label: Java Edition
+                value: Java
+                description: Version PC classique
+                emoji: ☕
+              - label: Bedrock Edition
+                value: Bedrock
+                description: Windows 10, Consoles, Mobile
+                emoji: 📱
+  giveaways:
+    enabled: true
+    channels:
+      defaultId: "1442419813300305920" #Par défault mais peut être préciser dans la commande /concours
+    settings:
+      checkInterval: 5m #Intervalle de vérification des concours
+      updateDelay: 500ms #Délai de mise à jour des concours
+      minDuration: 1m #Durée minimum des concours
+      maxWinners: 20 #Nombre maximum de gagnants
+  minecraft:
+    enabled: false #Ancien plugin que j'avait fait laisser désac
+    apiKey: "Placeholder"
+    port: 48324
+  market:
+    enabled: true #Les commandes sont dans le dossier commands/market
+    rotation:
+      enabled: true
+      itemsPerRotation: 8 #Nombre d'items qui apparaissent en rotation
+      publishEnabled: true #Publier les items en rotation (Pas automatique via la commande)
+    balancing:
+      buffMultiplier: 1.3 #Multiplier les prix des items buff
+      nerfMultiplier: 0.6666667 #Diviser les prix des items nerf
+  suggestion:
+    enabled: true
+    channelId: "1373736608179814530"
+    requireApproval: false #Demander l'approbation d'un staff pour que la suggestion soit visible
+    allowAnonymous: false #Permettre aux utilisateurs de poster des suggestions anonymement
+    emojis:
+      upvote: <:sc_upvote:1448351881150595112>
+      neutral: <:sc_minus:1448351904710135961>
+      downvote: <:sc_downvote:1448351895784525884>
+  logs:
+    enabled: true 
+    channels: 
+      eventLogId: "1371620495744827492"
+      modLogId: "1371620495744827492" 
+      suggestionId: "1373736608179814530"
+      spamLogId: "1453144019377848464"
+    events:
+      messageDelete: true
+      messageEdit: true
+      memberJoin: true
+      memberLeave: true
+      roleAdd: true
+      roleRemove: true
+      nicknameChange: true
+      voiceJoin: false
+      voiceLeave: false
+      voiceMove: true
+      voiceMute: false
+      voiceDeafen: false
+      channelCreate: true
+      channelUpdate: true
+      channelDelete: true
+      roleCreate: true
+      roleDelete: true
+      roleUpdate: true
+      banAdd: true
+      banRemove: true
+  branding:
+    colors:
+      primary: "#5865F2"
+      success: "#57F287"
+      error: "#ED4245"
+      warning: "#FEE75C"
+      info: "#5865F2"
+    messages:
+      defaultReason: Aucune raison spécifiée
+      noPermission: Vous n'avez pas la permission d'utiliser cette commande.
+      errorOccurred: Une erreur est survenue lors de l'exécution de la commande.
+      commandDisabled: Cette commande est actuellement désactivée.
+    embeds:
+      footerText: Serenity Craft
+      showTimestamp: true
+  limits:
+    cooldowns:
+      global: 3s #Cooldown global / personne
+      giveawayCreate: 1m #Cooldown pour la création de concours
+      ticketCreate: 30s #Cooldown pour la création de tickets
+  features:
+    autoModeration: false #Auto-modération
+    welcomeMessages: true #Messages de bienvenue
+    welcomeChannelId: "1371085965145149541"
+    welcomeSettings:
+      sendImage: true
+      message: Bienvenue {user} sur {server}! 🎉
+      imageWidth: 1200
+      imageHeight: 320
+      imageBackgroundColor: "#0f0f0f"
+      bannerColor: "#1a1a1a"
+      imageTextColor: "#ffffff"
+      imageAvatarSize: 160
+      imageTitle: Bienvenue {username}!
+      imageSubtitle: Tu es le {memberCount}ème membre
+      thirdLineText: "Serenity Craft : 1.17 - 1.21.10"
+    goodbyeMessages: false
+    leveling: true
+    economy: false
+  leveling:
+    enabled: true
+    cooldown: 30
+    xpPerMessage:
+      min: 15
+      max: 25
+    levelUpMessage:
+      enabled: true
+      channelId: "1373418499765964891"
+      message: 🎉 Félicitations <@USER> ! Vous avez atteint le niveau **LEVEL** !
+  advanced:
+    debugMode: false #Faut éviter de toucher à tout ce qui est en dessous de la ligne 400
+    logLevel: info
+    commandPrefix: /
+    maxMessageLength: 2000
+    maxEmbedLength: 6000
+  commands:
+    suggestion: true
+  database:
+    connectionPool:
+      connectionLimit: 100
+      queueLimit: 0
+      connectTimeout: 10000
+      idleTimeout: 600000
+      maxIdle: 10
+      enableKeepAlive: true
+      keepAliveInitialDelay: 0
+    query:
+      acquireTimeout: 30000
+      retry:
+        maxRetries: 3
+        initialDelay: 1000
+        backoffMultiplier: 2
+  handlers:
+    antiSpam:
+      maxHistorySize: 5000
+      cleanupInterval: 300000
+      cleanupProbability: 0.01
+    antiLink:
+      enabled: false
+      allowedDomains: []
+      blockedDomains: []
+      action: delete
+      timeoutDuration: 10m
+      exemptRoles: []
+      exemptChannels: []
+    leveling:
+      maxCooldowns: 10000
+      cleanupInterval: 3600000
+      cleanupProbability: 0.01
+    eventLog:
+      batchSize: 10
+      batchDelay: 1000
+      maxQueueSize: 1000
+    giveaway:
+      maxQueueSize: 100
+      embedUpdateDebounce: 500
+    pvpTournament:
+      maxConcurrentTournaments: 10
+      bracketGenerationTimeout: 30000
+      matchNotificationTimeout: 10000
+  performance:
+    cache:
+      defaultTTL: 300000
+      cleanupInterval: 300000
+      maxSize: 10000
+      enableStats: true
+    memory:
+      enableCleanup: true
+      cleanupInterval: 3600000
+      maxMapSize: 10000
+    botApi:
+      port: 45049
+      maxRequestSize: 10485760
+      requestTimeout: 30000
+      enableCors: true
+  soundboard:
+    enabled: true
+    maxFileSize: 10485760
+    allowedFormats:
+      - mp3
+      - ogg
+      - wav
+    playDelay: 200
+    maxConcurrentPlays: 3
+  pvpTournaments:
+    enabled: true
+    maxParticipants: 64
+    minParticipants: 2
+    registrationMinDuration: 1m
+    registrationMaxDuration: 7d
+    bracketUpdateInterval: 5000

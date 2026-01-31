@@ -1,0 +1,182 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Modération</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadModConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveModConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Général</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer la modération</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Activer ou désactiver toutes les fonctions de modération</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="mod-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="mod-log-chan">Canal de logs spécifique (ID)</label>
+            <input type="text" id="mod-log-chan" class="form-control" placeholder="ID du canal (laisse vide pour utiliser le global)">
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Paramètres par défaut</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="mod-timeout">Durée de timeout par défaut</label>
+                <input type="text" id="mod-timeout" class="form-control" placeholder="10m, 1h, etc.">
+            </div>
+            <div class="form-group">
+                <label for="mod-ban">Durée de ban par défaut</label>
+                <input type="text" id="mod-ban" class="form-control" placeholder="null (permanent)">
+            </div>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Raison obligatoire</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Exiger une raison pour chaque action</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="mod-require-reason">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Envoyer un MP</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Notifier l'utilisateur par MP lors d'une action</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="mod-send-dm">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Actions activées</h3>
+        <div id="enabled-actions" class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+            
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Anti-Spam</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer l'anti-spam</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Détecte et supprime automatiquement les messages de spam</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="anti-spam-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+            <div class="form-group">
+                <label for="anti-spam-limit">Limite de messages</label>
+                <input type="number" id="anti-spam-limit" class="form-control" placeholder="28" min="1">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Nombre de messages maximum autorisés dans la fenêtre de temps</div>
+            </div>
+            <div class="form-group">
+                <label for="anti-spam-window">Fenêtre de temps</label>
+                <input type="text" id="anti-spam-window" class="form-control" placeholder="70s, 1m, 2m">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Durée de la fenêtre de temps (ex: 70s, 1m)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/moderation');
+            
+            document.getElementById('mod-enabled').checked = configData.enabled !== false;
+            document.getElementById('mod-log-chan').value = configData.channels?.logId || '';
+            document.getElementById('mod-timeout').value = configData.rules?.defaultDurations?.timeout || '';
+            document.getElementById('mod-ban').value = configData.rules?.defaultDurations?.ban || '';
+            document.getElementById('mod-require-reason').checked = configData.rules?.requireReason === true;
+            document.getElementById('mod-send-dm').checked = configData.rules?.sendDM !== false;
+
+            // Anti-spam configuration
+            const antiSpam = configData.antiSpam || {};
+            document.getElementById('anti-spam-enabled').checked = antiSpam.enabled !== false;
+            document.getElementById('anti-spam-limit').value = antiSpam.messageLimit || 28;
+            document.getElementById('anti-spam-window').value = antiSpam.timeWindow || '70s';
+
+            const actionsContainer = document.getElementById('enabled-actions');
+            const actions = configData.actions || {};
+            actionsContainer.innerHTML = Object.keys(actions).map(action => `
+                <div class="flex align-center justify-between p-1" style="background: var(--surface); border-radius: 8px; padding: 0.75rem;">
+                    <span style="text-transform: capitalize; font-weight: 500;">${action}</span>
+                    <label class="switch">
+                        <input type="checkbox" class="action-toggle" data-action="${action}" ${actions[action] ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        const actions = {};
+        document.querySelectorAll('.action-toggle').forEach(el => {
+            actions[el.dataset.action] = el.checked;
+        });
+
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            ...configData,
+            enabled: document.getElementById('mod-enabled').checked,
+            channels: {
+                ...(configData.channels || {}),
+                logId: document.getElementById('mod-log-chan').value || null
+            },
+            rules: {
+                ...(configData.rules || {}),
+                requireReason: document.getElementById('mod-require-reason').checked,
+                sendDM: document.getElementById('mod-send-dm').checked,
+                defaultDurations: {
+                    ...(configData.rules?.defaultDurations || {}),
+                    timeout: document.getElementById('mod-timeout').value,
+                    ban: document.getElementById('mod-ban').value || null
+                }
+            },
+            actions,
+            antiSpam: {
+                ...(configData.antiSpam || {}),
+                enabled: document.getElementById('anti-spam-enabled').checked,
+                messageLimit: parseInt(document.getElementById('anti-spam-limit').value) || 28,
+                timeWindow: document.getElementById('anti-spam-window').value || '70s'
+            }
+        };
+
+        try {
+            await window.api.put('/config/moderation', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration modération enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initModerationPage = function() {
+        loadConfig();
+        window.loadModConfig = loadConfig;
+        window.saveModConfig = saveConfig;
+    };
+})();
+</script>

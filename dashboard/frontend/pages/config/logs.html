@@ -1,0 +1,135 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration des Logs</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadLogsConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveLogsConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Canaux de journalisation</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Activer les logs</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Activer globalement la journalisation</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="ev-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="ev-chan">Canal Logs Événements (ID)</label>
+                <input type="text" id="ev-chan" class="form-control" placeholder="ID du canal">
+            </div>
+            <div class="form-group">
+                <label for="mod-log-chan">Canal Logs Modération (ID)</label>
+                <input type="text" id="mod-log-chan" class="form-control" placeholder="ID du canal">
+            </div>
+            <div class="form-group">
+                <label for="sug-chan">Canal Suggestions (ID)</label>
+                <input type="text" id="sug-chan" class="form-control" placeholder="ID du canal">
+            </div>
+            <div class="form-group">
+                <label for="spam-log-chan">Canal Logs Spam/Insultes (ID)</label>
+                <input type="text" id="spam-log-chan" class="form-control" placeholder="ID du canal">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Événements à logger</h3>
+        <div id="events-list" class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+            
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/logs');
+            
+            document.getElementById('ev-enabled').checked = configData.enabled !== false;
+            document.getElementById('ev-chan').value = configData.channels?.eventLogId || '';
+            document.getElementById('mod-log-chan').value = configData.channels?.modLogId || '';
+            document.getElementById('sug-chan').value = configData.channels?.suggestionId || '';
+            document.getElementById('spam-log-chan').value = configData.channels?.spamLogId || '';
+
+            const eventsContainer = document.getElementById('events-list');
+            const events = configData.events || {};
+            
+            const labelMap = {
+                messageDelete: 'Suppression de message',
+                messageEdit: 'Modification de message',
+                memberJoin: 'Arrivée de membre',
+                memberLeave: 'Départ de membre',
+                roleAdd: 'Ajout de rôle',
+                roleRemove: 'Retrait de rôle',
+                nicknameChange: 'Changement de surnom',
+                voiceJoin: 'Arrivée en vocal',
+                voiceLeave: 'Départ du vocal',
+                voiceMove: 'Déplacement vocal',
+                voiceMute: 'Mute vocal',
+                voiceDeafen: 'Sourdine vocale',
+                channelCreate: 'Création de canal',
+                channelUpdate: 'Modification de canal'
+            };
+
+            eventsContainer.innerHTML = Object.keys(events).map(key => `
+                <div class="flex align-center justify-between p-1" style="background: var(--surface); border-radius: 8px; padding: 0.75rem;">
+                    <span style="font-weight: 500;">${labelMap[key] || key}</span>
+                    <label class="switch">
+                        <input type="checkbox" class="event-toggle" data-key="${key}" ${events[key] ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        const events = {};
+        document.querySelectorAll('.event-toggle').forEach(el => {
+            events[el.dataset.key] = el.checked;
+        });
+
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            enabled: document.getElementById('ev-enabled').checked,
+            channels: {
+                eventLogId: document.getElementById('ev-chan').value || null,
+                modLogId: document.getElementById('mod-log-chan').value || null,
+                suggestionId: document.getElementById('sug-chan').value || null,
+                spamLogId: document.getElementById('spam-log-chan').value || null
+            },
+            events: {
+                ...(configData.events || {}),
+                ...events
+            }
+        };
+
+        try {
+            await window.api.put('/config/logs', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration logs enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initLogsPage = function() {
+        loadConfig();
+        window.loadLogsConfig = loadConfig;
+        window.saveLogsConfig = saveConfig;
+    };
+})();
+</script>

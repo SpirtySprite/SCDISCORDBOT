@@ -1,0 +1,488 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Tickets</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadTicketConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveTicketConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Général</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer les tickets</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Activer ou désactiver le système de tickets</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="tkt-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="tkt-staff-role">Rôle Staff spécifique (ID)</label>
+                <input type="text" id="tkt-staff-role" class="form-control" placeholder="ID du rôle">
+            </div>
+            <div class="form-group">
+                <label for="tkt-transcript">Canal Transcriptions spécifique (ID)</label>
+                <input type="text" id="tkt-transcript" class="form-control" placeholder="ID du canal">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Paramètres</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="tkt-auto-close">Fermeture auto après inactivité</label>
+                <input type="text" id="tkt-auto-close" class="form-control" placeholder="24h, 7d, null">
+            </div>
+            <div class="form-group">
+                <label for="tkt-delete-delay">Délai avant suppression</label>
+                <input type="text" id="tkt-delete-delay" class="form-control" placeholder="2s, 5s, etc.">
+            </div>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Supprimer après fermeture</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Supprimer le canal auto après fermeture du ticket</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="tkt-delete-after">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Rôles et Utilisateurs Auto-Ajoutés</h3>
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Ces rôles et utilisateurs seront automatiquement ajoutés à chaque nouveau ticket créé.
+        </div>
+        
+        <div class="form-group mb-1">
+            <label for="tkt-role-select">Ajouter un rôle</label>
+            <div class="custom-select">
+                <select id="tkt-role-select" class="form-control">
+                    <option value="">Sélectionner un rôle...</option>
+                </select>
+            </div>
+            <button class="btn btn-secondary mt-1" onclick="window.addAutoRole()" style="width: 100%;">
+                <i class="fas fa-plus"></i> Ajouter le rôle sélectionné
+            </button>
+        </div>
+
+        <div class="form-group mb-1">
+            <label for="tkt-user-id">Ajouter un utilisateur (ID)</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="tkt-user-id" class="form-control" placeholder="123456789012345678">
+                <button class="btn btn-secondary" onclick="window.addAutoUser()">
+                    <i class="fas fa-plus"></i> Ajouter
+                </button>
+            </div>
+        </div>
+
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">Rôles ajoutés (<span id="auto-roles-count">0</span>)</h4>
+                <div id="auto-roles-list" style="min-height: 100px; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem;">
+                    <div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1rem;">
+                        Aucun rôle ajouté
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">Utilisateurs ajoutés (<span id="auto-users-count">0</span>)</h4>
+                <div id="auto-users-list" style="min-height: 100px; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem;">
+                    <div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1rem;">
+                        Aucun utilisateur ajouté
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Catégories de Tickets</h3>
+        <div id="tkt-categories" class="mb-1">
+            
+        </div>
+        <button class="btn btn-secondary" onclick="window.addCategory()"><i class="fas fa-plus"></i> Ajouter une catégorie</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+    let categories = [];
+    let autoRoles = [];
+    let autoUsers = [];
+    let availableRoles = [];
+
+    async function loadConfig() {
+        try {
+            // Wait a bit to ensure DOM is ready
+            await new Promise(resolve => {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', resolve);
+                } else {
+                    setTimeout(resolve, 50);
+                }
+            });
+            
+            configData = await window.api.get('/config/tickets');
+            
+            if (!configData) {
+                configData = {};
+            }
+            
+            const enabledEl = document.getElementById('tkt-enabled');
+            const staffRoleEl = document.getElementById('tkt-staff-role');
+            const transcriptEl = document.getElementById('tkt-transcript');
+            const autoCloseEl = document.getElementById('tkt-auto-close');
+            const deleteAfterEl = document.getElementById('tkt-delete-after');
+            const deleteDelayEl = document.getElementById('tkt-delete-delay');
+            
+            if (!enabledEl || !staffRoleEl || !transcriptEl || !autoCloseEl || !deleteAfterEl || !deleteDelayEl) {
+                console.warn('Some ticket config elements not found, retrying in 100ms...');
+                setTimeout(() => loadConfig(), 100);
+                return;
+            }
+            
+            enabledEl.checked = configData.enabled !== false;
+            staffRoleEl.value = configData.roles?.staffId || '';
+            transcriptEl.value = configData.channels?.transcriptId || '';
+            autoCloseEl.value = configData.settings?.autoCloseAfter || '';
+            deleteAfterEl.checked = configData.settings?.deleteAfterClose === true;
+            deleteDelayEl.value = configData.settings?.deleteDelay || '';
+
+            categories = configData.categories || [];
+            autoRoles = configData.settings?.autoRoles || [];
+            autoUsers = configData.settings?.autoUsers || [];
+            
+            renderCategories();
+            renderAutoRoles();
+            renderAutoUsers();
+            
+            // Load roles after rendering to ensure DOM is ready
+            try {
+                await loadRoles();
+            } catch (error) {
+                console.error('Failed to load roles in loadConfig:', error);
+                // Don't block the page if roles fail to load
+            }
+
+        } catch (error) {
+            console.error('Failed to load tickets config:', error);
+            window.toast.error('Erreur lors du chargement: ' + (error.message || 'Erreur inconnue'));
+        }
+    }
+
+    async function loadRoles() {
+        const select = document.getElementById('tkt-role-select');
+        if (!select) {
+            console.warn('tkt-role-select not found, skipping role load');
+            return;
+        }
+        
+        try {
+            availableRoles = await window.api.get('/servers/roles');
+            
+            if (availableRoles && Array.isArray(availableRoles) && availableRoles.length > 0) {
+                select.innerHTML = '<option value="">Sélectionner un rôle...</option>' +
+                    availableRoles.map(role => 
+                        `<option value="${role.id}" ${autoRoles.includes(role.id) ? 'disabled' : ''}>${escapeHtml(role.name)}</option>`
+                    ).join('');
+                select.disabled = false;
+                
+                // Update custom select after loading roles (only update, don't re-init)
+                setTimeout(() => {
+                    if (window.updateCustomSelects) {
+                        window.updateCustomSelects();
+                    } else if (window.initCustomSelects) {
+                        // Fallback to init if update doesn't exist
+                        window.initCustomSelects();
+                    }
+                }, 150);
+            } else {
+                select.innerHTML = '<option value="">Aucun rôle disponible</option>';
+                select.disabled = false;
+                if (availableRoles && Array.isArray(availableRoles) && availableRoles.length === 0) {
+                    window.toast.warning('Aucun rôle trouvé sur le serveur (ou tous les rôles sont gérés par des bots)');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load roles:', error);
+            
+            // Check if it's a specific error we can show
+            const errorMsg = error.message || 'Erreur inconnue';
+            if (errorMsg.includes('Bot API server not available') || errorMsg.includes('not ready')) {
+                select.innerHTML = '<option value="">Bot non disponible - Vérifiez que le bot est démarré</option>';
+                window.toast.error('Le bot n\'est pas disponible. Vérifiez que le bot est démarré et connecté à Discord.');
+            } else if (errorMsg.includes('Guild not found')) {
+                select.innerHTML = '<option value="">Serveur non trouvé - Vérifiez la configuration</option>';
+                window.toast.error('Le serveur n\'a pas été trouvé. Vérifiez que le bot est dans le serveur.');
+            } else {
+                select.innerHTML = '<option value="">Impossible de charger les rôles</option>';
+                window.toast.error(`Impossible de charger les rôles: ${errorMsg}`);
+            }
+            select.disabled = true;
+            
+            // Update custom select even on error
+            setTimeout(() => {
+                if (window.initCustomSelects) window.initCustomSelects();
+            }, 100);
+        }
+    }
+
+    function renderAutoRoles() {
+        const container = document.getElementById('auto-roles-list');
+        const countEl = document.getElementById('auto-roles-count');
+        
+        countEl.textContent = autoRoles.length;
+        
+        if (autoRoles.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1rem;">Aucun rôle ajouté</div>';
+            return;
+        }
+
+        container.innerHTML = autoRoles.map((roleId, index) => {
+            // Try to find role in availableRoles, but if not available (bot API down), just show ID
+            const role = availableRoles && availableRoles.length > 0 ? availableRoles.find(r => r.id === roleId) : null;
+            const roleName = role ? escapeHtml(role.name) : `Rôle (${roleId})`;
+            return `
+                <div class="flex align-center justify-between mb-1 p-1" style="background: var(--surface); border-radius: 4px;">
+                    <span style="font-size: 0.9rem;">${roleName}</span>
+                    <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="window.removeAutoRole(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderAutoUsers() {
+        const container = document.getElementById('auto-users-list');
+        const countEl = document.getElementById('auto-users-count');
+        
+        countEl.textContent = autoUsers.length;
+        
+        if (autoUsers.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1rem;">Aucun utilisateur ajouté</div>';
+            return;
+        }
+
+        container.innerHTML = autoUsers.map((userId, index) => `
+            <div class="flex align-center justify-between mb-1 p-1" style="background: var(--surface); border-radius: 4px;">
+                <span style="font-size: 0.9rem; font-family: monospace;">${userId}</span>
+                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="window.removeAutoUser(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    window.addAutoRole = function() {
+        const select = document.getElementById('tkt-role-select');
+        if (!select) {
+            window.toast.error('Élément de sélection non trouvé');
+            return;
+        }
+        const roleId = select.value;
+        if (!roleId) {
+            window.toast.error('Veuillez sélectionner un rôle');
+            return;
+        }
+        if (autoRoles.includes(roleId)) {
+            window.toast.error('Ce rôle est déjà ajouté');
+            return;
+        }
+        autoRoles.push(roleId);
+        renderAutoRoles();
+        
+        // Update custom select display first
+        const wrapper = select.closest('.custom-select');
+        if (wrapper) {
+            const selectedDiv = wrapper.querySelector('.select-selected');
+            if (selectedDiv) {
+                selectedDiv.innerHTML = 'Sélectionner un rôle...';
+            }
+        }
+        
+        select.value = '';
+        
+        // Reload roles asynchronously to update disabled states
+        loadRoles().catch(error => {
+            console.error('Error reloading roles:', error);
+        });
+    };
+
+    window.removeAutoRole = function(index) {
+        autoRoles.splice(index, 1);
+        renderAutoRoles();
+        // Reload roles asynchronously to update disabled states
+        loadRoles().catch(error => {
+            console.error('Error reloading roles:', error);
+        });
+    };
+
+    window.addAutoUser = function() {
+        const input = document.getElementById('tkt-user-id');
+        const userId = input.value.trim();
+        if (!userId) {
+            window.toast.error('Veuillez entrer un ID d\'utilisateur');
+            return;
+        }
+        if (!/^\d{17,19}$/.test(userId)) {
+            window.toast.error('ID utilisateur invalide (doit contenir 17-19 chiffres)');
+            return;
+        }
+        if (autoUsers.includes(userId)) {
+            window.toast.error('Cet utilisateur est déjà ajouté');
+            return;
+        }
+        autoUsers.push(userId);
+        renderAutoUsers();
+        input.value = '';
+    };
+
+    window.removeAutoUser = function(index) {
+        autoUsers.splice(index, 1);
+        renderAutoUsers();
+    };
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderCategories() {
+        const container = document.getElementById('tkt-categories');
+        if (!container) return;
+        container.innerHTML = categories.map((cat, index) => `
+            <div class="card mb-1 p-1" style="background: var(--surface); position: relative;">
+                <button class="btn btn-danger" style="position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.25rem 0.5rem;" onclick="window.removeCategory(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Nom (avec Emoji)</label>
+                        <input type="text" class="form-control cat-name" data-index="${index}" value="${cat.name}">
+                    </div>
+                    <div class="form-group">
+                        <label>ID Catégorie Discord</label>
+                        <input type="text" class="form-control cat-id" data-index="${index}" value="${cat.categoryId}">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Description</label>
+                        <input type="text" class="form-control cat-desc" data-index="${index}" value="${cat.description}">
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.addCategory = function() {
+        categories.push({
+            key: 'new_' + Date.now(),
+            name: 'Nouveau Ticket',
+            description: 'Description du ticket',
+            categoryId: '',
+            onCreateMessage: 'Bonjour <@USER> 👋 !'
+        });
+        renderCategories();
+    };
+
+    window.removeCategory = function(index) {
+        categories.splice(index, 1);
+        renderCategories();
+    };
+
+    async function saveConfig() {
+        const updatedCategories = Array.from(document.querySelectorAll('.cat-name')).map((el, i) => {
+            const index = el.dataset.index;
+            const name = el.value;
+            const categoryId = document.querySelectorAll('.cat-id')[i].value;
+            const description = document.querySelectorAll('.cat-desc')[i].value;
+            return {
+                ...categories[index],
+                name,
+                categoryId,
+                description
+            };
+        });
+
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            ...configData,
+            enabled: document.getElementById('tkt-enabled').checked,
+            roles: {
+                ...(configData.roles || {}),
+                staffId: document.getElementById('tkt-staff-role').value || null
+            },
+            channels: {
+                ...(configData.channels || {}),
+                transcriptId: document.getElementById('tkt-transcript').value || null
+            },
+            settings: {
+                ...(configData.settings || {}),
+                autoCloseAfter: document.getElementById('tkt-auto-close').value || null,
+                deleteAfterClose: document.getElementById('tkt-delete-after').checked,
+                deleteDelay: document.getElementById('tkt-delete-delay').value,
+                autoRoles: autoRoles,
+                autoUsers: autoUsers
+            },
+            categories: updatedCategories
+        };
+
+        try {
+            await window.api.put('/config/tickets', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration tickets enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initTicketsPage = function() {
+        // Ensure DOM is ready before loading config
+        const checkAndInit = () => {
+            const testEl = document.getElementById('tkt-enabled');
+            if (!testEl) {
+                // DOM not ready yet, retry
+                setTimeout(checkAndInit, 50);
+                return;
+            }
+            
+            // DOM is ready, proceed with initialization
+            window.loadTicketConfig = loadConfig;
+            window.saveTicketConfig = saveConfig;
+            
+            // Load config asynchronously
+            loadConfig().catch(error => {
+                console.error('Error in initTicketsPage:', error);
+            });
+            
+            // Initialize custom selects after a delay to ensure DOM is ready
+            setTimeout(() => {
+                try {
+                    if (window.initCustomSelects) {
+                        window.initCustomSelects();
+                    }
+                } catch (error) {
+                    console.error('Error initializing custom selects:', error);
+                }
+            }, 300);
+        };
+        
+        // Start checking
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAndInit);
+        } else {
+            checkAndInit();
+        }
+    };
+})();
+</script>

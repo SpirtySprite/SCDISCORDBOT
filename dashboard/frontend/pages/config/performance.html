@@ -1,0 +1,170 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Performance</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadPerformanceConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.savePerformanceConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Cache</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="performance-cache-ttl">TTL par défaut (ms)</label>
+                <input type="number" id="performance-cache-ttl" class="form-control" placeholder="300000" min="1000">
+                <small class="text-muted">Durée de vie par défaut des entrées en cache</small>
+            </div>
+            <div class="form-group">
+                <label for="performance-cache-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                <input type="number" id="performance-cache-cleanup-interval" class="form-control" placeholder="300000" min="1000">
+            </div>
+            <div class="form-group">
+                <label for="performance-cache-max-size">Taille max du cache</label>
+                <input type="number" id="performance-cache-max-size" class="form-control" placeholder="10000" min="100">
+            </div>
+            <div class="form-group">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Activer les statistiques du cache</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Collecte des métriques de performance</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="performance-cache-enable-stats">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <h3>Mémoire</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Activer le nettoyage automatique</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Nettoie automatiquement la mémoire</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="performance-memory-enable-cleanup">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="performance-memory-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                <input type="number" id="performance-memory-cleanup-interval" class="form-control" placeholder="3600000" min="10000">
+            </div>
+            <div class="form-group">
+                <label for="performance-memory-max-map-size">Taille max des Maps</label>
+                <input type="number" id="performance-memory-max-map-size" class="form-control" placeholder="10000" min="100">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Bot API</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="performance-botapi-port">Port</label>
+                <input type="number" id="performance-botapi-port" class="form-control" placeholder="45049" min="1024" max="65535">
+            </div>
+            <div class="form-group">
+                <label for="performance-botapi-max-request-size">Taille max des requêtes (octets)</label>
+                <input type="number" id="performance-botapi-max-request-size" class="form-control" placeholder="10485760" min="1024">
+                <small class="text-muted">10MB = 10485760</small>
+            </div>
+            <div class="form-group">
+                <label for="performance-botapi-request-timeout">Timeout des requêtes (ms)</label>
+                <input type="number" id="performance-botapi-request-timeout" class="form-control" placeholder="30000" min="1000">
+            </div>
+            <div class="form-group">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Activer CORS</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Autorise les requêtes cross-origin</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="performance-botapi-enable-cors">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/performance').catch(() => ({}));
+            
+            if (configData.cache) {
+                document.getElementById('performance-cache-ttl').value = configData.cache.defaultTTL || '';
+                document.getElementById('performance-cache-cleanup-interval').value = configData.cache.cleanupInterval || '';
+                document.getElementById('performance-cache-max-size').value = configData.cache.maxSize || '';
+                document.getElementById('performance-cache-enable-stats').checked = configData.cache.enableStats !== false;
+            }
+            
+            if (configData.memory) {
+                document.getElementById('performance-memory-enable-cleanup').checked = configData.memory.enableCleanup !== false;
+                document.getElementById('performance-memory-cleanup-interval').value = configData.memory.cleanupInterval || '';
+                document.getElementById('performance-memory-max-map-size').value = configData.memory.maxMapSize || '';
+            }
+            
+            if (configData.botApi) {
+                document.getElementById('performance-botapi-port').value = configData.botApi.port || '';
+                document.getElementById('performance-botapi-max-request-size').value = configData.botApi.maxRequestSize || '';
+                document.getElementById('performance-botapi-request-timeout').value = configData.botApi.requestTimeout || '';
+                document.getElementById('performance-botapi-enable-cors').checked = configData.botApi.enableCors !== false;
+            }
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        try {
+            const newConfig = {
+                cache: {
+                    defaultTTL: parseInt(document.getElementById('performance-cache-ttl').value) || null,
+                    cleanupInterval: parseInt(document.getElementById('performance-cache-cleanup-interval').value) || null,
+                    maxSize: parseInt(document.getElementById('performance-cache-max-size').value) || null,
+                    enableStats: document.getElementById('performance-cache-enable-stats').checked
+                },
+                memory: {
+                    enableCleanup: document.getElementById('performance-memory-enable-cleanup').checked,
+                    cleanupInterval: parseInt(document.getElementById('performance-memory-cleanup-interval').value) || null,
+                    maxMapSize: parseInt(document.getElementById('performance-memory-max-map-size').value) || null
+                },
+                botApi: {
+                    port: parseInt(document.getElementById('performance-botapi-port').value) || null,
+                    maxRequestSize: parseInt(document.getElementById('performance-botapi-max-request-size').value) || null,
+                    requestTimeout: parseInt(document.getElementById('performance-botapi-request-timeout').value) || null,
+                    enableCors: document.getElementById('performance-botapi-enable-cors').checked
+                }
+            };
+
+            await window.api.put('/config/performance', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration performance enregistrée');
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initPerformancePage = function() {
+        loadConfig();
+        window.loadPerformanceConfig = loadConfig;
+        window.savePerformanceConfig = saveConfig;
+    };
+})();
+</script>
+

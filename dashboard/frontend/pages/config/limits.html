@@ -1,0 +1,69 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Limites & Cooldowns</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadLimitsConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveLimitsConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Délais d'attente (Cooldowns)</h3>
+        <div id="limits-list" class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/limits');
+            
+            const container = document.getElementById('limits-list');
+            const cooldowns = configData.cooldowns || {};
+            const labels = { global: 'Global', giveawayCreate: 'Création de concours', ticketCreate: 'Création de tickets' };
+
+            container.innerHTML = Object.keys(cooldowns).map(key => `
+                <div class="form-group mb-1">
+                    <label>${labels[key] || key}</label>
+                    <input type="text" class="form-control limit-input" data-key="${key}" value="${cooldowns[key]}" placeholder="3s, 1m, etc.">
+                </div>
+            `).join('');
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        const cooldowns = {};
+        document.querySelectorAll('.limit-input').forEach(el => cooldowns[el.dataset.key] = el.value);
+
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = { 
+            cooldowns: {
+                ...(configData.cooldowns || {}),
+                ...cooldowns
+            }
+        };
+
+        try {
+            await window.api.put('/config/limits', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration limites enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initLimitsPage = function() {
+        loadConfig();
+        window.loadLimitsConfig = loadConfig;
+        window.saveLimitsConfig = saveConfig;
+    };
+})();
+</script>

@@ -1,0 +1,107 @@
+<div class="admin-page">
+    <h2>Admin Panel</h2>
+
+    <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card">
+            <h3>État du Système</h3>
+            <div id="system-status" class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Actions Rapides</h3>
+            <div class="flex flex-column gap-1">
+                <button class="btn btn-danger btn-block" onclick="restartBot()"><i class="fas fa-redo"></i> Redémarrer le Bot</button>
+                <button class="btn btn-secondary btn-block" onclick="clearCache()"><i class="fas fa-trash"></i> Vider le cache</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Utilisateurs autorisés</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid var(--surface-dark);">
+                    <th style="padding: 1rem;">Utilisateur</th>
+                    <th style="padding: 1rem;">Rôle</th>
+                    <th style="padding: 1rem;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-table">
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+(function() {
+    async function loadAdminData() {
+        try {
+            const [status, users] = await Promise.all([
+                window.api.get('/admin/status'),
+                window.api.get('/admin/users')
+            ]);
+
+            const statusContainer = document.getElementById('system-status');
+            if (statusContainer) {
+                const mem = Math.round(status.memoryUsage.rss / 1024 / 1024);
+                statusContainer.innerHTML = `
+                    <div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Uptime</div>
+                        <div style="font-weight: 600;">${Math.round(status.uptime / 60)} min</div>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Mémoire</div>
+                        <div style="font-weight: 600;">${mem} MB</div>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Node.js</div>
+                        <div style="font-weight: 600;">${status.nodeVersion}</div>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Platform</div>
+                        <div style="font-weight: 600; text-transform: capitalize;">${status.platform}</div>
+                    </div>
+                `;
+            }
+
+            const usersTable = document.getElementById('users-table');
+            if (usersTable) {
+                usersTable.innerHTML = users.map(user => `
+                    <tr style="border-bottom: 1px solid var(--surface-dark);">
+                        <td style="padding: 1rem;">
+                            <div style="font-weight: 600;">${user.displayName}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${user.username}</div>
+                        </td>
+                        <td style="padding: 1rem;"><span class="badge" style="background: ${user.role === 'admin' ? 'rgba(139, 69, 19, 0.1)' : 'rgba(135, 206, 235, 0.1)'}; color: ${user.role === 'admin' ? 'var(--primary)' : 'var(--secondary)'};">${user.role}</span></td>
+                        <td style="padding: 1rem;">
+                            <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem;" disabled><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement des données admin');
+        }
+    }
+
+    window.restartBot = function() {
+        window.modal.show({
+            title: 'Redémarrer le bot ?',
+            content: 'Cette action interrompra temporairement les services du bot Discord.',
+            confirmText: 'Redémarrer',
+            onConfirm: () => {
+                window.toast.success('Demande de redémarrage envoyée');
+            }
+        });
+    };
+
+    window.initAdminPage = function() {
+        loadAdminData();
+    };
+})();
+</script>
+

@@ -1,0 +1,104 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Concours (Giveaways)</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadGiveawayConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveGiveawayConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Général</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer les concours</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Activer ou désactiver le système de concours</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="gw-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="gw-chan">Canal par défaut (ID)</label>
+            <input type="text" id="gw-chan" class="form-control" placeholder="ID du canal">
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Technique</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                <label for="gw-interval">Intervalle de vérification</label>
+                <input type="text" id="gw-interval" class="form-control" placeholder="5m, 1h, etc.">
+            </div>
+            <div class="form-group">
+                <label for="gw-update-delay">Délai de mise à jour Embed</label>
+                <input type="text" id="gw-update-delay" class="form-control" placeholder="500ms, 1s, etc.">
+            </div>
+            <div class="form-group">
+                <label for="gw-min-duration">Durée minimale</label>
+                <input type="text" id="gw-min-duration" class="form-control" placeholder="1m, 30s, etc.">
+            </div>
+            <div class="form-group">
+                <label for="gw-max-winners">Nombre max de gagnants</label>
+                <input type="number" id="gw-max-winners" class="form-control" placeholder="20">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/giveaways');
+            
+            document.getElementById('gw-enabled').checked = configData.enabled !== false;
+            document.getElementById('gw-chan').value = configData.channels?.defaultId || '';
+            document.getElementById('gw-interval').value = configData.settings?.checkInterval || '';
+            document.getElementById('gw-update-delay').value = configData.settings?.updateDelay || '';
+            document.getElementById('gw-min-duration').value = configData.settings?.minDuration || '';
+            document.getElementById('gw-max-winners').value = configData.settings?.maxWinners || 20;
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            ...configData,
+            enabled: document.getElementById('gw-enabled').checked,
+            channels: {
+                ...(configData.channels || {}),
+                defaultId: document.getElementById('gw-chan').value || null
+            },
+            settings: {
+                ...(configData.settings || {}),
+                checkInterval: document.getElementById('gw-interval').value,
+                updateDelay: document.getElementById('gw-update-delay').value,
+                minDuration: document.getElementById('gw-min-duration').value,
+                maxWinners: parseInt(document.getElementById('gw-max-winners').value, 10)
+            }
+        };
+
+        try {
+            await window.api.put('/config/giveaways', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration concours enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initGiveawaysPage = function() {
+        loadConfig();
+        window.loadGiveawayConfig = loadConfig;
+        window.saveGiveawayConfig = saveConfig;
+    };
+})();
+</script>

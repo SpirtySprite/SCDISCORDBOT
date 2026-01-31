@@ -1,0 +1,124 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Suggestions</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="loadConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="saveConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Général</h3>
+        <div class="flex align-center justify-between mb-1">
+            <div>
+                <div style="font-weight: 600;">Activer les suggestions</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Activer ou désactiver le système de suggestions</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="sug-enabled">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="sug-chan">Canal de suggestions (ID)</label>
+            <input type="text" id="sug-chan" class="form-control" placeholder="Laisse vide pour le global">
+        </div>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Approbation requise</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Les suggestions doivent être approuvées par le staff</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="sug-approval">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600;">Anonymat autorisé</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Permettre d'envoyer des suggestions anonymement</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="sug-anon">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Emojis de réaction</h3>
+        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Upvote</label>
+                <input type="text" id="sug-emoji-up" class="form-control" placeholder="<:name:id> ou emoji">
+            </div>
+            <div class="form-group">
+                <label>Neutral</label>
+                <input type="text" id="sug-emoji-neutral" class="form-control" placeholder="<:name:id> ou emoji">
+            </div>
+            <div class="form-group">
+                <label>Downvote</label>
+                <input type="text" id="sug-emoji-down" class="form-control" placeholder="<:name:id> ou emoji">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+    
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/suggestion');
+            
+            document.getElementById('sug-enabled').checked = configData.enabled !== false;
+            document.getElementById('sug-chan').value = configData.channelId || '';
+            document.getElementById('sug-approval').checked = configData.requireApproval === true;
+            document.getElementById('sug-anon').checked = configData.allowAnonymous === true;
+            
+            const emojis = configData.emojis || {};
+            document.getElementById('sug-emoji-up').value = emojis.upvote || '';
+            document.getElementById('sug-emoji-neutral').value = emojis.neutral || '';
+            document.getElementById('sug-emoji-down').value = emojis.downvote || '';
+
+        } catch (error) {
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = {
+            ...configData,
+            enabled: document.getElementById('sug-enabled').checked,
+            channelId: document.getElementById('sug-chan').value || null,
+            requireApproval: document.getElementById('sug-approval').checked,
+            allowAnonymous: document.getElementById('sug-anon').checked,
+            emojis: {
+                ...(configData.emojis || {}),
+                upvote: document.getElementById('sug-emoji-up').value,
+                neutral: document.getElementById('sug-emoji-neutral').value,
+                downvote: document.getElementById('sug-emoji-down').value
+            }
+        };
+
+        try {
+            await window.api.put('/config/suggestion', newConfig);
+            configData = newConfig;
+            window.toast.success('Configuration suggestions enregistrée');
+        } catch (error) {
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initSuggestionPage = function() {
+        loadConfig();
+        window.loadConfig = loadConfig;
+        window.saveConfig = saveConfig;
+    };
+})();
+</script>
+

@@ -1,0 +1,1025 @@
+<div class="pvp-tournaments-page">
+    <div class="flex justify-between align-center mb-2">
+        <h2>Tournois PvP</h2>
+    </div>
+
+    <!-- Tournament List View -->
+    <div id="tournaments-list" class="card mb-2">
+        <h3>Tournois</h3>
+        <div id="tournaments-container">
+            <div class="flex justify-center align-center" style="min-height: 200px;">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tournament Detail View -->
+    <div id="tournament-detail" class="card" style="display: none;">
+        <div class="flex justify-between align-center mb-2">
+            <h3 id="tournament-title">Tournoi</h3>
+            <button class="btn btn-secondary" onclick="showTournamentList()">
+                <i class="fas fa-arrow-left"></i> Retour
+            </button>
+        </div>
+
+        <div id="tournament-info" class="mb-2"></div>
+
+        <div id="bracket-container" class="bracket-container">
+            <div class="flex justify-center align-center" style="min-height: 200px;">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Match Modal -->
+<div id="match-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="match-modal-title">Gérer le Match</h3>
+            <button class="modal-close" onclick="closeMatchModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="match-details"></div>
+            <div id="match-actions" class="flex gap-1 justify-center mt-2"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pvp-tournaments-page {
+    padding: 0;
+}
+
+.pvp-tournaments-page h2 {
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+.tournament-card {
+    padding: 1.5rem;
+    border: 1px solid var(--surface-glass-border);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow-glass);
+    position: relative;
+    overflow: hidden;
+}
+
+.tournament-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-gradient);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.tournament-card:hover {
+    background: var(--surface-glass-hover);
+    border-color: rgba(99, 102, 241, 0.4);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-glass-lg), var(--shadow-glow);
+}
+
+.tournament-card:hover::before {
+    opacity: 1;
+}
+
+.bracket-container {
+    overflow-x: auto;
+    padding: 1.5rem;
+    min-height: auto;
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: var(--border-radius);
+    position: relative;
+    border: 1px solid var(--surface-glass-border);
+    box-shadow: var(--shadow-glass), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.bracket-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 3rem;
+    min-width: fit-content;
+    position: relative;
+    padding: 1rem 0;
+}
+
+.bracket-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+}
+
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 240px;
+    position: relative;
+}
+
+.round-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    width: 100%;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bracket-center {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 280px;
+    align-items: center;
+    position: relative;
+    padding: 0 2rem;
+}
+
+.bracket-center .round-header {
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.bracket-connector {
+    position: absolute;
+    border: 2px solid var(--primary);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.bracket-connector.horizontal {
+    height: 2px;
+    width: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.bracket-connector.vertical {
+    width: 2px;
+    height: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.match {
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--surface-glass-border);
+    border-radius: var(--border-radius-sm);
+    padding: 1rem;
+    min-width: 220px;
+    width: 100%;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    box-shadow: var(--shadow-glass), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.match::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-gradient);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.match:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: var(--shadow-glass-lg), var(--shadow-glow);
+    background: var(--surface-glass-hover);
+}
+
+.match:hover::before {
+    opacity: 1;
+}
+
+.match.pending {
+    border-color: var(--surface-glass-border);
+    background: var(--surface-glass);
+}
+
+.match.in-progress {
+    border-color: var(--warning);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, var(--surface-glass) 100%);
+    box-shadow: var(--shadow-glass), 0 0 20px rgba(245, 158, 11, 0.3);
+    animation: pulseWarning 2s ease-in-out infinite;
+}
+
+@keyframes pulseWarning {
+    0%, 100% { box-shadow: var(--shadow-glass), 0 0 20px rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: var(--shadow-glass), 0 0 30px rgba(245, 158, 11, 0.5); }
+}
+
+.match.completed {
+    border-color: #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+.match.bye {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.player {
+    padding: 0.875rem 1rem;
+    margin: 0.35rem 0;
+    border-radius: 8px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--bg) 0%, rgba(88, 101, 242, 0.03) 100%);
+    border: 1.5px solid var(--border-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player.winner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border-color: #10b981;
+    font-weight: bold;
+    color: #059669;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.player.empty {
+    color: var(--text-muted);
+    font-style: italic;
+    background: transparent;
+    border: 1px dashed var(--border-color);
+}
+
+.vs-divider {
+    text-align: center;
+    padding: 0.75rem;
+    font-weight: bold;
+    color: var(--primary);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    position: relative;
+}
+
+.vs-divider::before,
+.vs-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.vs-divider::before {
+    left: 0;
+}
+
+.vs-divider::after {
+    right: 0;
+}
+
+.match-number {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+}
+
+.fighting-emoji {
+    font-size: 2rem;
+    text-align: center;
+    margin: 0.75rem 0;
+    animation: bounce 1s infinite;
+    filter: drop-shadow(0 2px 4px rgba(255, 165, 0, 0.5));
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.match-status-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.match-status-badge.pending {
+    background: var(--text-muted);
+    color: white;
+}
+
+.match-status-badge.in-progress {
+    background: #FFA500;
+    color: white;
+}
+
+.match-status-badge.completed {
+    background: #10b981;
+    color: white;
+}
+
+/* Bracket connecting lines visualization */
+.match-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    pointer-events: none;
+}
+
+.match-group > .match {
+    pointer-events: auto;
+}
+
+.bracket-side .match-group::after {
+    content: '';
+    position: absolute;
+    right: -3rem;
+    top: 50%;
+    width: 3rem;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), rgba(88, 101, 242, 0.3));
+    opacity: 0.4;
+    transform: translateY(-50%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.bracket-side .match-group:nth-child(even)::before {
+    content: '';
+    position: absolute;
+    right: -3rem;
+    top: 50%;
+    width: 2px;
+    height: calc(100% + 2rem);
+    background: linear-gradient(180deg, transparent, var(--primary), transparent);
+    opacity: 0.3;
+    transform: translateY(-50%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.bracket-center .match-group::after {
+    display: none;
+}
+
+.bracket-round {
+    position: relative;
+}
+
+.bracket-round::before {
+    content: '';
+    position: absolute;
+    right: -1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, var(--primary), transparent);
+    opacity: 0.2;
+    z-index: 0;
+}
+
+.bracket-center .bracket-round::before {
+    display: none;
+}
+
+/* Match Modal Styles */
+#match-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+#match-modal .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    animation: modalSlideIn 0.3s ease-out;
+    position: relative;
+    z-index: 10001;
+}
+
+#match-modal .modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--card-bg);
+    border-radius: 12px;
+    z-index: -1;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: var(--hover-bg);
+    color: var(--text-main);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    background: var(--card-bg);
+    color: var(--text-main);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-success:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+let currentTournament = null;
+let refreshInterval = null;
+
+(function() {
+    window.initPvpTournamentsPage = function() {
+        console.log('PvP Tournaments Page Initialized');
+        loadTournaments();
+    };
+
+    async function loadTournaments() {
+        const container = document.getElementById('tournaments-container');
+        try {
+            const tournaments = await window.api.get('/pvp-tournaments');
+            if (!Array.isArray(tournaments)) {
+                throw new Error('Invalid response format');
+            }
+            displayTournaments(tournaments);
+        } catch (error) {
+            console.error('Failed to load tournaments', error);
+            container.innerHTML = `
+                <div class="text-center text-muted">
+                    <p>Erreur lors du chargement des tournois</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">${error.message || 'Erreur inconnue'}</p>
+                </div>
+            `;
+        }
+    }
+
+    function displayTournaments(tournaments) {
+        const container = document.getElementById('tournaments-container');
+        
+        if (tournaments.length === 0) {
+            container.innerHTML = '<div class="text-center text-muted">Aucun tournoi disponible</div>';
+            return;
+        }
+
+        container.innerHTML = tournaments.map(tournament => {
+            const statusLabels = {
+                'registration': 'Inscriptions',
+                'brackets_generated': 'Brackets générés',
+                'in_progress': 'En cours',
+                'completed': 'Terminé',
+                'cancelled': 'Annulé'
+            };
+
+            const statusColors = {
+                'registration': 'var(--primary)',
+                'brackets_generated': 'var(--warning)',
+                'in_progress': 'var(--success)',
+                'completed': 'var(--text-muted)',
+                'cancelled': 'var(--error)'
+            };
+
+            const status = statusLabels[tournament.status] || tournament.status;
+            const color = statusColors[tournament.status] || 'var(--text-muted)';
+
+            return `
+                <div class="tournament-card" onclick="viewTournament(${tournament.id})">
+                    <div class="flex justify-between align-center">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0;">Tournoi #${tournament.id}</h4>
+                            <div class="flex gap-2" style="flex-wrap: wrap;">
+                                <span class="text-muted">${tournament.max_entries} participants</span>
+                                <span style="color: ${color}; font-weight: 600;">● ${status}</span>
+                            </div>
+                            <div class="text-muted" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                Créé le ${new Date(tournament.created_at).toLocaleDateString('fr-FR')}
+                            </div>
+                        </div>
+                        <div style="font-size: 2rem; margin-left: 1rem;">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.viewTournament = async function(tournamentId) {
+        try {
+            const tournament = await window.api.get(`/pvp-tournaments/${tournamentId}`);
+            currentTournament = tournament;
+            
+            document.getElementById('tournaments-list').style.display = 'none';
+            document.getElementById('tournament-detail').style.display = 'block';
+            
+            displayTournamentInfo(tournament);
+            displayBracket(tournament);
+            
+            if (refreshInterval) clearInterval(refreshInterval);
+            // Auto-refresh every 5 seconds if tournament is in progress
+            if (tournament.status === 'in_progress' || tournament.status === 'brackets_generated') {
+                refreshInterval = setInterval(() => refreshTournament(tournamentId), 5000);
+            }
+        } catch (error) {
+            console.error('Failed to load tournament', error);
+            alert(`Erreur lors du chargement du tournoi: ${error.message || 'Erreur inconnue'}`);
+        }
+    };
+
+    function displayTournamentInfo(tournament) {
+        const info = document.getElementById('tournament-info');
+        const statusLabels = {
+            'registration': 'Inscriptions',
+            'brackets_generated': 'Brackets générés',
+            'in_progress': 'En cours',
+            'completed': 'Terminé',
+            'cancelled': 'Annulé'
+        };
+
+        const participants = tournament.participants || [];
+        const matches = tournament.matches || [];
+        const completedMatches = matches.filter(m => m.status === 'completed').length;
+        const totalMatches = matches.filter(m => m.status !== 'bye').length;
+
+        info.innerHTML = `
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; padding: 1rem; background: var(--surface-glass); backdrop-filter: blur(20px); border-radius: var(--border-radius-sm); border: 1px solid var(--surface-glass-border);">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-circle" style="color: ${statusColors[tournament.status] || 'var(--text-muted)'}; font-size: 0.75rem;"></i>
+                    <span><strong>Status:</strong> <span style="color: ${statusColors[tournament.status] || 'var(--text-muted)'};">${statusLabels[tournament.status] || tournament.status}</span></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-users" style="color: var(--primary);"></i>
+                    <span><strong>Participants:</strong> ${participants.length}/${tournament.max_entries}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-trophy" style="color: var(--warning);"></i>
+                    <span><strong>Matches:</strong> ${completedMatches}/${totalMatches} terminés</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-calendar" style="color: var(--secondary);"></i>
+                    <span><strong>Créé le:</strong> ${new Date(tournament.created_at).toLocaleDateString('fr-FR')}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function displayBracket(tournament) {
+        const container = document.getElementById('bracket-container');
+        
+        if (!tournament.bracket || Object.keys(tournament.bracket).length === 0) {
+            container.innerHTML = '<div class="text-center text-muted" style="padding: 3rem;">Brackets non générés</div>';
+            return;
+        }
+
+        const rounds = Object.keys(tournament.bracket).sort((a, b) => parseInt(a) - parseInt(b));
+        const matchesByRound = tournament.bracket;
+        const totalRounds = rounds.length;
+        const finalRound = totalRounds;
+        
+        const roundNames = {
+            1: 'Premier Tour',
+            2: 'Huitièmes',
+            3: 'Quarts',
+            4: 'Demi-Finales',
+            5: 'Finale',
+            6: 'Finale'
+        };
+        
+        let html = '<div class="bracket-wrapper">';
+        
+        // Left side (first half of bracket)
+        html += '<div class="bracket-side bracket-left">';
+        for (let i = 0; i < rounds.length - 1; i++) {
+            const round = rounds[i];
+            const roundNum = parseInt(round);
+            const matches = matchesByRound[round].sort((a, b) => a.match_number - b.match_number);
+            const totalMatches = matches.length;
+            const halfMatches = Math.ceil(totalMatches / 2);
+            const leftMatches = matches.slice(0, halfMatches);
+            
+            if (leftMatches.length > 0) {
+                html += `<div class="bracket-round">`;
+                html += `<div class="round-header">${roundNames[roundNum] || `Round ${round}`}</div>`;
+                
+                for (const match of leftMatches) {
+                    html += `<div class="match-group">`;
+                    html += renderMatch(match, tournament);
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            }
+        }
+        html += '</div>';
+        
+        // Center (Final)
+        const finalMatches = matchesByRound[finalRound] || [];
+        if (finalMatches.length > 0) {
+            html += '<div class="bracket-center">';
+            html += `<div class="round-header">🏆 FINALE</div>`;
+            for (const match of finalMatches.sort((a, b) => a.match_number - b.match_number)) {
+                html += renderMatch(match, tournament);
+            }
+            html += '</div>';
+        }
+        
+        // Right side (second half of bracket)
+        html += '<div class="bracket-side bracket-right">';
+        for (let i = 0; i < rounds.length - 1; i++) {
+            const round = rounds[i];
+            const roundNum = parseInt(round);
+            const matches = matchesByRound[round].sort((a, b) => a.match_number - b.match_number);
+            const totalMatches = matches.length;
+            const halfMatches = Math.ceil(totalMatches / 2);
+            const rightMatches = matches.slice(halfMatches);
+            
+            if (rightMatches.length > 0) {
+                html += `<div class="bracket-round">`;
+                html += `<div class="round-header">${roundNames[roundNum] || `Round ${round}`}</div>`;
+                
+                for (const match of rightMatches) {
+                    html += `<div class="match-group">`;
+                    html += renderMatch(match, tournament);
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            }
+        }
+        html += '</div>';
+        
+        html += '</div>';
+        container.innerHTML = html;
+        
+        // Re-attach event listeners after rendering
+        setTimeout(() => {
+            const matchElements = container.querySelectorAll('.match[data-match-id]');
+            matchElements.forEach(el => {
+                const matchId = el.getAttribute('data-match-id');
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    console.log('Match clicked:', matchId);
+                    window.openMatchModal(parseInt(matchId, 10));
+                });
+            });
+        }, 100);
+    }
+
+    function renderMatch(match, tournament) {
+        const statusClass = (match.status || 'pending').replace('_', '-');
+        const matchId = parseInt(match.id, 10);
+        
+        const player1 = match.player1_id 
+            ? `<div class="player ${match.winner_id === match.player1_id ? 'winner' : ''}">${escapeHtml(getPlayerName(match.player1_id, tournament))}</div>` 
+            : '<div class="player empty">TBD</div>';
+        
+        const player2 = match.player2_id 
+            ? `<div class="player ${match.winner_id === match.player2_id ? 'winner' : ''}">${escapeHtml(getPlayerName(match.player2_id, tournament))}</div>` 
+            : '<div class="player empty">TBD</div>';
+        
+        const fightingEmoji = match.status === 'in_progress' ? '<div class="fighting-emoji">⚔️</div>' : '';
+        const statusBadge = match.status !== 'pending' 
+            ? `<div class="match-status-badge ${statusClass}">${match.status === 'in_progress' ? 'EN COURS' : match.status === 'completed' ? 'TERMINÉ' : ''}</div>` 
+            : '';
+        
+        return `
+            <div class="match ${statusClass}" onclick="window.openMatchModal(${matchId})" data-match-id="${matchId}" style="position: relative; z-index: 10;">
+                ${statusBadge}
+                <div class="match-number">Match #${match.match_number}</div>
+                ${player1}
+                ${fightingEmoji}
+                <div class="vs-divider">VS</div>
+                ${player2}
+            </div>
+        `;
+    }
+
+    function getPlayerName(userId, tournament) {
+        if (!tournament.participants) return `User ${userId}`;
+        const participant = tournament.participants.find(p => p.user_id === userId);
+        return participant ? participant.user_tag : `User ${userId}`;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    window.openMatchModal = async function(matchId) {
+        console.log('openMatchModal called with matchId:', matchId, 'currentTournament:', currentTournament);
+        
+        if (!currentTournament) {
+            console.error('No tournament loaded');
+            alert('Aucun tournoi chargé');
+            return;
+        }
+
+        // Find match in matches array or in bracket structure
+        let match = null;
+        if (currentTournament.matches && Array.isArray(currentTournament.matches)) {
+            match = currentTournament.matches.find(m => parseInt(m.id, 10) === parseInt(matchId, 10));
+        }
+        
+        // If not found, search in bracket structure
+        if (!match && currentTournament.bracket) {
+            for (const round in currentTournament.bracket) {
+                const roundMatches = currentTournament.bracket[round];
+                match = roundMatches.find(m => parseInt(m.id, 10) === parseInt(matchId, 10));
+                if (match) break;
+            }
+        }
+
+        if (!match) {
+            console.error('Match not found:', matchId, 'Available matches:', currentTournament.matches, 'Bracket:', currentTournament.bracket);
+            alert(`Match introuvable (ID: ${matchId})`);
+            return;
+        }
+        
+        console.log('Match found:', match);
+
+        const modal = document.getElementById('match-modal');
+        const details = document.getElementById('match-details');
+        const actions = document.getElementById('match-actions');
+
+        if (!modal || !details || !actions) {
+            console.error('Modal elements not found');
+            return;
+        }
+
+        const roundNames = {
+            1: 'Premier Tour',
+            2: 'Huitièmes de Finale',
+            3: 'Quarts de Finale',
+            4: 'Demi-Finales',
+            5: 'Finale'
+        };
+        const roundName = roundNames[match.round] || `Round ${match.round}`;
+
+        const statusLabels = {
+            'pending': 'En attente',
+            'in_progress': 'En cours',
+            'completed': 'Terminé',
+            'bye': 'Bye'
+        };
+        const statusLabel = statusLabels[match.status] || match.status || 'pending';
+        const statusColor = match.status === 'in_progress' ? 'var(--warning)' : match.status === 'completed' ? 'var(--success)' : 'var(--text-muted)';
+
+        details.innerHTML = `
+            <div style="padding: 1.5rem; background: var(--surface); border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                    <div style="margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"><strong style="color: var(--text-main);">Phase:</strong> ${roundName}</div>
+                    <div style="margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"><strong style="color: var(--text-main);">Match:</strong> <span style="background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 600;">#${match.match_number}</span></div>
+                    <div style="margin-bottom: 0.75rem; font-size: 0.9rem;"><strong style="color: var(--text-main);">Status:</strong> <span style="color: ${statusColor}; font-weight: 600;">${statusLabel}</span></div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    ${match.player1_id ? `<div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg); border-radius: 8px; border: 2px solid ${match.winner_id === match.player1_id ? 'var(--success)' : 'var(--border-color)'};"><strong style="color: var(--text-main); display: block; margin-bottom: 0.5rem;">Joueur 1:</strong> <span style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);">${escapeHtml(getPlayerName(match.player1_id, currentTournament))}</span></div>` : ''}
+                    ${match.player2_id ? `<div style="padding: 1rem; background: var(--bg); border-radius: 8px; border: 2px solid ${match.winner_id === match.player2_id ? 'var(--success)' : 'var(--border-color)'};"><strong style="color: var(--text-main); display: block; margin-bottom: 0.5rem;">Joueur 2:</strong> <span style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);">${escapeHtml(getPlayerName(match.player2_id, currentTournament))}</span></div>` : ''}
+                </div>
+                ${match.winner_id ? `<div style="margin-top: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border-radius: 8px; border: 2px solid var(--success);"><strong style="color: var(--success); display: block; margin-bottom: 0.5rem;">🏆 Vainqueur:</strong> <span style="font-size: 1.1rem; font-weight: 600; color: var(--success);">${escapeHtml(getPlayerName(match.winner_id, currentTournament))}</span></div>` : ''}
+            </div>
+        `;
+
+        actions.innerHTML = '';
+
+        if (match.status === 'pending' && match.player1_id && match.player2_id) {
+            actions.innerHTML = `
+                <button class="btn btn-primary" onclick="startMatch(${match.id})" style="width: 100%; padding: 1rem; font-size: 1rem;">
+                    <i class="fas fa-play"></i> Démarrer le Match
+                </button>
+            `;
+        } else if (match.status === 'in_progress' && match.player1_id && match.player2_id) {
+            actions.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+                    <div style="text-align: center; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 600;">Sélectionner le vainqueur:</div>
+                    <button class="btn btn-success" onclick="setWinner(${match.id}, '${match.player1_id}')" style="width: 100%; padding: 1rem; font-size: 1rem; background: linear-gradient(135deg, var(--success) 0%, #059669 100%);">
+                        <i class="fas fa-trophy"></i> ${escapeHtml(getPlayerName(match.player1_id, currentTournament))} Gagne
+                    </button>
+                    <button class="btn btn-success" onclick="setWinner(${match.id}, '${match.player2_id}')" style="width: 100%; padding: 1rem; font-size: 1rem; background: linear-gradient(135deg, var(--success) 0%, #059669 100%);">
+                        <i class="fas fa-trophy"></i> ${escapeHtml(getPlayerName(match.player2_id, currentTournament))} Gagne
+                    </button>
+                </div>
+            `;
+        } else if (match.status === 'completed') {
+            actions.innerHTML = `<div style="text-align: center; padding: 1rem; background: var(--surface); border-radius: 8px; color: var(--text-main); font-weight: 600;">Match terminé${match.winner_id ? ` - Vainqueur: ${escapeHtml(getPlayerName(match.winner_id, currentTournament))}` : ''}</div>`;
+        } else {
+            actions.innerHTML = '<div style="text-align: center; padding: 1rem; color: var(--text-muted);">Match non disponible</div>';
+        }
+
+        console.log('Setting modal display to flex');
+        modal.style.display = 'flex';
+        console.log('Modal display:', modal.style.display, 'Modal computed style:', window.getComputedStyle(modal).display);
+        
+        // Close modal when clicking outside
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                closeMatchModal();
+            }
+        };
+    };
+
+    window.closeMatchModal = function() {
+        const modal = document.getElementById('match-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    window.startMatch = async function(matchId) {
+        console.log('startMatch called with matchId:', matchId);
+        try {
+            const response = await window.api.post(`/pvp-tournaments/${currentTournament.id}/matches/${matchId}/start`);
+            console.log('Match started successfully:', response);
+            closeMatchModal();
+            // Refresh tournament data
+            await refreshTournament(currentTournament.id);
+        } catch (error) {
+            console.error('Failed to start match', error);
+            const errorMsg = error.response?.data?.error || error.message || 'Erreur inconnue';
+            alert(`Erreur lors du démarrage du match: ${errorMsg}`);
+        }
+    };
+
+    window.setWinner = async function(matchId, winnerId) {
+        console.log('setWinner called with matchId:', matchId, 'winnerId:', winnerId);
+        try {
+            // Disable buttons to prevent double-clicking
+            const buttons = document.querySelectorAll('#match-actions button');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            const result = await window.api.post(`/pvp-tournaments/${currentTournament.id}/matches/${matchId}/winner`, {
+                winnerId: winnerId
+            });
+            console.log('Winner set successfully:', result);
+            
+            closeMatchModal();
+            
+            // Refresh tournament data to show updated bracket
+            await refreshTournament(currentTournament.id);
+            
+            // Show success message
+            console.log('Match winner set and bracket updated');
+        } catch (error) {
+            console.error('Failed to set winner', error);
+            const errorMsg = error.response?.data?.error || error.response?.data?.details || error.message || 'Erreur inconnue';
+            alert(`Erreur lors de la sélection du vainqueur: ${errorMsg}`);
+            
+            // Re-enable buttons on error
+            const buttons = document.querySelectorAll('#match-actions button');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    window.showTournamentList = function() {
+        document.getElementById('tournaments-list').style.display = 'block';
+        document.getElementById('tournament-detail').style.display = 'none';
+        currentTournament = null;
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+        loadTournaments();
+    };
+
+    async function refreshTournament(tournamentId) {
+        try {
+            console.log('Refreshing tournament', tournamentId);
+            const tournament = await window.api.get(`/pvp-tournaments/${tournamentId}`);
+            console.log('Tournament refreshed, matches:', tournament.matches);
+            currentTournament = tournament;
+            displayTournamentInfo(tournament);
+            displayBracket(tournament);
+            console.log('Bracket displayed');
+        } catch (error) {
+            console.error('Failed to refresh tournament', error);
+        }
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('match-modal');
+        if (event.target === modal) {
+            closeMatchModal();
+        }
+    });
+})();
+</script>

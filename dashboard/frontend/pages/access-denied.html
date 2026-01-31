@@ -1,0 +1,50 @@
+<div class="access-denied-page" style="display: flex; align-items: center; justify-content: center; min-height: 80vh;">
+    <div class="card" style="max-width: 600px; text-align: center; padding: 3rem;">
+        <div style="font-size: 4rem; color: var(--error); margin-bottom: 1.5rem;">
+            <i class="fas fa-ban"></i>
+        </div>
+        <h1 style="color: var(--error); margin-bottom: 1rem;">Accès Refusé</h1>
+        <p style="color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6;">
+            Vous n'avez pas la permission "Gérer le serveur" sur ce serveur Discord.<br>
+            Contactez un administrateur du serveur pour obtenir les permissions nécessaires.
+        </p>
+        
+        <div id="server-info" style="background: var(--surface); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Serveur configuré:</div>
+            <div id="server-name" style="color: var(--text-muted);">Chargement...</div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn btn-secondary" onclick="window.location.reload()">
+                <i class="fas fa-sync"></i> Actualiser
+            </button>
+            <button class="btn btn-primary" onclick="window.auth.logout()">
+                <i class="fas fa-sign-out-alt"></i> Se déconnecter
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+(async function() {
+    async function loadServerInfo() {
+        try {
+            const serverInfo = await window.api.get('/servers');
+            const serverNameEl = document.getElementById('server-name');
+            if (serverInfo && serverInfo.name) {
+                serverNameEl.textContent = serverInfo.name;
+            } else {
+                serverNameEl.textContent = 'Serveur non configuré';
+            }
+        } catch (error) {
+            console.error('Failed to load server info:', error);
+            document.getElementById('server-name').textContent = 'Erreur lors du chargement';
+        }
+    }
+
+    window.initAccessDeniedPage = function() {
+        loadServerInfo();
+    };
+})();
+</script>
+

@@ -1,0 +1,49 @@
+<div class="settings-page">
+    <h2>Paramètres Utilisateur</h2>
+    
+    <div class="card">
+        <h3>Profil</h3>
+        <div class="flex align-center gap-1 mb-1">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <h4 id="user-display-name" style="margin-bottom: 0.25rem;">Chargement...</h4>
+                <p id="user-role" class="badge" style="background: var(--surface-dark); color: var(--text-muted); text-transform: capitalize;">Role</p>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Nom d'utilisateur</label>
+            <input type="text" id="user-username" class="form-control" disabled>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Sécurité</h3>
+        <p class="text-muted mb-1">Le changement de mot de passe est désactivé pour la démo.</p>
+        <div class="form-group">
+            <label>Nouveau mot de passe</label>
+            <input type="password" class="form-control" disabled placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary" disabled>Mettre à jour</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    window.initSettingsPage = function() {
+        const user = window.auth.getUser();
+        const nameEl = document.getElementById('user-display-name');
+        const roleEl = document.getElementById('user-role');
+        const userEl = document.getElementById('user-username');
+        
+        if (user) {
+            if (nameEl) nameEl.textContent = user.displayName;
+            if (roleEl) roleEl.textContent = user.role;
+            if (userEl) userEl.value = user.username;
+        }
+    };
+})();
+</script>
+

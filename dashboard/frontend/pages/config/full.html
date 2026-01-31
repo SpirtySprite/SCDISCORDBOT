@@ -1,0 +1,2065 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Configuration Complète</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadFullConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveFullConfig()"><i class="fas fa-save"></i> Enregistrer Tout</button>
+        </div>
+    </div>
+
+    <div class="card mb-1">
+        <div class="config-tabs">
+            <button class="config-tab active" data-tab="bot" onclick="switchConfigTab('bot', this)">
+                <i class="fab fa-discord"></i> Bot
+            </button>
+            <button class="config-tab" data-tab="channels" onclick="switchConfigTab('channels', this)">
+                <i class="fas fa-hashtag"></i> Salons
+            </button>
+            <button class="config-tab" data-tab="roles" onclick="switchConfigTab('roles', this)">
+                <i class="fas fa-user-shield"></i> Rôles
+            </button>
+            <button class="config-tab" data-tab="moderation" onclick="switchConfigTab('moderation', this)">
+                <i class="fas fa-shield-alt"></i> Modération
+            </button>
+            <button class="config-tab" data-tab="giveaways" onclick="switchConfigTab('giveaways', this)">
+                <i class="fas fa-gift"></i> Concours
+            </button>
+            <button class="config-tab" data-tab="tickets" onclick="switchConfigTab('tickets', this)">
+                <i class="fas fa-ticket-alt"></i> Tickets
+            </button>
+            <button class="config-tab" data-tab="market" onclick="switchConfigTab('market', this)">
+                <i class="fas fa-store"></i> Marché
+            </button>
+            <button class="config-tab" data-tab="features" onclick="switchConfigTab('features', this)">
+                <i class="fas fa-toggle-on"></i> Fonctionnalités
+            </button>
+            <button class="config-tab" data-tab="logs" onclick="switchConfigTab('logs', this)">
+                <i class="fas fa-history"></i> Logs
+            </button>
+            <button class="config-tab" data-tab="branding" onclick="switchConfigTab('branding', this)">
+                <i class="fas fa-palette"></i> Branding
+            </button>
+            <button class="config-tab" data-tab="limits" onclick="switchConfigTab('limits', this)">
+                <i class="fas fa-clock"></i> Limites
+            </button>
+            <button class="config-tab" data-tab="leveling" onclick="switchConfigTab('leveling', this)">
+                <i class="fas fa-level-up-alt"></i> Niveaux
+            </button>
+            <button class="config-tab" data-tab="welcome" onclick="switchConfigTab('welcome', this)">
+                <i class="fas fa-door-open"></i> Bienvenue
+            </button>
+            <button class="config-tab" data-tab="suggestion" onclick="switchConfigTab('suggestion', this)">
+                <i class="fas fa-lightbulb"></i> Suggestions
+            </button>
+            <button class="config-tab" data-tab="database" onclick="switchConfigTab('database', this)">
+                <i class="fas fa-database"></i> Base de Données
+            </button>
+            <button class="config-tab" data-tab="handlers" onclick="switchConfigTab('handlers', this)">
+                <i class="fas fa-cogs"></i> Handlers
+            </button>
+            <button class="config-tab" data-tab="performance" onclick="switchConfigTab('performance', this)">
+                <i class="fas fa-tachometer-alt"></i> Performance
+            </button>
+            <button class="config-tab" data-tab="soundboard" onclick="switchConfigTab('soundboard', this)">
+                <i class="fas fa-volume-up"></i> Soundboard
+            </button>
+            <button class="config-tab" data-tab="pvp-tournaments" onclick="switchConfigTab('pvp-tournaments', this)">
+                <i class="fas fa-trophy"></i> Tournois PvP
+            </button>
+            <button class="config-tab" data-tab="advanced" onclick="switchConfigTab('advanced', this)">
+                <i class="fas fa-sliders-h"></i> Avancé
+            </button>
+        </div>
+    </div>
+
+    
+    <div id="tab-bot" class="config-tab-content active">
+        <div class="card">
+            <h3>Présence du Bot</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-bot-status">Statut</label>
+                    <div class="custom-select">
+                        <select id="full-bot-status" class="form-control">
+                            <option value="online">En ligne</option>
+                            <option value="idle">Inactif</option>
+                            <option value="dnd">Ne pas déranger</option>
+                            <option value="invisible">Invisible</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-bot-activity-type">Type d'activité</label>
+                    <div class="custom-select">
+                        <select id="full-bot-activity-type" class="form-control">
+                            <option value="WATCHING">Regarde</option>
+                            <option value="PLAYING">Joue à</option>
+                            <option value="LISTENING">Écoute</option>
+                            <option value="STREAMING">Streame</option>
+                            <option value="COMPETING">Participe à</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-bot-activity-text">Texte de l'activité</label>
+                    <input type="text" id="full-bot-activity-text" class="form-control" placeholder="Serenity Craft">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-channels" class="config-tab-content">
+        <div class="card">
+            <h3>Salons Discord</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-channel-modlog">Mod Log</label>
+                    <input type="text" id="full-channel-modlog" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-channel-eventlog">Event Log</label>
+                    <input type="text" id="full-channel-eventlog" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-channel-suggestion">Suggestion</label>
+                    <input type="text" id="full-channel-suggestion" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-channel-transcript">Transcript (Tickets)</label>
+                    <input type="text" id="full-channel-transcript" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-channel-giveaway">Concours</label>
+                    <input type="text" id="full-channel-giveaway" class="form-control" placeholder="ID du salon">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-roles" class="config-tab-content">
+        <div class="card">
+            <h3>Rôles Discord</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-role-staff">Staff</label>
+                    <input type="text" id="full-role-staff" class="form-control" placeholder="ID du rôle">
+                </div>
+                <div class="form-group">
+                    <label for="full-role-admin">Admin</label>
+                    <input type="text" id="full-role-admin" class="form-control" placeholder="ID du rôle">
+                </div>
+                <div class="form-group">
+                    <label for="full-role-moderator">Modérateur</label>
+                    <input type="text" id="full-role-moderator" class="form-control" placeholder="ID du rôle">
+                </div>
+                <div class="form-group">
+                    <label for="full-auto-roles">Auto-Rôles (séparés par virgule)</label>
+                    <input type="text" id="full-auto-roles" class="form-control" placeholder="123456789,987654321">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-moderation" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Modération activée</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de modération</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-mod-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Paramètres</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-mod-timeout-duration">Durée Timeout par défaut</label>
+                    <input type="text" id="full-mod-timeout-duration" class="form-control" placeholder="10m">
+                </div>
+                <div class="form-group">
+                    <label for="full-mod-ban-duration">Durée Ban par défaut</label>
+                    <input type="text" id="full-mod-ban-duration" class="form-control" placeholder="null">
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Raison requise</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Exige une raison pour les actions de modération</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-mod-require-reason">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Envoyer un DM</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Envoie un message privé lors des actions</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-mod-send-dm">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Actions activées</h3>
+            <div class="grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Ban</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-ban">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Kick</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-kick">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Mute</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-mute">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Timeout</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-timeout">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Warn</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-warn">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Unban</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-unban">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Unmute</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-unmute">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Untimeout</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-mod-action-untimeout">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Anti-Spam</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Anti-spam activé</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Protection contre le spam de messages</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-mod-antispam-enabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-mod-antispam-message-limit">Limite de messages</label>
+                    <input type="number" id="full-mod-antispam-message-limit" class="form-control" placeholder="28" min="1">
+                    <small class="text-muted">Nombre de messages maximum dans la fenêtre de temps</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-mod-antispam-time-window">Fenêtre de temps</label>
+                    <input type="text" id="full-mod-antispam-time-window" class="form-control" placeholder="100s">
+                    <small class="text-muted">Durée de la fenêtre de temps (ex: 100s, 5m)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-giveaways" class="config-tab-content">
+        <div class="card">
+            <h3>Paramètres des Concours</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Concours activés</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de concours</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-giveaway-enabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-giveaway-channel">Salon par défaut</label>
+                    <input type="text" id="full-giveaway-channel" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-giveaway-check-interval">Intervalle de vérification</label>
+                    <input type="text" id="full-giveaway-check-interval" class="form-control" placeholder="5m">
+                </div>
+                <div class="form-group">
+                    <label for="full-giveaway-update-delay">Délai de mise à jour</label>
+                    <input type="text" id="full-giveaway-update-delay" class="form-control" placeholder="500ms">
+                </div>
+                <div class="form-group">
+                    <label for="full-giveaway-min-duration">Durée minimale</label>
+                    <input type="text" id="full-giveaway-min-duration" class="form-control" placeholder="1m">
+                </div>
+                <div class="form-group">
+                    <label for="full-giveaway-max-winners">Gagnants maximum</label>
+                    <input type="number" id="full-giveaway-max-winners" class="form-control" placeholder="20">
+                </div>
+                <div class="form-group">
+                    <label for="full-giveaway-max-items">Items max dans la liste</label>
+                    <input type="number" id="full-giveaway-max-items" class="form-control" placeholder="10">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-tickets" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Tickets activés</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de tickets</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-tickets-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Paramètres</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-tickets-staff-role">Rôle Staff</label>
+                    <input type="text" id="full-tickets-staff-role" class="form-control" placeholder="ID du rôle">
+                </div>
+                <div class="form-group">
+                    <label for="full-tickets-transcript">Salon Transcript</label>
+                    <input type="text" id="full-tickets-transcript" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-tickets-auto-close">Fermeture auto après</label>
+                    <input type="text" id="full-tickets-auto-close" class="form-control" placeholder="null">
+                </div>
+                <div class="form-group">
+                    <label for="full-tickets-delete-delay">Délai de suppression</label>
+                    <input type="text" id="full-tickets-delete-delay" class="form-control" placeholder="2s">
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Supprimer après fermeture</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Supprime automatiquement les tickets fermés</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-tickets-delete-after-close">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-tickets-panel-interval">Intervalle de mise à jour du panel</label>
+                    <input type="text" id="full-tickets-panel-interval" class="form-control" placeholder="5m">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-market" class="config-tab-content">
+        <div class="card">
+            <h3>Paramètres du Marché</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Marché activé</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de marché</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-market-enabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Rotation activée</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active la rotation automatique des items</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-market-rotation-enabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Publication activée</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Publie automatiquement les rotations</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-market-publish-enabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-market-items-per-rotation">Items par rotation</label>
+                    <input type="number" id="full-market-items-per-rotation" class="form-control" placeholder="8">
+                </div>
+                <div class="form-group">
+                    <label for="full-market-buff-multiplier">Multiplicateur Buff</label>
+                    <input type="number" id="full-market-buff-multiplier" class="form-control" step="0.1" placeholder="1.5">
+                </div>
+                <div class="form-group">
+                    <label for="full-market-nerf-multiplier">Multiplicateur Nerf</label>
+                    <input type="number" id="full-market-nerf-multiplier" class="form-control" step="0.1" placeholder="0.67">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-features" class="config-tab-content">
+        <div class="card">
+            <h3>Fonctionnalités Optionnelles</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Modération automatique</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-feature-auto-mod">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Messages de bienvenue</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-feature-welcome">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Messages de départ</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-feature-goodbye">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Système de niveaux</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-feature-leveling">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Système d'économie</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-feature-economy">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-1" id="welcome-settings-card" style="display: none;">
+            <h3>Paramètres de Bienvenue</h3>
+            <div class="form-group">
+                <label for="full-welcome-channel">Salon de bienvenue</label>
+                <input type="text" id="full-welcome-channel" class="form-control" placeholder="ID du salon">
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-logs" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Logs activés</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de logs</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-logs-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Salon</h3>
+            <div class="form-group">
+                <label for="full-logs-channel">Salon des logs</label>
+                <input type="text" id="full-logs-channel" class="form-control" placeholder="ID du salon">
+            </div>
+        </div>
+        <div class="card">
+            <h3>Événements à logger</h3>
+            <div class="grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Suppression de message</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-message-delete">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Modification de message</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-message-edit">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Arrivée de membre</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-member-join">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Départ de membre</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-member-leave">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Ajout de rôle</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-role-add">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Retrait de rôle</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-role-remove">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Changement de pseudo</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-nickname-change">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Arrivée vocal</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-voice-join">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Départ vocal</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-voice-leave">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Déplacement vocal</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-voice-move">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Mute vocal</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-voice-mute">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <span style="font-weight: 500; color: var(--text-main);">Deafen vocal</span>
+                    <label class="switch">
+                        <input type="checkbox" id="full-log-voice-deafen">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-branding" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Couleurs</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-color-primary">Primaire</label>
+                    <input type="color" id="full-color-primary" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="full-color-success">Succès</label>
+                    <input type="color" id="full-color-success" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="full-color-error">Erreur</label>
+                    <input type="color" id="full-color-error" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="full-color-warning">Avertissement</label>
+                    <input type="color" id="full-color-warning" class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Messages</h3>
+            <div class="form-group">
+                <label for="full-message-default-reason">Raison par défaut</label>
+                <input type="text" id="full-message-default-reason" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="full-message-no-permission">Pas de permission</label>
+                <input type="text" id="full-message-no-permission" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="full-message-error">Erreur survenue</label>
+                <input type="text" id="full-message-error" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="full-message-command-disabled">Commande désactivée</label>
+                <input type="text" id="full-message-command-disabled" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-limits" class="config-tab-content">
+        <div class="card">
+            <h3>Limites et Cooldowns</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-limit-command-cooldown">Cooldown global</label>
+                    <input type="text" id="full-limit-command-cooldown" class="form-control" placeholder="3s">
+                    <small class="text-muted">Cooldown par défaut pour toutes les commandes</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-limit-giveaway-cooldown">Cooldown création concours</label>
+                    <input type="text" id="full-limit-giveaway-cooldown" class="form-control" placeholder="1m">
+                    <small class="text-muted">Temps d'attente entre deux créations de concours</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-limit-ticket-cooldown">Cooldown création ticket</label>
+                    <input type="text" id="full-limit-ticket-cooldown" class="form-control" placeholder="30s">
+                    <small class="text-muted">Temps d'attente entre deux créations de tickets</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-leveling" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Système de niveaux activé</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de niveaux</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-leveling-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Paramètres de base</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-leveling-cooldown">Cooldown entre messages (secondes)</label>
+                    <input type="number" id="full-leveling-cooldown" class="form-control" placeholder="30" min="1">
+                    <small class="text-muted">Temps minimum entre deux gains d'XP</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-leveling-xp-min">XP minimum par message</label>
+                    <input type="number" id="full-leveling-xp-min" class="form-control" placeholder="15" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="full-leveling-xp-max">XP maximum par message</label>
+                    <input type="number" id="full-leveling-xp-max" class="form-control" placeholder="25" min="1">
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Message de montée de niveau</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Activer les messages de montée de niveau</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Affiche un message quand un utilisateur monte de niveau</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-leveling-message-enabled">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-leveling-message-channel">Salon pour les messages</label>
+                    <input type="text" id="full-leveling-message-channel" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-leveling-message-text">Message de montée de niveau</label>
+                    <textarea id="full-leveling-message-text" class="form-control" rows="3" placeholder="🎉 Félicitations <@USER> ! Vous avez atteint le niveau **LEVEL** !"></textarea>
+                    <small class="text-muted">Utilisez &lt;@USER&gt; pour mentionner l'utilisateur et **LEVEL** pour le niveau</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-welcome" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Messages de bienvenue activés</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active les messages de bienvenue</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="full-welcome-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex align-center justify-between">
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main);">Messages de départ activés</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active les messages de départ</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="full-goodbye-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Paramètres de base</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-welcome-channel">Salon de bienvenue</label>
+                    <input type="text" id="full-welcome-channel" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-message">Message de bienvenue</label>
+                    <input type="text" id="full-welcome-message" class="form-control" placeholder="Bienvenue {user} sur {server}! 🎉">
+                    <small class="text-muted">Utilisez {user} pour le nom d'utilisateur et {server} pour le nom du serveur</small>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Image de bienvenue</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="flex align-center gap-1">
+                        <input type="checkbox" id="full-welcome-send-image">
+                        <span>Envoyer une image de bienvenue</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-image-width">Largeur de l'image</label>
+                    <input type="number" id="full-welcome-image-width" class="form-control" placeholder="1200" min="100">
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-image-height">Hauteur de l'image</label>
+                    <input type="number" id="full-welcome-image-height" class="form-control" placeholder="320" min="100">
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-image-bg-color">Couleur de fond</label>
+                    <input type="color" id="full-welcome-image-bg-color" class="form-control" value="#0f0f0f">
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-banner-color">Couleur de la bannière</label>
+                    <input type="color" id="full-welcome-banner-color" class="form-control" value="#1a1a1a">
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-text-color">Couleur du texte</label>
+                    <input type="color" id="full-welcome-text-color" class="form-control" value="#ffffff">
+                </div>
+                <div class="form-group">
+                    <label for="full-welcome-avatar-size">Taille de l'avatar</label>
+                    <input type="number" id="full-welcome-avatar-size" class="form-control" placeholder="160" min="50">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-welcome-image-title">Titre de l'image</label>
+                    <input type="text" id="full-welcome-image-title" class="form-control" placeholder="Bienvenue {username}!">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-welcome-image-subtitle">Sous-titre de l'image</label>
+                    <input type="text" id="full-welcome-image-subtitle" class="form-control" placeholder="Tu es le {memberCount}ème membre">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-welcome-third-line">Troisième ligne</label>
+                    <input type="text" id="full-welcome-third-line" class="form-control" placeholder="Serenity Craft : 1.17 - 1.21.10">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-suggestion" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Système de suggestions activé</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de suggestions</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-suggestion-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Paramètres</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-suggestion-channel">Salon des suggestions</label>
+                    <input type="text" id="full-suggestion-channel" class="form-control" placeholder="ID du salon">
+                </div>
+                <div class="form-group">
+                    <label class="flex align-center gap-1">
+                        <input type="checkbox" id="full-suggestion-require-approval">
+                        <span>Nécessite une approbation</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="flex align-center gap-1">
+                        <input type="checkbox" id="full-suggestion-allow-anonymous">
+                        <span>Autoriser les suggestions anonymes</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Emojis de vote</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-suggestion-emoji-upvote">Emoji positif</label>
+                    <input type="text" id="full-suggestion-emoji-upvote" class="form-control" placeholder="<:sc_upvote:...>">
+                </div>
+                <div class="form-group">
+                    <label for="full-suggestion-emoji-neutral">Emoji neutre</label>
+                    <input type="text" id="full-suggestion-emoji-neutral" class="form-control" placeholder="<:sc_minus:...>">
+                </div>
+                <div class="form-group">
+                    <label for="full-suggestion-emoji-downvote">Emoji négatif</label>
+                    <input type="text" id="full-suggestion-emoji-downvote" class="form-control" placeholder="<:sc_downvote:...>">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-database" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Pool de connexions</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-db-connection-limit">Limite de connexions</label>
+                    <input type="number" id="full-db-connection-limit" class="form-control" placeholder="100" min="1" max="200">
+                    <small class="text-muted">Nombre maximum de connexions simultanées</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-db-queue-limit">Limite de la file d'attente</label>
+                    <input type="number" id="full-db-queue-limit" class="form-control" placeholder="0" min="0">
+                    <small class="text-muted">0 = illimité</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-db-connect-timeout">Timeout de connexion (ms)</label>
+                    <input type="number" id="full-db-connect-timeout" class="form-control" placeholder="10000" min="1000">
+                </div>
+                <div class="form-group">
+                    <label for="full-db-idle-timeout">Timeout d'inactivité (ms)</label>
+                    <input type="number" id="full-db-idle-timeout" class="form-control" placeholder="600000" min="10000">
+                </div>
+                <div class="form-group">
+                    <label for="full-db-max-idle">Connexions inactives max</label>
+                    <input type="number" id="full-db-max-idle" class="form-control" placeholder="10" min="1">
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Activer Keep-Alive</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Maintient les connexions actives</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-db-enable-keepalive">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Paramètres de requête</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-db-acquire-timeout">Timeout d'acquisition (ms)</label>
+                    <input type="number" id="full-db-acquire-timeout" class="form-control" placeholder="30000" min="1000">
+                </div>
+                <div class="form-group">
+                    <label for="full-db-retry-max">Tentatives max</label>
+                    <input type="number" id="full-db-retry-max" class="form-control" placeholder="3" min="1" max="10">
+                </div>
+                <div class="form-group">
+                    <label for="full-db-retry-delay">Délai initial (ms)</label>
+                    <input type="number" id="full-db-retry-delay" class="form-control" placeholder="1000" min="100">
+                </div>
+                <div class="form-group">
+                    <label for="full-db-retry-backoff">Multiplicateur de backoff</label>
+                    <input type="number" id="full-db-retry-backoff" class="form-control" step="0.1" placeholder="2" min="1" max="5">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-handlers" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Anti-Spam</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-handler-antispam-max-history">Taille max de l'historique</label>
+                    <input type="number" id="full-handler-antispam-max-history" class="form-control" placeholder="5000" min="100">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-antispam-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                    <input type="number" id="full-handler-antispam-cleanup-interval" class="form-control" placeholder="300000" min="10000">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-antispam-cleanup-probability">Probabilité de nettoyage</label>
+                    <input type="number" id="full-handler-antispam-cleanup-probability" class="form-control" step="0.01" placeholder="0.01" min="0" max="1">
+                    <small class="text-muted">Probabilité (0-1) de nettoyage par message</small>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Anti-Lien</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label class="flex align-center gap-1">
+                        <input type="checkbox" id="full-handler-antilink-enabled">
+                        <span>Anti-lien activé</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-antilink-action">Action</label>
+                    <div class="custom-select">
+                        <select id="full-handler-antilink-action" class="form-control">
+                            <option value="delete">Supprimer</option>
+                            <option value="warn">Avertir</option>
+                            <option value="timeout">Timeout</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-antilink-timeout-duration">Durée du timeout</label>
+                    <input type="text" id="full-handler-antilink-timeout-duration" class="form-control" placeholder="10m">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-handler-antilink-allowed-domains">Domaines autorisés (séparés par virgule)</label>
+                    <input type="text" id="full-handler-antilink-allowed-domains" class="form-control" placeholder="discord.com, youtube.com">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-handler-antilink-blocked-domains">Domaines bloqués (séparés par virgule)</label>
+                    <input type="text" id="full-handler-antilink-blocked-domains" class="form-control" placeholder="spam.com, malware.com">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-handler-antilink-exempt-roles">Rôles exemptés (IDs séparés par virgule)</label>
+                    <input type="text" id="full-handler-antilink-exempt-roles" class="form-control" placeholder="123456789,987654321">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="full-handler-antilink-exempt-channels">Salons exemptés (IDs séparés par virgule)</label>
+                    <input type="text" id="full-handler-antilink-exempt-channels" class="form-control" placeholder="123456789,987654321">
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Leveling Handler</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-handler-leveling-max-cooldowns">Cooldowns max</label>
+                    <input type="number" id="full-handler-leveling-max-cooldowns" class="form-control" placeholder="10000" min="100">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-leveling-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                    <input type="number" id="full-handler-leveling-cleanup-interval" class="form-control" placeholder="3600000" min="10000">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-leveling-cleanup-probability">Probabilité de nettoyage</label>
+                    <input type="number" id="full-handler-leveling-cleanup-probability" class="form-control" step="0.01" placeholder="0.01" min="0" max="1">
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Event Log Handler</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-handler-eventlog-batch-size">Taille du lot</label>
+                    <input type="number" id="full-handler-eventlog-batch-size" class="form-control" placeholder="10" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-eventlog-batch-delay">Délai entre lots (ms)</label>
+                    <input type="number" id="full-handler-eventlog-batch-delay" class="form-control" placeholder="1000" min="100">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-eventlog-max-queue">Taille max de la file</label>
+                    <input type="number" id="full-handler-eventlog-max-queue" class="form-control" placeholder="1000" min="10">
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Giveaway Handler</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-handler-giveaway-max-queue">Taille max de la file</label>
+                    <input type="number" id="full-handler-giveaway-max-queue" class="form-control" placeholder="100" min="10">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-giveaway-debounce">Délai de debounce (ms)</label>
+                    <input type="number" id="full-handler-giveaway-debounce" class="form-control" placeholder="500" min="100">
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>PvP Tournament Handler</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-handler-pvp-max-concurrent">Tournois simultanés max</label>
+                    <input type="number" id="full-handler-pvp-max-concurrent" class="form-control" placeholder="10" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-pvp-bracket-timeout">Timeout génération bracket (ms)</label>
+                    <input type="number" id="full-handler-pvp-bracket-timeout" class="form-control" placeholder="30000" min="1000">
+                </div>
+                <div class="form-group">
+                    <label for="full-handler-pvp-notification-timeout">Timeout notification match (ms)</label>
+                    <input type="number" id="full-handler-pvp-notification-timeout" class="form-control" placeholder="10000" min="1000">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-performance" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Cache</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-performance-cache-ttl">TTL par défaut (ms)</label>
+                    <input type="number" id="full-performance-cache-ttl" class="form-control" placeholder="300000" min="1000">
+                    <small class="text-muted">Durée de vie par défaut des entrées en cache</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-performance-cache-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                    <input type="number" id="full-performance-cache-cleanup-interval" class="form-control" placeholder="300000" min="1000">
+                </div>
+                <div class="form-group">
+                    <label for="full-performance-cache-max-size">Taille max du cache</label>
+                    <input type="number" id="full-performance-cache-max-size" class="form-control" placeholder="10000" min="100">
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Activer les statistiques du cache</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Collecte des métriques de performance</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-performance-cache-enable-stats">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-1">
+            <h3>Mémoire</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Activer le nettoyage automatique</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Nettoie automatiquement la mémoire</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-performance-memory-enable-cleanup">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-performance-memory-cleanup-interval">Intervalle de nettoyage (ms)</label>
+                    <input type="number" id="full-performance-memory-cleanup-interval" class="form-control" placeholder="3600000" min="10000">
+                </div>
+                <div class="form-group">
+                    <label for="full-performance-memory-max-map-size">Taille max des Maps</label>
+                    <input type="number" id="full-performance-memory-max-map-size" class="form-control" placeholder="10000" min="100">
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Bot API</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-performance-botapi-port">Port</label>
+                    <input type="number" id="full-performance-botapi-port" class="form-control" placeholder="45049" min="1024" max="65535">
+                </div>
+                <div class="form-group">
+                    <label for="full-performance-botapi-max-request-size">Taille max des requêtes (octets)</label>
+                    <input type="number" id="full-performance-botapi-max-request-size" class="form-control" placeholder="10485760" min="1024">
+                    <small class="text-muted">10MB = 10485760</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-performance-botapi-request-timeout">Timeout des requêtes (ms)</label>
+                    <input type="number" id="full-performance-botapi-request-timeout" class="form-control" placeholder="30000" min="1000">
+                </div>
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Activer CORS</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Autorise les requêtes cross-origin</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-performance-botapi-enable-cors">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-soundboard" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Soundboard activé</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de soundboard</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-soundboard-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Paramètres</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-soundboard-max-file-size">Taille max des fichiers (octets)</label>
+                    <input type="number" id="full-soundboard-max-file-size" class="form-control" placeholder="10485760" min="1024">
+                    <small class="text-muted">10MB = 10485760</small>
+                </div>
+                <div class="form-group">
+                    <label for="full-soundboard-allowed-formats">Formats autorisés (séparés par virgule)</label>
+                    <input type="text" id="full-soundboard-allowed-formats" class="form-control" placeholder="mp3,ogg,wav">
+                </div>
+                <div class="form-group">
+                    <label for="full-soundboard-play-delay">Délai entre les lectures (ms)</label>
+                    <input type="number" id="full-soundboard-play-delay" class="form-control" placeholder="200" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="full-soundboard-max-concurrent">Lectures simultanées max</label>
+                    <input type="number" id="full-soundboard-max-concurrent" class="form-control" placeholder="3" min="1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-pvp-tournaments" class="config-tab-content">
+        <div class="card mb-1">
+            <h3>Activation</h3>
+            <div class="flex align-center justify-between">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-main);">Tournois PvP activés</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active ou désactive le système de tournois PvP</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="full-pvp-tournaments-enabled">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Paramètres</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="full-pvp-tournaments-max-participants">Participants maximum</label>
+                    <input type="number" id="full-pvp-tournaments-max-participants" class="form-control" placeholder="64" min="2" max="64">
+                </div>
+                <div class="form-group">
+                    <label for="full-pvp-tournaments-min-participants">Participants minimum</label>
+                    <input type="number" id="full-pvp-tournaments-min-participants" class="form-control" placeholder="2" min="2">
+                </div>
+                <div class="form-group">
+                    <label for="full-pvp-tournaments-registration-min-duration">Durée min d'inscription</label>
+                    <input type="text" id="full-pvp-tournaments-registration-min-duration" class="form-control" placeholder="1m">
+                </div>
+                <div class="form-group">
+                    <label for="full-pvp-tournaments-registration-max-duration">Durée max d'inscription</label>
+                    <input type="text" id="full-pvp-tournaments-registration-max-duration" class="form-control" placeholder="7d">
+                </div>
+                <div class="form-group">
+                    <label for="full-pvp-tournaments-bracket-update-interval">Intervalle de mise à jour (ms)</label>
+                    <input type="number" id="full-pvp-tournaments-bracket-update-interval" class="form-control" placeholder="5000" min="1000">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="tab-advanced" class="config-tab-content">
+        <div class="card">
+            <h3>Paramètres Avancés</h3>
+            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <div class="flex align-center justify-between">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-main);">Mode Debug</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Active les logs détaillés pour le débogage</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="full-advanced-debug">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-advanced-log-level">Niveau de log</label>
+                    <div class="custom-select">
+                        <select id="full-advanced-log-level" class="form-control">
+                            <option value="info">Info</option>
+                            <option value="debug">Debug</option>
+                            <option value="warn">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="full-advanced-prefix">Préfixe de commande</label>
+                    <input type="text" id="full-advanced-prefix" class="form-control" placeholder="/">
+                </div>
+                <div class="form-group">
+                    <label for="full-advanced-max-message">Longueur max message</label>
+                    <input type="number" id="full-advanced-max-message" class="form-control" placeholder="2000">
+                </div>
+                <div class="form-group">
+                    <label for="full-advanced-max-embed">Longueur max embed</label>
+                    <input type="number" id="full-advanced-max-embed" class="form-control" placeholder="6000">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.config-page {
+    padding: 0;
+}
+
+.config-page h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.875rem;
+    font-weight: 600;
+}
+
+.config-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-glass-border);
+}
+
+.config-tab {
+    padding: 0.75rem 1.25rem;
+    background: var(--surface-glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--surface-glass-border);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.config-tab:hover {
+    background: var(--surface-glass-hover);
+    border-color: rgba(79, 70, 229, 0.3);
+    color: var(--text-main);
+    transform: translateY(-2px);
+}
+
+.config-tab.active {
+    background: var(--primary-gradient);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: var(--shadow-glow-primary);
+}
+
+.config-tab i {
+    font-size: 0.875rem;
+}
+
+.config-tab-content {
+    display: none;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.config-tab-content.active {
+    display: block;
+}
+
+.config-tab-content .card {
+    margin-bottom: 1rem;
+}
+
+.config-tab-content .card:last-child {
+    margin-bottom: 0;
+}
+
+.config-tab-content h3 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.config-tab-content .form-group {
+    margin-bottom: 1rem;
+}
+
+.config-tab-content .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.config-tab-content label {
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.config-tab-content small.text-muted {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.config-tab-content .flex.align-center {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.config-tab-content input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+</style>
+
+<script>
+(function() {
+    let fullConfig = {};
+
+    async function loadFullConfig() {
+        try {
+            // Load all config sections
+            const [bot, channels, roles, moderation, giveaway, tickets, market, features, logs, colors, messages, limits, advanced, leveling, welcome, suggestion, database, handlers, performance, soundboard, pvpTournaments] = await Promise.all([
+                window.api.get('/config/bot').catch(() => ({})),
+                window.api.get('/config/channels').catch(() => ({})),
+                window.api.get('/config/roles').catch(() => ({})),
+                window.api.get('/config/moderation').catch(() => ({})),
+                window.api.get('/config/giveaway').catch(() => ({})),
+                window.api.get('/config/tickets').catch(() => ({})),
+                window.api.get('/config/market').catch(() => ({})),
+                window.api.get('/config/features').catch(() => ({})),
+                window.api.get('/config/eventLogs').catch(() => ({})),
+                window.api.get('/config/colors').catch(() => ({})),
+                window.api.get('/config/messages').catch(() => ({})),
+                window.api.get('/config/limits').catch(() => ({})),
+                window.api.get('/config/advanced').catch(() => ({})),
+                window.api.get('/config/leveling').catch(() => ({})),
+                window.api.get('/config/welcome').catch(() => ({})),
+                window.api.get('/config/suggestion').catch(() => ({})),
+                window.api.get('/config/database').catch(() => ({})),
+                window.api.get('/config/handlers').catch(() => ({})),
+                window.api.get('/config/performance').catch(() => ({})),
+                window.api.get('/config/soundboard').catch(() => ({})),
+                window.api.get('/config/pvpTournaments').catch(() => ({}))
+            ]);
+
+            fullConfig = { bot, channels, roles, moderation, giveaway, tickets, market, features, logs, colors, messages, limits, advanced, leveling, welcome, suggestion, database, handlers, performance, soundboard, pvpTournaments };
+
+            // Populate Bot tab
+            if (bot.presence) {
+                document.getElementById('full-bot-status').value = bot.presence.status || 'online';
+                document.getElementById('full-bot-activity-type').value = bot.presence.activity?.type || 'WATCHING';
+                document.getElementById('full-bot-activity-text').value = bot.presence.activity?.text || '';
+            }
+
+            // Populate Channels tab
+            if (channels) {
+                document.getElementById('full-channel-modlog').value = channels.modLogChannelId || '';
+                document.getElementById('full-channel-eventlog').value = channels.eventLogChannelId || '';
+                document.getElementById('full-channel-suggestion').value = channels.suggestionChannelId || '';
+                document.getElementById('full-channel-transcript').value = channels.transcriptChannelId || '';
+                document.getElementById('full-channel-giveaway').value = channels.giveawayChannelId || '';
+            }
+
+            // Populate Roles tab
+            if (roles) {
+                document.getElementById('full-role-staff').value = roles.staffRoleId || '';
+                document.getElementById('full-role-admin').value = roles.adminRoleId || '';
+                document.getElementById('full-role-moderator').value = roles.moderatorRoleId || '';
+                document.getElementById('full-auto-roles').value = Array.isArray(roles.autoRoles) ? roles.autoRoles.join(', ') : '';
+            }
+
+            // Populate Moderation tab
+            if (moderation) {
+                document.getElementById('full-mod-enabled').checked = moderation.enabled !== false;
+                document.getElementById('full-mod-timeout-duration').value = moderation.defaultTimeoutDuration || '';
+                document.getElementById('full-mod-ban-duration').value = moderation.defaultBanDuration || '';
+                document.getElementById('full-mod-require-reason').checked = moderation.requireReason === true;
+                document.getElementById('full-mod-send-dm').checked = moderation.sendDM !== false;
+                
+                if (moderation.enabledActions) {
+                    document.getElementById('full-mod-action-ban').checked = moderation.enabledActions.ban !== false;
+                    document.getElementById('full-mod-action-kick').checked = moderation.enabledActions.kick !== false;
+                    document.getElementById('full-mod-action-mute').checked = moderation.enabledActions.mute !== false;
+                    document.getElementById('full-mod-action-timeout').checked = moderation.enabledActions.timeout !== false;
+                    document.getElementById('full-mod-action-warn').checked = moderation.enabledActions.warn !== false;
+                    document.getElementById('full-mod-action-unban').checked = moderation.enabledActions.unban !== false;
+                    document.getElementById('full-mod-action-unmute').checked = moderation.enabledActions.unmute !== false;
+                    document.getElementById('full-mod-action-untimeout').checked = moderation.enabledActions.untimeout !== false;
+                }
+                
+                if (moderation.antiSpam) {
+                    document.getElementById('full-mod-antispam-enabled').checked = moderation.antiSpam.enabled !== false;
+                    document.getElementById('full-mod-antispam-message-limit').value = moderation.antiSpam.messageLimit || '';
+                    document.getElementById('full-mod-antispam-time-window').value = moderation.antiSpam.timeWindow || '';
+                }
+            }
+
+            // Populate Giveaways tab
+            if (giveaway) {
+                document.getElementById('full-giveaway-enabled').checked = giveaway.enabled !== false;
+                document.getElementById('full-giveaway-channel').value = giveaway.defaultChannelId || '';
+                document.getElementById('full-giveaway-check-interval').value = giveaway.checkInterval || '';
+                document.getElementById('full-giveaway-update-delay').value = giveaway.embedUpdateDelay || '';
+                document.getElementById('full-giveaway-min-duration').value = giveaway.minDuration || '';
+                document.getElementById('full-giveaway-max-winners').value = giveaway.maxWinners || '';
+                document.getElementById('full-giveaway-max-items').value = giveaway.maxListItems || '';
+            }
+
+            // Populate Tickets tab
+            if (tickets) {
+                document.getElementById('full-tickets-enabled').checked = tickets.enabled !== false;
+                document.getElementById('full-tickets-staff-role').value = tickets.staffRoleId || '';
+                document.getElementById('full-tickets-transcript').value = tickets.transcriptChannelId || '';
+                document.getElementById('full-tickets-auto-close').value = tickets.autoCloseAfter || '';
+                document.getElementById('full-tickets-delete-delay').value = tickets.deleteDelay || '';
+                document.getElementById('full-tickets-delete-after-close').checked = tickets.deleteAfterClose === true;
+                document.getElementById('full-tickets-panel-interval').value = tickets.panelUpdateInterval || '';
+            }
+
+            // Populate Market tab
+            if (market) {
+                document.getElementById('full-market-enabled').checked = market.enabled !== false;
+                document.getElementById('full-market-rotation-enabled').checked = market.rotationEnabled !== false;
+                document.getElementById('full-market-publish-enabled').checked = market.publishEnabled !== false;
+                document.getElementById('full-market-items-per-rotation').value = market.itemsPerRotation || '';
+                document.getElementById('full-market-buff-multiplier').value = market.buffMultiplier || '';
+                document.getElementById('full-market-nerf-multiplier').value = market.nerfMultiplier || '';
+            }
+
+            // Populate Features tab
+            if (features) {
+                document.getElementById('full-feature-auto-mod').checked = features.autoModeration === true;
+                document.getElementById('full-feature-welcome').checked = features.welcomeMessages === true;
+                document.getElementById('full-feature-goodbye').checked = features.goodbyeMessages === true;
+                document.getElementById('full-feature-leveling').checked = features.leveling === true;
+                document.getElementById('full-feature-economy').checked = features.economy === true;
+                document.getElementById('full-welcome-channel').value = features.welcomeChannelId || '';
+                
+                if (features.welcomeMessages) {
+                    document.getElementById('welcome-settings-card').style.display = 'block';
+                }
+            }
+
+            // Populate Logs tab
+            if (logs) {
+                document.getElementById('full-logs-enabled').checked = logs.enabled !== false;
+                document.getElementById('full-logs-channel').value = logs.logChannelId || '';
+                document.getElementById('full-log-message-delete').checked = logs.logMessageDelete !== false;
+                document.getElementById('full-log-message-edit').checked = logs.logMessageEdit !== false;
+                document.getElementById('full-log-member-join').checked = logs.logMemberJoin !== false;
+                document.getElementById('full-log-member-leave').checked = logs.logMemberLeave !== false;
+                document.getElementById('full-log-role-add').checked = logs.logRoleAdd !== false;
+                document.getElementById('full-log-role-remove').checked = logs.logRoleRemove !== false;
+                document.getElementById('full-log-nickname-change').checked = logs.logNicknameChange !== false;
+                document.getElementById('full-log-voice-join').checked = logs.logVoiceJoin !== false;
+                document.getElementById('full-log-voice-leave').checked = logs.logVoiceLeave !== false;
+                document.getElementById('full-log-voice-move').checked = logs.logVoiceMove !== false;
+                document.getElementById('full-log-voice-mute').checked = logs.logVoiceMute !== false;
+                document.getElementById('full-log-voice-deafen').checked = logs.logVoiceDeafen !== false;
+            }
+
+            // Populate Branding tab
+            if (colors) {
+                document.getElementById('full-color-primary').value = colors.primary || '#5865F2';
+                document.getElementById('full-color-success').value = colors.success || '#57F287';
+                document.getElementById('full-color-error').value = colors.error || '#ED4245';
+                document.getElementById('full-color-warning').value = colors.warning || '#FEE75C';
+            }
+            if (messages) {
+                document.getElementById('full-message-default-reason').value = messages.defaultReason || '';
+                document.getElementById('full-message-no-permission').value = messages.noPermission || '';
+                document.getElementById('full-message-error').value = messages.errorOccurred || '';
+                document.getElementById('full-message-command-disabled').value = messages.commandDisabled || '';
+            }
+
+            // Populate Limits tab
+            if (limits) {
+                document.getElementById('full-limit-command-cooldown').value = limits.commandCooldown || '';
+                document.getElementById('full-limit-giveaway-cooldown').value = limits.giveawayCreateCooldown || '';
+                document.getElementById('full-limit-ticket-cooldown').value = limits.ticketCreateCooldown || '';
+            }
+
+            // Populate Advanced tab
+            if (advanced) {
+                document.getElementById('full-advanced-debug').checked = advanced.debugMode === true;
+                document.getElementById('full-advanced-log-level').value = advanced.logLevel || 'info';
+                document.getElementById('full-advanced-prefix').value = advanced.commandPrefix || '/';
+                document.getElementById('full-advanced-max-message').value = advanced.maxMessageLength || '';
+                document.getElementById('full-advanced-max-embed').value = advanced.maxEmbedLength || '';
+            }
+
+            // Populate Leveling tab
+            if (leveling) {
+                document.getElementById('full-leveling-enabled').checked = leveling.enabled !== false;
+                document.getElementById('full-leveling-cooldown').value = leveling.cooldown || '';
+                document.getElementById('full-leveling-xp-min').value = leveling.xpPerMessage?.min || '';
+                document.getElementById('full-leveling-xp-max').value = leveling.xpPerMessage?.max || '';
+                document.getElementById('full-leveling-message-enabled').checked = leveling.levelUpMessage?.enabled !== false;
+                document.getElementById('full-leveling-message-channel').value = leveling.levelUpMessage?.channelId || '';
+                document.getElementById('full-leveling-message-text').value = leveling.levelUpMessage?.message || '';
+            }
+
+            // Populate Welcome tab
+            if (welcome || features) {
+                const welcomeData = welcome || features;
+                document.getElementById('full-welcome-enabled').checked = welcomeData.welcomeMessages !== false;
+                document.getElementById('full-goodbye-enabled').checked = welcomeData.goodbyeMessages === true;
+                document.getElementById('full-welcome-channel').value = welcomeData.welcomeChannelId || '';
+                document.getElementById('full-welcome-message').value = welcomeData.welcomeSettings?.message || '';
+                document.getElementById('full-welcome-send-image').checked = welcomeData.welcomeSettings?.sendImage !== false;
+                document.getElementById('full-welcome-image-width').value = welcomeData.welcomeSettings?.imageWidth || '';
+                document.getElementById('full-welcome-image-height').value = welcomeData.welcomeSettings?.imageHeight || '';
+                document.getElementById('full-welcome-image-bg-color').value = welcomeData.welcomeSettings?.imageBackgroundColor || '#0f0f0f';
+                document.getElementById('full-welcome-banner-color').value = welcomeData.welcomeSettings?.bannerColor || '#1a1a1a';
+                document.getElementById('full-welcome-text-color').value = welcomeData.welcomeSettings?.imageTextColor || '#ffffff';
+                document.getElementById('full-welcome-avatar-size').value = welcomeData.welcomeSettings?.imageAvatarSize || '';
+                document.getElementById('full-welcome-image-title').value = welcomeData.welcomeSettings?.imageTitle || '';
+                document.getElementById('full-welcome-image-subtitle').value = welcomeData.welcomeSettings?.imageSubtitle || '';
+                document.getElementById('full-welcome-third-line').value = welcomeData.welcomeSettings?.thirdLineText || '';
+            }
+
+            // Populate Suggestion tab
+            if (suggestion) {
+                document.getElementById('full-suggestion-enabled').checked = suggestion.enabled !== false;
+                document.getElementById('full-suggestion-channel').value = suggestion.channelId || '';
+                document.getElementById('full-suggestion-require-approval').checked = suggestion.requireApproval === true;
+                document.getElementById('full-suggestion-allow-anonymous').checked = suggestion.allowAnonymous === true;
+                document.getElementById('full-suggestion-emoji-upvote').value = suggestion.emojis?.upvote || '';
+                document.getElementById('full-suggestion-emoji-neutral').value = suggestion.emojis?.neutral || '';
+                document.getElementById('full-suggestion-emoji-downvote').value = suggestion.emojis?.downvote || '';
+            }
+
+            // Populate Database tab
+            if (database) {
+                document.getElementById('full-db-connection-limit').value = database.connectionPool?.connectionLimit || '';
+                document.getElementById('full-db-queue-limit').value = database.connectionPool?.queueLimit || '';
+                document.getElementById('full-db-connect-timeout').value = database.connectionPool?.connectTimeout || '';
+                document.getElementById('full-db-idle-timeout').value = database.connectionPool?.idleTimeout || '';
+                document.getElementById('full-db-max-idle').value = database.connectionPool?.maxIdle || '';
+                document.getElementById('full-db-enable-keepalive').checked = database.connectionPool?.enableKeepAlive !== false;
+                document.getElementById('full-db-acquire-timeout').value = database.query?.acquireTimeout || '';
+                document.getElementById('full-db-retry-max').value = database.query?.retry?.maxRetries || '';
+                document.getElementById('full-db-retry-delay').value = database.query?.retry?.initialDelay || '';
+                document.getElementById('full-db-retry-backoff').value = database.query?.retry?.backoffMultiplier || '';
+            }
+
+            // Populate Handlers tab
+            if (handlers) {
+                if (handlers.antiSpam) {
+                    document.getElementById('full-handler-antispam-max-history').value = handlers.antiSpam.maxHistorySize || '';
+                    document.getElementById('full-handler-antispam-cleanup-interval').value = handlers.antiSpam.cleanupInterval || '';
+                    document.getElementById('full-handler-antispam-cleanup-probability').value = handlers.antiSpam.cleanupProbability || '';
+                }
+                if (handlers.antiLink) {
+                    document.getElementById('full-handler-antilink-enabled').checked = handlers.antiLink.enabled !== false;
+                    document.getElementById('full-handler-antilink-action').value = handlers.antiLink.action || 'delete';
+                    document.getElementById('full-handler-antilink-timeout-duration').value = handlers.antiLink.timeoutDuration || '';
+                    document.getElementById('full-handler-antilink-allowed-domains').value = Array.isArray(handlers.antiLink.allowedDomains) ? handlers.antiLink.allowedDomains.join(', ') : '';
+                    document.getElementById('full-handler-antilink-blocked-domains').value = Array.isArray(handlers.antiLink.blockedDomains) ? handlers.antiLink.blockedDomains.join(', ') : '';
+                    document.getElementById('full-handler-antilink-exempt-roles').value = Array.isArray(handlers.antiLink.exemptRoles) ? handlers.antiLink.exemptRoles.join(', ') : '';
+                    document.getElementById('full-handler-antilink-exempt-channels').value = Array.isArray(handlers.antiLink.exemptChannels) ? handlers.antiLink.exemptChannels.join(', ') : '';
+                }
+                if (handlers.leveling) {
+                    document.getElementById('full-handler-leveling-max-cooldowns').value = handlers.leveling.maxCooldowns || '';
+                    document.getElementById('full-handler-leveling-cleanup-interval').value = handlers.leveling.cleanupInterval || '';
+                    document.getElementById('full-handler-leveling-cleanup-probability').value = handlers.leveling.cleanupProbability || '';
+                }
+                if (handlers.eventLog) {
+                    document.getElementById('full-handler-eventlog-batch-size').value = handlers.eventLog.batchSize || '';
+                    document.getElementById('full-handler-eventlog-batch-delay').value = handlers.eventLog.batchDelay || '';
+                    document.getElementById('full-handler-eventlog-max-queue').value = handlers.eventLog.maxQueueSize || '';
+                }
+                if (handlers.giveaway) {
+                    document.getElementById('full-handler-giveaway-max-queue').value = handlers.giveaway.maxQueueSize || '';
+                    document.getElementById('full-handler-giveaway-debounce').value = handlers.giveaway.embedUpdateDebounce || '';
+                }
+                if (handlers.pvpTournament) {
+                    document.getElementById('full-handler-pvp-max-concurrent').value = handlers.pvpTournament.maxConcurrentTournaments || '';
+                    document.getElementById('full-handler-pvp-bracket-timeout').value = handlers.pvpTournament.bracketGenerationTimeout || '';
+                    document.getElementById('full-handler-pvp-notification-timeout').value = handlers.pvpTournament.matchNotificationTimeout || '';
+                }
+            }
+
+            // Populate Performance tab
+            if (performance) {
+                if (performance.cache) {
+                    document.getElementById('full-performance-cache-ttl').value = performance.cache.defaultTTL || '';
+                    document.getElementById('full-performance-cache-cleanup-interval').value = performance.cache.cleanupInterval || '';
+                    document.getElementById('full-performance-cache-max-size').value = performance.cache.maxSize || '';
+                    document.getElementById('full-performance-cache-enable-stats').checked = performance.cache.enableStats !== false;
+                }
+                if (performance.memory) {
+                    document.getElementById('full-performance-memory-enable-cleanup').checked = performance.memory.enableCleanup !== false;
+                    document.getElementById('full-performance-memory-cleanup-interval').value = performance.memory.cleanupInterval || '';
+                    document.getElementById('full-performance-memory-max-map-size').value = performance.memory.maxMapSize || '';
+                }
+                if (performance.botApi) {
+                    document.getElementById('full-performance-botapi-port').value = performance.botApi.port || '';
+                    document.getElementById('full-performance-botapi-max-request-size').value = performance.botApi.maxRequestSize || '';
+                    document.getElementById('full-performance-botapi-request-timeout').value = performance.botApi.requestTimeout || '';
+                    document.getElementById('full-performance-botapi-enable-cors').checked = performance.botApi.enableCors !== false;
+                }
+            }
+
+            // Populate Soundboard tab
+            if (soundboard) {
+                document.getElementById('full-soundboard-enabled').checked = soundboard.enabled !== false;
+                document.getElementById('full-soundboard-max-file-size').value = soundboard.maxFileSize || '';
+                document.getElementById('full-soundboard-allowed-formats').value = Array.isArray(soundboard.allowedFormats) ? soundboard.allowedFormats.join(',') : soundboard.allowedFormats || '';
+                document.getElementById('full-soundboard-play-delay').value = soundboard.playDelay || '';
+                document.getElementById('full-soundboard-max-concurrent').value = soundboard.maxConcurrentPlays || '';
+            }
+
+            // Populate PvP Tournaments tab
+            if (pvpTournaments) {
+                document.getElementById('full-pvp-tournaments-enabled').checked = pvpTournaments.enabled !== false;
+                document.getElementById('full-pvp-tournaments-max-participants').value = pvpTournaments.maxParticipants || '';
+                document.getElementById('full-pvp-tournaments-min-participants').value = pvpTournaments.minParticipants || '';
+                document.getElementById('full-pvp-tournaments-registration-min-duration').value = pvpTournaments.registrationMinDuration || '';
+                document.getElementById('full-pvp-tournaments-registration-max-duration').value = pvpTournaments.registrationMaxDuration || '';
+                document.getElementById('full-pvp-tournaments-bracket-update-interval').value = pvpTournaments.bracketUpdateInterval || '';
+            }
+
+        } catch (error) {
+            console.error('Load error:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveFullConfig() {
+        try {
+            // Collect all data
+            const botConfig = {
+                presence: {
+                    status: document.getElementById('full-bot-status').value,
+                    activity: {
+                        type: document.getElementById('full-bot-activity-type').value,
+                        text: document.getElementById('full-bot-activity-text').value
+                    }
+                }
+            };
+
+            const channelsConfig = {
+                modLogChannelId: document.getElementById('full-channel-modlog').value.trim() || null,
+                eventLogChannelId: document.getElementById('full-channel-eventlog').value.trim() || null,
+                suggestionChannelId: document.getElementById('full-channel-suggestion').value.trim() || null,
+                transcriptChannelId: document.getElementById('full-channel-transcript').value.trim() || null,
+                giveawayChannelId: document.getElementById('full-channel-giveaway').value.trim() || null
+            };
+
+            const rolesConfig = {
+                staffRoleId: document.getElementById('full-role-staff').value.trim() || null,
+                adminRoleId: document.getElementById('full-role-admin').value.trim() || null,
+                moderatorRoleId: document.getElementById('full-role-moderator').value.trim() || null,
+                autoRoles: document.getElementById('full-auto-roles').value.split(',').map(r => r.trim()).filter(r => r)
+            };
+
+            const moderationConfig = {
+                enabled: document.getElementById('full-mod-enabled').checked,
+                defaultTimeoutDuration: document.getElementById('full-mod-timeout-duration').value || null,
+                defaultBanDuration: document.getElementById('full-mod-ban-duration').value || null,
+                requireReason: document.getElementById('full-mod-require-reason').checked,
+                sendDM: document.getElementById('full-mod-send-dm').checked,
+                enabledActions: {
+                    ban: document.getElementById('full-mod-action-ban').checked,
+                    kick: document.getElementById('full-mod-action-kick').checked,
+                    mute: document.getElementById('full-mod-action-mute').checked,
+                    timeout: document.getElementById('full-mod-action-timeout').checked,
+                    warn: document.getElementById('full-mod-action-warn').checked,
+                    unban: document.getElementById('full-mod-action-unban').checked,
+                    unmute: document.getElementById('full-mod-action-unmute').checked,
+                    untimeout: document.getElementById('full-mod-action-untimeout').checked
+                },
+                antiSpam: {
+                    enabled: document.getElementById('full-mod-antispam-enabled').checked,
+                    messageLimit: parseInt(document.getElementById('full-mod-antispam-message-limit').value) || null,
+                    timeWindow: document.getElementById('full-mod-antispam-time-window').value || null
+                }
+            };
+
+            const giveawayConfig = {
+                enabled: document.getElementById('full-giveaway-enabled').checked,
+                defaultChannelId: document.getElementById('full-giveaway-channel').value.trim() || null,
+                checkInterval: document.getElementById('full-giveaway-check-interval').value || null,
+                embedUpdateDelay: document.getElementById('full-giveaway-update-delay').value || null,
+                minDuration: document.getElementById('full-giveaway-min-duration').value || null,
+                maxWinners: parseInt(document.getElementById('full-giveaway-max-winners').value) || null,
+                maxListItems: parseInt(document.getElementById('full-giveaway-max-items').value) || null
+            };
+
+            const ticketsConfig = {
+                enabled: document.getElementById('full-tickets-enabled').checked,
+                staffRoleId: document.getElementById('full-tickets-staff-role').value.trim() || null,
+                transcriptChannelId: document.getElementById('full-tickets-transcript').value.trim() || null,
+                autoCloseAfter: document.getElementById('full-tickets-auto-close').value || null,
+                deleteDelay: document.getElementById('full-tickets-delete-delay').value || null,
+                deleteAfterClose: document.getElementById('full-tickets-delete-after-close').checked,
+                panelUpdateInterval: document.getElementById('full-tickets-panel-interval').value || null
+            };
+
+            const marketConfig = {
+                enabled: document.getElementById('full-market-enabled').checked,
+                rotationEnabled: document.getElementById('full-market-rotation-enabled').checked,
+                publishEnabled: document.getElementById('full-market-publish-enabled').checked,
+                itemsPerRotation: parseInt(document.getElementById('full-market-items-per-rotation').value) || null,
+                buffMultiplier: parseFloat(document.getElementById('full-market-buff-multiplier').value) || null,
+                nerfMultiplier: parseFloat(document.getElementById('full-market-nerf-multiplier').value) || null
+            };
+
+            const featuresConfig = {
+                autoModeration: document.getElementById('full-feature-auto-mod').checked,
+                welcomeMessages: document.getElementById('full-feature-welcome').checked,
+                goodbyeMessages: document.getElementById('full-feature-goodbye').checked,
+                leveling: document.getElementById('full-feature-leveling').checked,
+                economy: document.getElementById('full-feature-economy').checked,
+                welcomeChannelId: document.getElementById('full-welcome-channel').value.trim() || null
+            };
+
+            const logsConfig = {
+                enabled: document.getElementById('full-logs-enabled').checked,
+                logChannelId: document.getElementById('full-logs-channel').value.trim() || null,
+                logMessageDelete: document.getElementById('full-log-message-delete').checked,
+                logMessageEdit: document.getElementById('full-log-message-edit').checked,
+                logMemberJoin: document.getElementById('full-log-member-join').checked,
+                logMemberLeave: document.getElementById('full-log-member-leave').checked,
+                logRoleAdd: document.getElementById('full-log-role-add').checked,
+                logRoleRemove: document.getElementById('full-log-role-remove').checked,
+                logNicknameChange: document.getElementById('full-log-nickname-change').checked,
+                logVoiceJoin: document.getElementById('full-log-voice-join').checked,
+                logVoiceLeave: document.getElementById('full-log-voice-leave').checked,
+                logVoiceMove: document.getElementById('full-log-voice-move').checked,
+                logVoiceMute: document.getElementById('full-log-voice-mute').checked,
+                logVoiceDeafen: document.getElementById('full-log-voice-deafen').checked
+            };
+
+            const colorsConfig = {
+                primary: document.getElementById('full-color-primary').value,
+                success: document.getElementById('full-color-success').value,
+                error: document.getElementById('full-color-error').value,
+                warning: document.getElementById('full-color-warning').value
+            };
+
+            const messagesConfig = {
+                defaultReason: document.getElementById('full-message-default-reason').value,
+                noPermission: document.getElementById('full-message-no-permission').value,
+                errorOccurred: document.getElementById('full-message-error').value,
+                commandDisabled: document.getElementById('full-message-command-disabled').value
+            };
+
+            const limitsConfig = {
+                commandCooldown: document.getElementById('full-limit-command-cooldown').value || null,
+                giveawayCreateCooldown: document.getElementById('full-limit-giveaway-cooldown').value || null,
+                ticketCreateCooldown: document.getElementById('full-limit-ticket-cooldown').value || null
+            };
+
+            const advancedConfig = {
+                debugMode: document.getElementById('full-advanced-debug').checked,
+                logLevel: document.getElementById('full-advanced-log-level').value,
+                commandPrefix: document.getElementById('full-advanced-prefix').value,
+                maxMessageLength: parseInt(document.getElementById('full-advanced-max-message').value) || null,
+                maxEmbedLength: parseInt(document.getElementById('full-advanced-max-embed').value) || null
+            };
+
+            const levelingConfig = {
+                enabled: document.getElementById('full-leveling-enabled').checked,
+                cooldown: parseInt(document.getElementById('full-leveling-cooldown').value) || null,
+                xpPerMessage: {
+                    min: parseInt(document.getElementById('full-leveling-xp-min').value) || null,
+                    max: parseInt(document.getElementById('full-leveling-xp-max').value) || null
+                },
+                levelUpMessage: {
+                    enabled: document.getElementById('full-leveling-message-enabled').checked,
+                    channelId: document.getElementById('full-leveling-message-channel').value.trim() || null,
+                    message: document.getElementById('full-leveling-message-text').value || null
+                }
+            };
+
+            const welcomeConfig = {
+                welcomeMessages: document.getElementById('full-welcome-enabled').checked,
+                goodbyeMessages: document.getElementById('full-goodbye-enabled').checked,
+                welcomeChannelId: document.getElementById('full-welcome-channel').value.trim() || null,
+                welcomeSettings: {
+                    sendImage: document.getElementById('full-welcome-send-image').checked,
+                    message: document.getElementById('full-welcome-message').value || null,
+                    imageWidth: parseInt(document.getElementById('full-welcome-image-width').value) || null,
+                    imageHeight: parseInt(document.getElementById('full-welcome-image-height').value) || null,
+                    imageBackgroundColor: document.getElementById('full-welcome-image-bg-color').value || null,
+                    bannerColor: document.getElementById('full-welcome-banner-color').value || null,
+                    imageTextColor: document.getElementById('full-welcome-text-color').value || null,
+                    imageAvatarSize: parseInt(document.getElementById('full-welcome-avatar-size').value) || null,
+                    imageTitle: document.getElementById('full-welcome-image-title').value || null,
+                    imageSubtitle: document.getElementById('full-welcome-image-subtitle').value || null,
+                    thirdLineText: document.getElementById('full-welcome-third-line').value || null
+                }
+            };
+
+            const suggestionConfig = {
+                enabled: document.getElementById('full-suggestion-enabled').checked,
+                channelId: document.getElementById('full-suggestion-channel').value.trim() || null,
+                requireApproval: document.getElementById('full-suggestion-require-approval').checked,
+                allowAnonymous: document.getElementById('full-suggestion-allow-anonymous').checked,
+                emojis: {
+                    upvote: document.getElementById('full-suggestion-emoji-upvote').value || null,
+                    neutral: document.getElementById('full-suggestion-emoji-neutral').value || null,
+                    downvote: document.getElementById('full-suggestion-emoji-downvote').value || null
+                }
+            };
+
+            const databaseConfig = {
+                connectionPool: {
+                    connectionLimit: parseInt(document.getElementById('full-db-connection-limit').value) || null,
+                    queueLimit: parseInt(document.getElementById('full-db-queue-limit').value) || null,
+                    connectTimeout: parseInt(document.getElementById('full-db-connect-timeout').value) || null,
+                    idleTimeout: parseInt(document.getElementById('full-db-idle-timeout').value) || null,
+                    maxIdle: parseInt(document.getElementById('full-db-max-idle').value) || null,
+                    enableKeepAlive: document.getElementById('full-db-enable-keepalive').checked
+                },
+                query: {
+                    acquireTimeout: parseInt(document.getElementById('full-db-acquire-timeout').value) || null,
+                    retry: {
+                        maxRetries: parseInt(document.getElementById('full-db-retry-max').value) || null,
+                        initialDelay: parseInt(document.getElementById('full-db-retry-delay').value) || null,
+                        backoffMultiplier: parseFloat(document.getElementById('full-db-retry-backoff').value) || null
+                    }
+                }
+            };
+
+            const handlersConfig = {
+                antiSpam: {
+                    maxHistorySize: parseInt(document.getElementById('full-handler-antispam-max-history').value) || null,
+                    cleanupInterval: parseInt(document.getElementById('full-handler-antispam-cleanup-interval').value) || null,
+                    cleanupProbability: parseFloat(document.getElementById('full-handler-antispam-cleanup-probability').value) || null
+                },
+                antiLink: {
+                    enabled: document.getElementById('full-handler-antilink-enabled').checked,
+                    action: document.getElementById('full-handler-antilink-action').value || null,
+                    timeoutDuration: document.getElementById('full-handler-antilink-timeout-duration').value || null,
+                    allowedDomains: document.getElementById('full-handler-antilink-allowed-domains').value.split(',').map(d => d.trim()).filter(d => d),
+                    blockedDomains: document.getElementById('full-handler-antilink-blocked-domains').value.split(',').map(d => d.trim()).filter(d => d),
+                    exemptRoles: document.getElementById('full-handler-antilink-exempt-roles').value.split(',').map(r => r.trim()).filter(r => r),
+                    exemptChannels: document.getElementById('full-handler-antilink-exempt-channels').value.split(',').map(c => c.trim()).filter(c => c)
+                },
+                leveling: {
+                    maxCooldowns: parseInt(document.getElementById('full-handler-leveling-max-cooldowns').value) || null,
+                    cleanupInterval: parseInt(document.getElementById('full-handler-leveling-cleanup-interval').value) || null,
+                    cleanupProbability: parseFloat(document.getElementById('full-handler-leveling-cleanup-probability').value) || null
+                },
+                eventLog: {
+                    batchSize: parseInt(document.getElementById('full-handler-eventlog-batch-size').value) || null,
+                    batchDelay: parseInt(document.getElementById('full-handler-eventlog-batch-delay').value) || null,
+                    maxQueueSize: parseInt(document.getElementById('full-handler-eventlog-max-queue').value) || null
+                },
+                giveaway: {
+                    maxQueueSize: parseInt(document.getElementById('full-handler-giveaway-max-queue').value) || null,
+                    embedUpdateDebounce: parseInt(document.getElementById('full-handler-giveaway-debounce').value) || null
+                },
+                pvpTournament: {
+                    maxConcurrentTournaments: parseInt(document.getElementById('full-handler-pvp-max-concurrent').value) || null,
+                    bracketGenerationTimeout: parseInt(document.getElementById('full-handler-pvp-bracket-timeout').value) || null,
+                    matchNotificationTimeout: parseInt(document.getElementById('full-handler-pvp-notification-timeout').value) || null
+                }
+            };
+
+            const performanceConfig = {
+                cache: {
+                    defaultTTL: parseInt(document.getElementById('full-performance-cache-ttl').value) || null,
+                    cleanupInterval: parseInt(document.getElementById('full-performance-cache-cleanup-interval').value) || null,
+                    maxSize: parseInt(document.getElementById('full-performance-cache-max-size').value) || null,
+                    enableStats: document.getElementById('full-performance-cache-enable-stats').checked
+                },
+                memory: {
+                    enableCleanup: document.getElementById('full-performance-memory-enable-cleanup').checked,
+                    cleanupInterval: parseInt(document.getElementById('full-performance-memory-cleanup-interval').value) || null,
+                    maxMapSize: parseInt(document.getElementById('full-performance-memory-max-map-size').value) || null
+                },
+                botApi: {
+                    port: parseInt(document.getElementById('full-performance-botapi-port').value) || null,
+                    maxRequestSize: parseInt(document.getElementById('full-performance-botapi-max-request-size').value) || null,
+                    requestTimeout: parseInt(document.getElementById('full-performance-botapi-request-timeout').value) || null,
+                    enableCors: document.getElementById('full-performance-botapi-enable-cors').checked
+                }
+            };
+
+            const soundboardConfig = {
+                enabled: document.getElementById('full-soundboard-enabled').checked,
+                maxFileSize: parseInt(document.getElementById('full-soundboard-max-file-size').value) || null,
+                allowedFormats: document.getElementById('full-soundboard-allowed-formats').value.split(',').map(f => f.trim()).filter(f => f),
+                playDelay: parseInt(document.getElementById('full-soundboard-play-delay').value) || null,
+                maxConcurrentPlays: parseInt(document.getElementById('full-soundboard-max-concurrent').value) || null
+            };
+
+            const pvpTournamentsConfig = {
+                enabled: document.getElementById('full-pvp-tournaments-enabled').checked,
+                maxParticipants: parseInt(document.getElementById('full-pvp-tournaments-max-participants').value) || null,
+                minParticipants: parseInt(document.getElementById('full-pvp-tournaments-min-participants').value) || null,
+                registrationMinDuration: document.getElementById('full-pvp-tournaments-registration-min-duration').value || null,
+                registrationMaxDuration: document.getElementById('full-pvp-tournaments-registration-max-duration').value || null,
+                bracketUpdateInterval: parseInt(document.getElementById('full-pvp-tournaments-bracket-update-interval').value) || null
+            };
+
+            // Save all configs
+            await Promise.all([
+                window.api.put('/config/bot', botConfig),
+                window.api.put('/config/channels', channelsConfig),
+                window.api.put('/config/roles', rolesConfig),
+                window.api.put('/config/moderation', moderationConfig),
+                window.api.put('/config/giveaway', giveawayConfig),
+                window.api.put('/config/tickets', ticketsConfig),
+                window.api.put('/config/market', marketConfig),
+                window.api.put('/config/features', featuresConfig),
+                window.api.put('/config/eventLogs', logsConfig),
+                window.api.put('/config/colors', colorsConfig),
+                window.api.put('/config/messages', messagesConfig),
+                window.api.put('/config/limits', limitsConfig),
+                window.api.put('/config/advanced', advancedConfig),
+                window.api.put('/config/leveling', levelingConfig).catch(() => {}),
+                window.api.put('/config/welcome', welcomeConfig).catch(() => {}),
+                window.api.put('/config/suggestion', suggestionConfig).catch(() => {}),
+                window.api.put('/config/database', databaseConfig).catch(() => {}),
+                window.api.put('/config/handlers', handlersConfig).catch(() => {}),
+                window.api.put('/config/performance', performanceConfig).catch(() => {}),
+                window.api.put('/config/soundboard', soundboardConfig).catch(() => {}),
+                window.api.put('/config/pvpTournaments', pvpTournamentsConfig).catch(() => {})
+            ]);
+
+            window.toast.success('Configuration complète enregistrée avec succès!');
+        } catch (error) {
+            console.error('Save error:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.switchConfigTab = function(tabName, buttonElement) {
+        // Hide all tabs
+        document.querySelectorAll('.config-tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.config-tab').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        
+        // Activate the clicked button
+        if (buttonElement) {
+            buttonElement.classList.add('active');
+        } else {
+            // Fallback: find by data-tab attribute
+            const btn = document.querySelector(`.config-tab[data-tab="${tabName}"]`);
+            if (btn) btn.classList.add('active');
+        }
+    };
+
+    // Show welcome settings when welcome is enabled
+    document.getElementById('full-feature-welcome')?.addEventListener('change', function() {
+        document.getElementById('welcome-settings-card').style.display = this.checked ? 'block' : 'none';
+    });
+
+    window.initFullPage = function() {
+        loadFullConfig();
+        window.loadFullConfig = loadFullConfig;
+        window.saveFullConfig = saveFullConfig;
+    };
+})();
+</script>
+

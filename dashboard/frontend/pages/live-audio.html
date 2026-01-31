@@ -1,0 +1,525 @@
+<div class="live-audio-page">
+    <h2>🔊 Live Audio Stream</h2>
+    <p class="text-muted" style="margin-bottom: 1.5rem;">
+        Listen to any voice channel in real-time through your headset/headphones.<br>
+        <small><i class="fas fa-info-circle"></i> <strong>Important:</strong> Modern browsers require you to interact with the page (click anywhere) before audio can play. Make sure your speakers/headphones are connected and volume is up. The browser will NOT ask for permission - it will play audio directly.</small>
+    </p>
+
+    <div class="card" style="max-width: 600px;">
+        <h3>Voice Channel Selection</h3>
+        
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="live-audio-channel-select">Voice Channel</label>
+            <div class="custom-select">
+                <select id="live-audio-channel-select" class="form-control">
+                    <option value="">Loading channels...</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="live-audio-controls">
+            <button id="start-live-audio-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;">
+                <i class="fas fa-play"></i> Start Live Stream
+            </button>
+            <button id="stop-live-audio-btn" class="btn btn-danger" style="width: 100%;" disabled>
+                <i class="fas fa-stop"></i> Stop Live Stream
+            </button>
+        </div>
+
+        <div id="live-audio-status" class="status-message" style="margin-top: 1rem; display: none;"></div>
+        
+        <div id="audio-player-container" style="margin-top: 1rem; display: none;">
+            <div class="text-muted" style="margin-top: 0.5rem; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-info-circle"></i> Audio is streaming live. Make sure your headset/headphones are connected and volume is up.
+            </div>
+            <div id="audio-status" class="text-muted" style="font-size: 0.85rem;">
+                <i class="fas fa-circle" style="color: #57F287;"></i> Streaming...
+            </div>
+            <div id="audio-debug" style="margin-top: 0.5rem; font-size: 0.8rem; color: #888;">
+                <div>Bytes received: <span id="bytes-received">0</span></div>
+                <div>Buffers in queue: <span id="queue-size">0</span></div>
+                <div>Audio context: <span id="audio-context-state">-</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.live-audio-page {
+    padding: 1.5rem;
+}
+
+.status-message {
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.status-message.success {
+    background: rgba(87, 242, 135, 0.1);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.status-message.error {
+    background: rgba(237, 66, 69, 0.1);
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+.status-message.info {
+    background: rgba(88, 101, 242, 0.1);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+</style>
+
+<script>
+(async function() {
+    const api = window.api;
+    let audioContext = null;
+    let sourceNode = null;
+    let mediaSource = null;
+    let audioElement = null;
+
+    // Load voice channels
+    async function loadVoiceChannels() {
+        try {
+            const channels = await api.request('/voice/channels');
+            const select = document.getElementById('live-audio-channel-select');
+            
+            select.innerHTML = '<option value="">Select a voice channel...</option>';
+            
+            channels.forEach(channel => {
+                const option = document.createElement('option');
+                option.value = channel.id;
+                option.textContent = `${channel.name} (${channel.members} members)`;
+                select.appendChild(option);
+            });
+            
+            // Update custom selects after updating options
+            setTimeout(() => {
+                if (window.initCustomSelects) {
+                    window.initCustomSelects();
+                }
+            }, 100);
+        } catch (error) {
+            console.error('Failed to load voice channels:', error);
+            showStatus('live-audio-status', 'Failed to load voice channels', 'error');
+        }
+    }
+
+    // Start live audio stream
+    document.getElementById('start-live-audio-btn').onclick = async () => {
+        const channelId = document.getElementById('live-audio-channel-select').value;
+        
+        if (!channelId) {
+            showStatus('live-audio-status', 'Please select a voice channel', 'error');
+            return;
+        }
+        
+        try {
+            const btn = document.getElementById('start-live-audio-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+            
+            showStatus('live-audio-status', 'Connecting to voice channel...', 'info');
+            
+            // Start the stream on the server
+            const result = await api.request('/voice/live-audio/start', {
+                method: 'POST',
+                body: { channelId }
+            });
+            
+            console.log('Live audio start result:', result);
+            
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to start stream');
+            }
+            
+            showStatus('live-audio-status', 'Bot joined channel, starting audio stream...', 'info');
+            
+            // Wait a moment for stream to initialize
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Start receiving the audio stream
+            try {
+                document.getElementById('audio-player-container').style.display = 'block';
+                document.getElementById('audio-status').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting to audio stream...';
+                
+                // Small delay to ensure stream is ready
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Start audio stream - this will initialize the audio context
+                await startAudioStream();
+                
+                // Ensure audio context is running (required for autoplay policies)
+                if (audioContext && audioContext.state === 'suspended') {
+                    console.log('Audio context suspended, attempting to resume...');
+                    await audioContext.resume();
+                    console.log('Audio context state after resume:', audioContext.state);
+                }
+                
+                document.getElementById('start-live-audio-btn').disabled = true;
+                document.getElementById('stop-live-audio-btn').disabled = false;
+                document.getElementById('audio-status').innerHTML = '<i class="fas fa-circle" style="color: #57F287;"></i> Streaming live audio... (Make sure someone is speaking in the channel)';
+                showStatus('live-audio-status', 'Live audio stream started! Listening... (Audio will play when someone speaks)', 'success');
+            } catch (streamError) {
+                console.error('Failed to start audio stream:', streamError);
+                document.getElementById('audio-player-container').style.display = 'none';
+                showStatus('live-audio-status', `Stream started but audio playback failed: ${streamError.message}. Check browser console for details.`, 'error');
+                // Try to stop the server stream
+                try {
+                    await api.request('/voice/live-audio/stop', { method: 'POST' });
+                } catch (e) {
+                    console.error('Failed to stop stream after error:', e);
+                }
+                throw streamError;
+            }
+        } catch (error) {
+            console.error('Failed to start live audio:', error);
+            showStatus('live-audio-status', `Failed to start stream: ${error.message || error}`, 'error');
+            const btn = document.getElementById('start-live-audio-btn');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Start Live Stream';
+        }
+    };
+
+    // Stop live audio stream
+    document.getElementById('stop-live-audio-btn').onclick = async () => {
+        try {
+            const btn = document.getElementById('stop-live-audio-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Stopping...';
+            
+            // Stop audio playback
+            stopAudioStream();
+            
+            // Stop the stream on the server
+            await api.request('/voice/live-audio/stop', {
+                method: 'POST'
+            });
+            
+            document.getElementById('start-live-audio-btn').disabled = false;
+            document.getElementById('stop-live-audio-btn').disabled = true;
+            document.getElementById('audio-player-container').style.display = 'none';
+            
+            showStatus('live-audio-status', 'Live audio stream stopped', 'info');
+        } catch (error) {
+            console.error('Failed to stop live audio:', error);
+            showStatus('live-audio-status', `Failed to stop stream: ${error.message}`, 'error');
+        } finally {
+            const btn = document.getElementById('stop-live-audio-btn');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-stop"></i> Stop Live Stream';
+        }
+    };
+
+    // Start audio stream using Web Audio API
+    async function startAudioStream() {
+        // Declare all variables at the start of the function to avoid scope issues
+        let bytesReceived = 0;
+        let totalSamplesProcessed = 0;
+        let updateDebugInfo = null;
+        
+        try {
+            // Initialize Web Audio API
+            audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                sampleRate: 48000 // Match Discord's sample rate
+            });
+            
+            // Resume audio context if suspended (required for autoplay policies)
+            // Modern browsers require user interaction before audio can play
+            if (audioContext.state === 'suspended') {
+                console.log('Audio context is suspended, resuming...');
+                try {
+                    await audioContext.resume();
+                    console.log('Audio context resumed successfully, state:', audioContext.state);
+                } catch (error) {
+                    console.error('Failed to resume audio context:', error);
+                    throw new Error('Browser blocked audio playback. Please interact with the page first (click anywhere) and try again.');
+                }
+            } else {
+                console.log('Audio context state:', audioContext.state);
+            }
+            
+            // Verify audio context is running
+            if (audioContext.state !== 'running') {
+                console.warn('Audio context is not running! State:', audioContext.state);
+                showStatus('live-audio-status', 'Warning: Audio context is not active. Try clicking on the page first.', 'error');
+            }
+            
+            // Update audio context state display
+            updateDebugInfo = () => {
+                const bytesEl = document.getElementById('bytes-received');
+                const queueEl = document.getElementById('queue-size');
+                const stateEl = document.getElementById('audio-context-state');
+                if (bytesEl) bytesEl.textContent = bytesReceived || 0;
+                if (queueEl) queueEl.textContent = samplesInBuffer || 0;
+                if (stateEl) stateEl.textContent = audioContext ? audioContext.state : 'not initialized';
+            };
+            
+            // Update debug info periodically
+            window.debugInterval = setInterval(updateDebugInfo, 500);
+            
+            // Use ScriptProcessorNode for real-time audio streaming (lower latency)
+            const bufferSize = 4096; // Smaller buffer for lower latency
+            const processor = audioContext.createScriptProcessor(bufferSize, 0, 2);
+            
+            // Audio buffer for real-time processing
+            let audioBuffer = new Float32Array(bufferSize * 2); // Stereo buffer
+            let bufferWriteIndex = 0;
+            let bufferReadIndex = 0;
+            let samplesInBuffer = 0;
+            
+            // Process audio in real-time
+            processor.onaudioprocess = (e) => {
+                const outputL = e.outputBuffer.getChannelData(0);
+                const outputR = e.outputBuffer.getChannelData(1);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    if (samplesInBuffer > 0) {
+                        // Read from buffer
+                        outputL[i] = audioBuffer[bufferReadIndex * 2];
+                        outputR[i] = audioBuffer[bufferReadIndex * 2 + 1];
+                        
+                        bufferReadIndex = (bufferReadIndex + 1) % (audioBuffer.length / 2);
+                        samplesInBuffer--;
+                    } else {
+                        // No data available, output silence
+                        outputL[i] = 0;
+                        outputR[i] = 0;
+                    }
+                }
+            };
+            
+            processor.connect(audioContext.destination);
+            sourceNode = processor;
+            
+            // Function to add audio data to the real-time buffer
+            const addAudioToBuffer = (leftChannel, rightChannel) => {
+                for (let i = 0; i < leftChannel.length; i++) {
+                    if (samplesInBuffer < audioBuffer.length / 2) {
+                        audioBuffer[bufferWriteIndex * 2] = leftChannel[i];
+                        audioBuffer[bufferWriteIndex * 2 + 1] = rightChannel[i];
+                        bufferWriteIndex = (bufferWriteIndex + 1) % (audioBuffer.length / 2);
+                        samplesInBuffer++;
+                    } else {
+                        // Buffer full, drop samples (shouldn't happen with proper flow)
+                        console.warn('Audio buffer overflow, dropping samples');
+                        break;
+                    }
+                }
+            };
+            
+            // Fetch the audio stream
+            console.log('Fetching audio stream from /api/voice/live-audio/stream');
+            const response = await fetch('/api/voice/live-audio/stream', {
+                credentials: 'include'
+            });
+            
+            console.log('Stream response status:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Stream response error:', errorText);
+                throw new Error(`Failed to connect to audio stream: ${response.status} ${response.statusText}`);
+            }
+            
+            console.log('Audio stream connected, starting to read data...');
+            
+            const reader = response.body.getReader();
+            let accumulatedData = new Uint8Array(0);
+            
+            // Read and convert PCM chunks
+            let bytesReceived = 0;
+            const processStream = async () => {
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) {
+                            console.log('Audio stream ended');
+                            break;
+                        }
+                        
+                        bytesReceived += value.length;
+                        updateDebugInfo();
+                        
+                        if (bytesReceived % 10000 === 0) {
+                            console.log(`Received ${bytesReceived} bytes of audio data`);
+                            document.getElementById('audio-status').innerHTML = `<i class="fas fa-circle" style="color: #57F287;"></i> Streaming... (${Math.round(bytesReceived / 1000)}KB received)`;
+                        }
+                        
+                        // Accumulate data
+                        const newData = new Uint8Array(accumulatedData.length + value.length);
+                        newData.set(accumulatedData);
+                        newData.set(value, accumulatedData.length);
+                        accumulatedData = newData;
+                        
+                        // Process in smaller chunks for lower latency (10ms chunks = 960 samples = 3840 bytes)
+                        // This gives us ~100 chunks per second for smoother playback
+                        const chunkSize = 3840; // 10ms at 48kHz stereo (960 samples * 4 bytes)
+                        
+                        while (accumulatedData.length >= chunkSize) {
+                            const chunk = accumulatedData.slice(0, chunkSize);
+                            accumulatedData = accumulatedData.slice(chunkSize);
+                            
+                            try {
+                                // Discord's receiver provides 16-bit signed little-endian PCM
+                                // Format: Interleaved stereo (L, R, L, R, ...)
+                                // Each sample is 2 bytes, so chunkSize bytes = chunkSize/4 stereo sample pairs
+                                const sampleCount = chunk.byteLength / 4; // 4 bytes per stereo sample pair
+                                
+                                const leftChannel = new Float32Array(sampleCount);
+                                const rightChannel = new Float32Array(sampleCount);
+                                
+                                // Read as little-endian 16-bit integers
+                                const dataView = new DataView(chunk.buffer, chunk.byteOffset, chunk.byteLength);
+                                
+                                for (let i = 0; i < sampleCount; i++) {
+                                    // Read interleaved stereo samples (little-endian)
+                                    const leftSample = dataView.getInt16(i * 4, true);     // L channel
+                                    const rightSample = dataView.getInt16(i * 4 + 2, true); // R channel
+                                    
+                                    // Convert from 16-bit signed integer (-32768 to 32767) to float (-1.0 to 1.0)
+                                    leftChannel[i] = Math.max(-1, Math.min(1, leftSample / 32768.0));
+                                    rightChannel[i] = Math.max(-1, Math.min(1, rightSample / 32768.0));
+                                }
+                                
+                                // Verify we have valid audio data (not all zeros)
+                                let maxAmplitude = 0;
+                                for (let i = 0; i < sampleCount; i++) {
+                                    maxAmplitude = Math.max(maxAmplitude, Math.abs(leftChannel[i]), Math.abs(rightChannel[i]));
+                                }
+                                
+                                if (maxAmplitude < 0.001) {
+                                    // Silent chunk, skip to avoid processing overhead
+                                    continue;
+                                }
+                                
+                                // Add directly to real-time audio buffer (no queue, immediate playback)
+                                addAudioToBuffer(leftChannel, rightChannel);
+                                totalSamplesProcessed += sampleCount;
+                                
+                                // Log periodically
+                                if (totalSamplesProcessed % 48000 === 0) {
+                                    console.log(`Processed ${totalSamplesProcessed / 48000} seconds of audio, buffer: ${samplesInBuffer} samples, max amplitude: ${maxAmplitude.toFixed(3)}`);
+                                }
+                            } catch (error) {
+                                console.error('Error processing audio chunk:', error);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error reading audio stream:', error);
+                    document.getElementById('audio-status').innerHTML = '<i class="fas fa-exclamation-circle" style="color: #ED4245;"></i> Stream error: ' + error.message;
+                    stopAudioStream();
+                }
+            };
+            
+            processStream();
+            
+        } catch (error) {
+            console.error('Failed to start audio stream:', error);
+            throw error;
+        }
+    }
+
+    // Stop audio stream
+    function stopAudioStream() {
+        // Clear any debug intervals
+        if (window.debugInterval) {
+            clearInterval(window.debugInterval);
+            window.debugInterval = null;
+        }
+        
+        if (sourceNode) {
+            try {
+                if (sourceNode.disconnect) {
+                    sourceNode.disconnect();
+                } else if (sourceNode.stop) {
+                    sourceNode.stop();
+                }
+            } catch (error) {
+                // Ignore errors
+            }
+            sourceNode = null;
+        }
+        
+        if (audioContext) {
+            audioContext.close().catch(() => {});
+            audioContext = null;
+        }
+        
+        if (audioElement) {
+            audioElement.pause();
+            audioElement.src = '';
+            audioElement = null;
+        }
+    }
+
+    // Check live audio status on load
+    async function checkLiveAudioStatus() {
+        try {
+            const status = await api.request('/voice/live-audio/status');
+            if (status.isStreaming) {
+                document.getElementById('start-live-audio-btn').disabled = true;
+                document.getElementById('stop-live-audio-btn').disabled = false;
+                document.getElementById('audio-player-container').style.display = 'block';
+                await startAudioStream();
+            }
+        } catch (error) {
+            console.error('Failed to check live audio status:', error);
+        }
+    }
+
+    // Helper function
+    function showStatus(elementId, message, type) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = `status-message ${type}`;
+        element.style.display = 'block';
+        
+        if (type !== 'error') {
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Initialize
+    await loadVoiceChannels();
+    await checkLiveAudioStatus();
+    
+    // Initialize custom selects
+    setTimeout(() => {
+        if (window.initCustomSelects) window.initCustomSelects();
+    }, 200);
+    
+    // Add click handler to enable audio (required for autoplay policies)
+    let audioEnabled = false;
+    const enableAudio = async () => {
+        if (audioEnabled) return;
+        
+        // Create a dummy audio context to "unlock" audio
+        const dummyContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (dummyContext.state === 'suspended') {
+            await dummyContext.resume();
+        }
+        dummyContext.close();
+        audioEnabled = true;
+        console.log('Audio enabled via user interaction');
+    };
+    
+    // Enable audio on any user interaction
+    document.addEventListener('click', enableAudio, { once: true });
+    document.addEventListener('touchstart', enableAudio, { once: true });
+    document.addEventListener('keydown', enableAudio, { once: true });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        stopAudioStream();
+    });
+})();
+</script>
+

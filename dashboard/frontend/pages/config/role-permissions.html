@@ -1,0 +1,150 @@
+<div class="config-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Permissions Basées sur les Rangs</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="window.loadRolePermissionsConfig()"><i class="fas fa-undo"></i> Réinitialiser</button>
+            <button class="btn btn-primary" onclick="window.saveRolePermissionsConfig()"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Configuration des Permissions</h3>
+        <p class="text-muted mb-1">Définissez le rôle minimum requis pour chaque commande. Les utilisateurs ayant ce rôle ou un rôle supérieur pourront utiliser la commande.</p>
+        
+        <div id="role-permissions-list" class="mt-1">
+            <!-- Les permissions seront chargées ici -->
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let configData = {};
+    let rolesCache = null;
+
+    async function loadRoles() {
+        if (rolesCache) return rolesCache;
+        try {
+            // Get guild ID from session
+            const userData = await window.api.get('/auth/me');
+            const guildId = userData.selectedGuildId;
+            
+            if (!guildId) {
+                window.toast.error('Aucun serveur sélectionné');
+                return [];
+            }
+            
+            const response = await window.api.get(`/api/servers/roles`);
+            // Response is an array of roles directly
+            rolesCache = Array.isArray(response) ? response : (response.roles || []);
+            return rolesCache;
+        } catch (error) {
+            console.error('Failed to load roles:', error);
+            window.toast.error('Erreur lors du chargement des rôles: ' + (error.message || 'Erreur inconnue'));
+            return [];
+        }
+    }
+
+    async function loadConfig() {
+        try {
+            configData = await window.api.get('/config/rolePermissions');
+            if (!configData || typeof configData !== 'object') {
+                configData = {};
+            }
+
+            const roles = await loadRoles();
+            
+            const container = document.getElementById('role-permissions-list');
+            
+            // Show error message if no roles loaded
+            if (roles.length === 0) {
+                container.innerHTML = '<div class="card"><p class="text-muted" style="padding: 1rem;">Aucun rôle trouvé. Veuillez vérifier que le bot a accès au serveur.</p></div>';
+                return;
+            }
+            const commandsList = [
+                { key: 'role', label: '/role - Gestion des rôles', icon: 'fas fa-user-tag' },
+                { key: 'mod', label: '/mod - Modération', icon: 'fas fa-shield-alt' },
+                { key: 'ticket', label: '/ticket - Tickets', icon: 'fas fa-ticket-alt' },
+                { key: 'giveaway', label: '/giveaway - Concours', icon: 'fas fa-gift' },
+                { key: 'config', label: '/config - Configuration', icon: 'fas fa-cog' },
+                { key: 'restart', label: '/restart - Redémarrage', icon: 'fas fa-power-off' }
+            ];
+
+            const container = document.getElementById('role-permissions-list');
+            container.innerHTML = commandsList.map(cmd => {
+                const currentRoleId = configData[cmd.key] || '';
+                // Ensure role.id is compared as string
+                const selectedRole = roles.find(r => String(r.id) === String(currentRoleId));
+                const roleOptions = roles
+                    .filter(role => role.name !== '@everyone') // Filter out @everyone role
+                    .sort((a, b) => (b.position || 0) - (a.position || 0)) // Sort by position descending
+                    .map(role => 
+                        `<option value="${role.id}" ${String(role.id) === String(currentRoleId) ? 'selected' : ''}>${role.name}</option>`
+                    ).join('');
+
+                return `
+                    <div class="flex align-center justify-between p-1 card" style="background: var(--surface); margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="${cmd.icon}"></i>
+                                <span>${cmd.label}</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                ${currentRoleId && selectedRole ? `Rôle requis: <strong>${selectedRole.name}</strong>` : 'Aucun rôle requis (visible pour tous avec les permissions Discord appropriées)'}
+                            </div>
+                        </div>
+                        <div style="min-width: 250px;">
+                            <div class="custom-select">
+                                <select class="form-control role-permission-select" data-command="${cmd.key}" style="width: 100%;">
+                                    <option value="">Aucun (désactivé)</option>
+                                    ${roleOptions}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (error) {
+            console.error('Failed to load role permissions config:', error);
+            window.toast.error('Erreur lors du chargement');
+        }
+    }
+
+    async function saveConfig() {
+        // Merge UI values with existing config to preserve keys not shown in UI
+        const newConfig = { ...configData };
+        document.querySelectorAll('.role-permission-select').forEach(select => {
+            const commandKey = select.dataset.command;
+            const roleId = select.value;
+            if (roleId) {
+                newConfig[commandKey] = roleId;
+            } else {
+                // Remove key if no role selected
+                delete newConfig[commandKey];
+            }
+        });
+
+        try {
+            await window.api.put('/config/rolePermissions', newConfig);
+            configData = newConfig;
+            rolesCache = null; // Clear cache to reload roles next time
+            window.toast.success('Configuration des permissions enregistrée');
+            await loadConfig(); // Reload to show updated role names
+        } catch (error) {
+            console.error('Failed to save role permissions config:', error);
+            window.toast.error('Erreur lors de l\'enregistrement');
+        }
+    }
+
+    window.initRolePermissionsPage = function() {
+        loadConfig();
+        window.loadRolePermissionsConfig = loadConfig;
+        window.saveRolePermissionsConfig = saveConfig;
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 200);
+    };
+})();
+</script>
+

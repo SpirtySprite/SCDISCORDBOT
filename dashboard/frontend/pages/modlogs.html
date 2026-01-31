@@ -1,0 +1,369 @@
+<div class="modlogs-page">
+    <div class="flex justify-between align-center mb-1">
+        <h2>Modération Logs</h2>
+        <div class="flex gap-1">
+            <button class="btn btn-secondary" onclick="exportLogs('csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
+            <button class="btn btn-secondary" onclick="exportLogs('json')"><i class="fas fa-file-code"></i> Export JSON</button>
+            <button class="btn btn-primary" onclick="loadModLogs()"><i class="fas fa-sync"></i> Actualiser</button>
+        </div>
+    </div>
+
+    
+    <div class="grid-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="card stat-card">
+            <div class="stat-label">Total Logs</div>
+            <div id="stat-total" class="stat-value">-</div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-label">Bans</div>
+            <div id="stat-bans" class="stat-value">-</div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-label">Warnings</div>
+            <div id="stat-warnings" class="stat-value">-</div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-label">Timeouts</div>
+            <div id="stat-timeouts" class="stat-value">-</div>
+        </div>
+    </div>
+
+    
+    <div class="card mb-1">
+        <h3>Filtres</h3>
+        <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div class="form-group">
+                <label>Recherche</label>
+                <input type="text" id="filter-search" class="form-control" placeholder="User ID, Moderator, Reason...">
+            </div>
+            <div class="form-group">
+                <label>Action</label>
+                <div class="custom-select">
+                    <select id="filter-action" class="form-control">
+                        <option value="">Toutes</option>
+                        <option value="ban">Ban</option>
+                        <option value="kick">Kick</option>
+                        <option value="mute">Mute</option>
+                        <option value="timeout">Timeout</option>
+                        <option value="warn">Warn</option>
+                        <option value="unban">Unban</option>
+                        <option value="unmute">Unmute</option>
+                        <option value="untimeout">Untimeout</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>User ID</label>
+                <input type="text" id="filter-user" class="form-control" placeholder="User ID">
+            </div>
+            <div class="form-group">
+                <label>Moderator ID</label>
+                <input type="text" id="filter-moderator" class="form-control" placeholder="Moderator ID">
+            </div>
+            <div class="form-group">
+                <label>Date From</label>
+                <input type="date" id="filter-date-from" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Date To</label>
+                <input type="date" id="filter-date-to" class="form-control">
+            </div>
+        </div>
+        <div class="flex gap-1 mt-1">
+            <button class="btn btn-primary" onclick="applyFilters()"><i class="fas fa-filter"></i> Appliquer</button>
+            <button class="btn btn-secondary" onclick="clearFilters()"><i class="fas fa-times"></i> Réinitialiser</button>
+        </div>
+    </div>
+
+    
+    <div class="card">
+        <div class="flex justify-between align-center mb-1">
+            <h3>Logs</h3>
+            <div id="pagination-info" class="text-muted"></div>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="data-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Case ID</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Moderator</th>
+                        <th>Reason</th>
+                        <th>Duration</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logs-table-body">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner fa-spin"></i> Chargement...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="flex justify-between align-center mt-1" id="pagination-controls">
+            
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let currentPage = 1;
+    let totalPages = 1;
+    let currentFilters = {};
+
+    async function loadModLogs(page = 1) {
+        try {
+            currentPage = page;
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: 50,
+                ...currentFilters
+            });
+
+            const data = await window.api.get(`/modlogs?${params.toString()}`);
+            
+            renderLogs(data.logs);
+            updatePagination(data.pagination);
+        } catch (error) {
+            console.error('Failed to load mod logs:', error);
+            window.toast?.error('Erreur lors du chargement des logs');
+            document.getElementById('logs-table-body').innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 2rem; color: var(--error);">
+                        Erreur lors du chargement des logs
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    async function loadStats() {
+        try {
+            const stats = await window.api.get('/modlogs/stats');
+            
+            document.getElementById('stat-total').textContent = stats.total || 0;
+            document.getElementById('stat-bans').textContent = stats.byAction?.ban || 0;
+            document.getElementById('stat-warnings').textContent = stats.byAction?.warn || 0;
+            document.getElementById('stat-timeouts').textContent = stats.byAction?.timeout || 0;
+        } catch (error) {
+            console.error('Failed to load stats:', error);
+        }
+    }
+
+    function renderLogs(logs) {
+        const tbody = document.getElementById('logs-table-body');
+        
+        if (logs.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        Aucun log trouvé
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const actionColors = {
+            ban: '#ED4245',
+            kick: '#FEE75C',
+            mute: '#5865F2',
+            timeout: '#FEE75C',
+            warn: '#FEE75C',
+            unban: '#57F287',
+            unmute: '#57F287',
+            untimeout: '#57F287'
+        };
+
+        const actionLabels = {
+            ban: 'Ban',
+            kick: 'Kick',
+            mute: 'Mute',
+            timeout: 'Timeout',
+            warn: 'Warn',
+            unban: 'Unban',
+            unmute: 'Unmute',
+            untimeout: 'Untimeout'
+        };
+
+        tbody.innerHTML = logs.map(log => {
+            const date = new Date(log.created_at);
+            const duration = log.duration ? formatDuration(log.duration) : '-';
+            const actionColor = actionColors[log.action] || '#5865F2';
+            
+            return `
+                <tr>
+                    <td>#${log.id}</td>
+                    <td>
+                        <div class="flex align-center gap-1">
+                            <span>${log.user_id}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="padding: 0.25rem 0.5rem; border-radius: 4px; background: ${actionColor}20; color: ${actionColor}; font-weight: 600; font-size: 0.85rem;">
+                            ${actionLabels[log.action] || log.action}
+                        </span>
+                    </td>
+                    <td>${log.moderator_id}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${log.reason || 'Aucune raison'}">
+                        ${log.reason || '<span style="color: var(--text-muted);">Aucune raison</span>'}
+                    </td>
+                    <td>${duration}</td>
+                    <td>${date.toLocaleString('fr-FR')}</td>
+                    <td>
+                        <div class="flex gap-1">
+                            <button class="btn btn-sm btn-secondary" onclick="viewLog(${log.id}, '${log.user_id}')" title="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteLog(${log.id}, '${log.user_id}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function formatDuration(seconds) {
+        if (!seconds) return '-';
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        
+        if (days > 0) return `${days}j ${hours}h`;
+        if (hours > 0) return `${hours}h ${minutes}m`;
+        return `${minutes}m`;
+    }
+
+    function updatePagination(pagination) {
+        totalPages = pagination.totalPages;
+        const controls = document.getElementById('pagination-controls');
+        const info = document.getElementById('pagination-info');
+        
+        info.textContent = `Page ${pagination.page} sur ${pagination.totalPages} (${pagination.total} total)`;
+        
+        controls.innerHTML = `
+            <button class="btn btn-secondary" ${currentPage === 1 ? 'disabled' : ''} onclick="loadModLogs(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i> Précédent
+            </button>
+            <span style="color: var(--text-muted);">Page ${currentPage} / ${totalPages}</span>
+            <button class="btn btn-secondary" ${currentPage >= totalPages ? 'disabled' : ''} onclick="loadModLogs(${currentPage + 1})">
+                Suivant <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+    }
+
+    function applyFilters() {
+        currentFilters = {};
+        
+        const search = document.getElementById('filter-search').value.trim();
+        if (search) currentFilters.search = search;
+        
+        const action = document.getElementById('filter-action').value;
+        if (action) currentFilters.action = action;
+        
+        const userId = document.getElementById('filter-user').value.trim();
+        if (userId) currentFilters.userId = userId;
+        
+        const moderatorId = document.getElementById('filter-moderator').value.trim();
+        if (moderatorId) currentFilters.moderatorId = moderatorId;
+        
+        const dateFrom = document.getElementById('filter-date-from').value;
+        if (dateFrom) currentFilters.dateFrom = dateFrom;
+        
+        const dateTo = document.getElementById('filter-date-to').value;
+        if (dateTo) currentFilters.dateTo = dateTo;
+        
+        loadModLogs(1);
+    }
+
+    function clearFilters() {
+        document.getElementById('filter-search').value = '';
+        document.getElementById('filter-action').value = '';
+        document.getElementById('filter-user').value = '';
+        document.getElementById('filter-moderator').value = '';
+        document.getElementById('filter-date-from').value = '';
+        document.getElementById('filter-date-to').value = '';
+        currentFilters = {};
+        loadModLogs(1);
+    }
+
+    async function exportLogs(format) {
+        try {
+            const params = new URLSearchParams({ format, ...currentFilters });
+            const url = `/api/modlogs/export?${params.toString()}`;
+            window.open(url, '_blank');
+            window.toast?.success(`Export ${format.toUpperCase()} démarré`);
+        } catch (error) {
+            console.error('Failed to export logs:', error);
+            window.toast?.error('Erreur lors de l\'export');
+        }
+    }
+
+    async function viewLog(logId, userId) {
+        try {
+            const log = await window.api.get(`/modlogs/${logId}?userId=${userId}`);
+            const date = new Date(log.created_at);
+            
+            window.modal?.show({
+                title: `Case #${log.id}`,
+                content: `
+                    <div style="line-height: 1.8;">
+                        <div><strong>User ID:</strong> ${log.user_id}</div>
+                        <div><strong>Moderator ID:</strong> ${log.moderator_id}</div>
+                        <div><strong>Action:</strong> ${log.action}</div>
+                        <div><strong>Reason:</strong> ${log.reason || 'Aucune raison'}</div>
+                        <div><strong>Duration:</strong> ${log.duration ? formatDuration(log.duration) : 'N/A'}</div>
+                        <div><strong>Date:</strong> ${date.toLocaleString('fr-FR')}</div>
+                    </div>
+                `,
+                buttons: [
+                    { text: 'Fermer', class: 'btn-secondary', onclick: 'window.modal.hide()' }
+                ]
+            });
+        } catch (error) {
+            console.error('Failed to view log:', error);
+            window.toast?.error('Erreur lors du chargement du log');
+        }
+    }
+
+    async function deleteLog(logId, userId) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce log ?')) {
+            return;
+        }
+
+        try {
+            await window.api.delete(`/modlogs/${logId}?userId=${userId}`);
+            window.toast?.success('Log supprimé');
+            loadModLogs(currentPage);
+            loadStats();
+        } catch (error) {
+            console.error('Failed to delete log:', error);
+            window.toast?.error('Erreur lors de la suppression');
+        }
+    }
+
+    // Make functions global
+    window.loadModLogs = loadModLogs;
+    window.applyFilters = applyFilters;
+    window.clearFilters = clearFilters;
+    window.exportLogs = exportLogs;
+    window.viewLog = viewLog;
+    window.deleteLog = deleteLog;
+
+    window.initModlogsPage = function() {
+        loadStats();
+        loadModLogs(1);
+        setTimeout(() => {
+            if (window.initCustomSelects) window.initCustomSelects();
+        }, 100);
+    };
+})();
+</script>
+

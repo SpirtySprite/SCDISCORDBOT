@@ -1,0 +1,104 @@
+{
+  "lastUpdated": "2026-01-11",
+  "buffed": [
+    {
+      "item": "CAKE",
+      "quantity": 16,
+      "price": 21,
+      "type": "GOLD_INGOT"
+    },
+    {
+      "item": "CARROT",
+      "quantity": 16,
+      "price": 3,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "CHORUS_FRUIT",
+      "quantity": 32,
+      "price": 1,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "ROSE_BUSH",
+      "quantity": 64,
+      "price": 4,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "RABBIT_HIDE",
+      "quantity": 32,
+      "price": 9,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "COOKED_PORKCHOP",
+      "quantity": 64,
+      "price": 5,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "DARK_OAK_SAPLING",
+      "quantity": 16,
+      "price": 1,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "BROWN_MUSHROOM_BLOCK",
+      "quantity": 8,
+      "price": 7,
+      "type": "IRON_NUGGET"
+    }
+  ],
+  "nerfed": [],
+  "reset": [
+    {
+      "item": "SWEET_BERRIES",
+      "quantity": 16,
+      "price": 8,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "PINK_PETALS",
+      "quantity": 64,
+      "price": 7,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "MANGROVE_LOG",
+      "quantity": 16,
+      "price": 21,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "GUNPOWDER",
+      "quantity": 32,
+      "price": 8,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "RED_MUSHROOM_BLOCK",
+      "quantity": 8,
+      "price": 7,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "SPONGE",
+      "quantity": 4,
+      "price": 7,
+      "type": "GOLD_NUGGET"
+    },
+    {
+      "item": "YELLOW_WOOL",
+      "quantity": 16,
+      "price": 36,
+      "type": "IRON_NUGGET"
+    },
+    {
+      "item": "COOKED_MUTTON",
+      "quantity": 64,
+      "price": 7,
+      "type": "GOLD_NUGGET"
+    }
+  ]
+}
